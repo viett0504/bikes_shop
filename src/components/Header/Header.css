@@ -1,0 +1,222 @@
+/* ===== HEADER CHUNG ===== */
+header {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  position: absolute;
+  top: 0;
+  z-index: 1000;
+}
+
+/* ===== HÀNG TRÊN ===== */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 50px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.logo img {
+  width: 35px;
+  height: 35px;
+}
+
+/* ===== THANH TÌM KIẾM ===== */
+.search-bar {
+  flex: 1;
+  max-width: 450px;
+  margin: 0 60px;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 25px;
+  padding: 6px 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.search-bar input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  color: #333;
+}
+
+/* ===== USER ACTIONS ===== */
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.login-btn {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  background: rgba(255,255,255,0.2);
+  padding: 6px 14px;
+  border-radius: 20px;
+  transition: background 0.3s;
+}
+
+.login-btn:hover {
+  background: rgba(255,255,255,0.35);
+}
+
+/* ===== GIỎ HÀNG ===== */
+.cart-icon {
+  position: relative;
+  font-size: 22px;
+  color: white;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.cart-icon:hover {
+  transform: scale(1.15);
+}
+
+.cart-count {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+/* ===== HÀNG DƯỚI (NAV MENU) ===== */
+.bottom-nav {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(6px);
+  position: relative;
+}
+
+.bottom-nav ul {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+  list-style: none;
+  margin: 0;
+  padding: 10px 0;
+}
+
+.bottom-nav a {
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 17px;
+  transition: color 0.2s ease;
+}
+
+.bottom-nav a:hover {
+  color: #ffeb3b;
+}
+
+.bottom-nav .center a {
+  font-size: 18px;
+
+  color: white;
+}
+.bottom-nav .center a:hover {
+  color: #ffeb3b;
+}
+/* ===== TRẠNG THÁI ACTIVE (TRANG HIỆN TẠI) ===== */
+.bottom-nav a.active,
+.dropdown.active > .drop-btn {
+  color: #ffeb3b !important;
+  font-weight: 700;
+  position: relative;
+}
+
+/* Gạch chân nhẹ nhàng */
+.bottom-nav a.active::after,
+.dropdown.active > .drop-btn::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 3px;
+  background: #ffeb3b;
+  border-radius: 2px;
+}
+
+/* Khi hover vẫn giữ active */
+.bottom-nav a.active:hover,
+.dropdown.active > .drop-btn:hover {
+  color: #fff !important;
+}
+/* ===== DROPDOWN ===== */
+.dropdown {
+  position: relative;
+}
+
+.mega-menu {
+  position: fixed; /* ✅ dùng fixed thay vì absolute để bám theo màn hình */
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  color: black;
+  width: 90vw; /* chiếm 90% chiều rộng màn hình */
+  max-width: 1200px;
+  padding: 25px 40px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 25px;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -10px);
+  transition: all 0.25s ease;
+  z-index: 999;
+}
+
+.dropdown:hover .mega-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+
+/* Cột trong menu */
+.mega-menu .column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mega-menu h4 {
+  font-size: 15px;
+  font-weight: bold;
+  color: #000 !important;
+  margin-bottom: 10px;
+}
+
+.mega-menu a {
+  text-decoration: none;
+  color: #444 !important;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.mega-menu a:hover {
+  color: #007bff !important;
+}
