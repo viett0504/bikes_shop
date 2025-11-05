@@ -43,7 +43,6 @@ const ProductPage = () => {
     <div className="product-page-container">
       <div className="product-content-wrapper">
         {/* Sidebar */}
-        <aside className= "sidebar" >
           <div className="filter-box">
             <h2 className="filter-title">
               <Filter className="icon" /> Bộ Lọc
@@ -97,7 +96,6 @@ const ProductPage = () => {
               </div>
             </div>
           </div>
-        </aside>
 
         {/* Main Content */}
         <main className="main-section">

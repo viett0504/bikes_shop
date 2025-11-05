@@ -1,9 +1,12 @@
 /* src/styles/ProductPage.css */
 
 .product-page-container {
+  position: relative;
   background: #f9fafb;
   min-height: 100vh;
-  padding: 2rem;
+  padding: 2rem ;
+  top: 3rem;
+
 }
 
 .product-content-wrapper {
@@ -11,16 +14,14 @@
   gap: 2rem;
   max-width: 1300px;
   margin: 0 auto;          /* căn giữa, bỏ margin 3% gây tràn */
-    padding: 0 1rem;
+  padding: 0 1rem;
   box-sizing: border-box;  /* tránh tràn do tính toán width */
   overflow-x: hidden;      /* đảm bảo không tràn ngang */
 }
 
 
-/* Sidebar */
-.sidebar {
-  transition: all 0.3s;
-}
+
+
 .sidebar.hide {
   width: 0;
   overflow: hidden;
@@ -44,9 +45,12 @@
   gap: 0.5rem;
   margin-bottom: 1rem;
 }
+
 .filter-section {
-  margin-bottom: 1.5rem;
+  margin-top: 1.5rem;
+
 }
+
 .filter-section h3 {
   font-weight: 600;
   margin-bottom: 0.5rem;
@@ -125,9 +129,9 @@
 /* Product Grid */
 .product-grid {
   display: grid;
-grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
-  max-width: 1200px;
+  max-width: 1100px;
   width: 100%;
   box-sizing: border-box;
 }

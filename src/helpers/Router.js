@@ -5,6 +5,7 @@ import HomePage from "../pages/Home/HomePage";
 import ProductPage from "../pages/Products/ProductPage";
 import ProductDetailPage from "../pages/Products/ProductDetailPage";
 import Contact from "../pages/Contact/Contact";
+import About from "../pages/About/About";
 
 // ⚠️ Import thêm các trang khác khi bạn tạo chúng:
 
@@ -18,9 +19,10 @@ const AppRouter = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/about" element={<About />} />
          <Route path="/product" element={<ProductPage />} />
          <Route path="/productDetail" element={<ProductDetailPage />} />
-        {/* <Route path="/contact" element={<ContactPage />} /> */}
+        
       </Routes>
     </Router>
   );
