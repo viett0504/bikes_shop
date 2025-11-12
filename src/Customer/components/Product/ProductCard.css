@@ -9,7 +9,10 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   cursor: pointer;
 }
-
+a {
+  text-decoration: none; /* bỏ gạch chân */
+  color: inherit;
+}
 .product-card:hover {
   transform: translateY(-6px) scale(1.02);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
@@ -123,8 +126,6 @@
   font-size: 0.8rem;
   color: #666;
 }
-
-
 
 /* Phần giá + nút thêm giỏ */
 .product-bottom {

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import '../../pages/Home/HomePage.css';
-import banner1 from "../../assets/img/banner1.webp";   
-import banner2 from "../../assets/img/banner2.webp";   
-import banner3 from "../../assets/img/banner3.webp";   
+import banner1 from "../../../assets/img/banner1.webp";   
+import banner2 from "../../../assets/img/banner2.webp";   
+import banner3 from "../../../assets/img/banner3.webp";   
 
 const images = [banner1, banner2, banner3];
 

@@ -1,8 +1,9 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaShoppingCart } from "react-icons/fa";
+import logo from "../../../assets/img/logo.png";
 
-import "./Header.css";
+import "./Header.css";  
 
 const Header = () => {
   const location = useLocation(); // ← LẤY ĐƯỜNG DẪN HIỆN TẠI
@@ -22,8 +23,7 @@ const Header = () => {
       <div className="top-bar">
         {/* Logo */}
         <div className="logo">
-          <img src="/bike.png" alt="logo" />
-          <span>Xe đẹp</span>
+          <img src={logo} alt="logo" />
         </div>
 
         {/* Thanh tìm kiếm */}

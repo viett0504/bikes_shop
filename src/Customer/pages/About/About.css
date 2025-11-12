@@ -19,14 +19,14 @@
 }
 
 /* Layout helpers */
-.page{min-height:100vh;background:linear-gradient(to bottom,var(--gray-50),#fff);}
+.page{min-height:100vh;background:linear-gradient(to bottom,#f9fafb,#fff);}
 .container{max-width:1200px;margin:0 auto;padding:0 24px;}
 .section{padding:80px 0;}   
 .section--spaced{margin-top:64px;}
-.center{text-align:center;}
+.center{text-align:center;} 
 .divider{width:96px;height:4px;margin:16px auto 0;background:linear-gradient(90deg,var(--blue-600),var(--purple-600));border-radius:999px;}
-.section__title{font-size:36px;font-weight:800;color:var(--gray-800);margin:0 0 16px;}
-.section__lead{font-size:18px;color:var(--gray-600);line-height:1.7;max-width:960px;margin:0 auto;}
+.section__title{font-size:36px;font-weight:800;color:var(--gray-800);margin:0 0 16px; text-align: center;}
+.section__lead{padding-top:10px;color:var(--gray-600);line-height:1.7;max-width:960px;margin:0 auto;text-align: center;}
 
 .grid-3{display:grid;grid-template-columns:1fr;gap:24px;margin-top:40px;}
 .grid-4{display:grid;grid-template-columns:1fr;gap:20px;margin-top:24px;}
@@ -36,7 +36,8 @@
 }
 
 /* Hero */
-.hero{
+.hero-about{
+  position: relative; top: 100px;
   color:#fff;
   padding:80px 24px;
   background:linear-gradient(135deg,var(--blue-600),var(--purple-600),var(--indigo-700));
@@ -49,7 +50,7 @@
 
 /* Stats */
 .stats{
-  margin-top:-32px;
+  margin-top:6rem;  
   background:linear-gradient(90deg,var(--blue-600),var(--purple-600));
   padding:48px 24px;
 }
@@ -57,7 +58,7 @@
 @media (min-width:768px){.stats__grid{grid-template-columns:repeat(4,1fr);}}
 
 /* StatCard */
-.stat-card{text-align:center;}
+.stat-card{text-align:center;font-weight: bold;font-size: 15;}
 .stat-card__number{font-size:48px;font-weight:800;color:#fff;margin-bottom:8px;text-shadow:0 6px 16px rgba(0,0,0,.35);}
 @media (min-width:768px){.stat-card__number{font-size:64px;}}
 .stat-card__label{font-size:18px;color:#fff;opacity:.9;}
@@ -70,6 +71,7 @@
 }
 .feature-card--hover{transform:translateY(-8px);box-shadow:var(--shadow-xl);}
 .feature-card__badge{
+
   width:64px;height:64px;border-radius:16px;margin-bottom:24px;
   display:flex;align-items:center;justify-content:center;
   background:linear-gradient(135deg,var(--blue-500),var(--purple-600));

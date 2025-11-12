@@ -2,7 +2,6 @@ import React from "react";
 
 const Features = () => (
   <section className="features" id="about">
-    <h2 className="section-title">Tại Sao Chọn BikeHub?</h2>
     <div className="features-grid">
       <div className="feature-card">
         <div className="feature-icon">✨</div>

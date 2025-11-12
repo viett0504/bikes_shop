@@ -5,7 +5,7 @@
   background: #f9fafb;
   min-height: 100vh;
   padding: 2rem ;
-  top: 3rem;
+  top: 8rem;
 
 }
 
@@ -27,7 +27,7 @@
   overflow: hidden;
 }
 .sidebar.show {
-  width: 250px;
+  width: 250px; 
 }
 .filter-box {
   background: #fff;
@@ -60,7 +60,7 @@
   display: block;
   align-items: center;     /* giúp checkbox và chữ thẳng hàng */
   gap: 8px;                /* khoảng cách giữa ô và chữ */
-  font-size: 0.9rem;
+  font-size: 18 px;
   color: #555;
   margin: 4px 0;           /* cố định khoảng cách trên dưới */
   cursor: pointer;
@@ -129,7 +129,7 @@
 /* Product Grid */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   gap: 24px;
   max-width: 1100px;
   width: 100%;

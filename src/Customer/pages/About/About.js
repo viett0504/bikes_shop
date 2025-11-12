@@ -12,7 +12,7 @@ export default function BikeShopAbout() {
   return (
     <div className="page">
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero-about">
         <div className="container hero__inner">
           <h1 className="hero__title">🚴 BikeShop Vietnam</h1>
           <p className="hero__subtitle">Đồng Hành Cùng Đam Mê Của Bạn</p>

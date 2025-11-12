@@ -9,11 +9,12 @@
   max-width: 1200px;
   margin: auto;
   padding: 2rem 1rem;
+  align-content: center;
 }
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(3  00px, 1fr)) !important;  
   gap: 2rem;
 }
 
@@ -265,11 +266,12 @@
 .features {
   padding: 3.25rem 0;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr) !important;
   gap: 1rem;
 }
 
 .feature-item {
+  width: 100%;
   background: white;
   border-radius: 0.75rem;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);

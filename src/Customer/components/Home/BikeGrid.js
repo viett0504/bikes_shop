@@ -1,5 +1,5 @@
 import React from "react";
-import BikeCard from "../BikeCard";
+import BikeCard from "./BikeCard";
 
 const bikes = [
   { name: "Mountain Pro X1", desc: "Xe đạp địa hình cao cấp, phù hợp với mọi địa hình khắc nghiệt", price: "12,500,000₫", emoji: "🚵", bg: "linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%)" },

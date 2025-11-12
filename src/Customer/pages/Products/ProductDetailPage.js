@@ -50,7 +50,7 @@ export default function ProductDetailPage() {
                   <img src={img} alt={`Thumbnail ${idx + 1}`} />
                 </button>
               ))}
-            </div>
+            </div>  
             {/* Features */}
             <div className="features">
               <div className="feature-item"><Truck size={32} /><span>Miễn phí vận chuyển</span></div>

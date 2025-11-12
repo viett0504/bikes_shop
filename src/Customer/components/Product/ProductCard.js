@@ -11,9 +11,7 @@ const ProductCard = ({ product, formatPrice }) => {
         <div className="product-image-container">
           <img src={product.image} alt={product.name} className="product-image group-hover:scale-110" />
         </div>
-      </Link>
-
-      <div className="product-info">
+        <div className="product-info">
         <div className="product-name">{product.name}</div>
 
         <div className="product-brand">{product.brand}</div>
@@ -48,6 +46,9 @@ const ProductCard = ({ product, formatPrice }) => {
           <Heart className="w-5 h-5 text-gray-600 hover:text-red-500" />
         </button>
       </div>
+      </Link>
+
+      
     </div>
   );
 };

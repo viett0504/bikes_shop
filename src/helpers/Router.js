@@ -1,11 +1,11 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Header from "../components/Header/Header";
-import HomePage from "../pages/Home/HomePage";
-import ProductPage from "../pages/Products/ProductPage";
-import ProductDetailPage from "../pages/Products/ProductDetailPage";
-import Contact from "../pages/Contact/Contact";
-import About from "../pages/About/About";
+import Header from "../Customer/components/Header/Header";
+import HomePage from "../Customer/pages/Home/HomePage";
+import ProductPage from "../Customer/pages/Products/ProductPage";
+import ProductDetailPage from "../Customer/pages/Products/ProductDetailPage";
+import Contact from "../Customer/pages/Contact/Contact";
+import About from "../Customer/pages/About/About";
 
 // ⚠️ Import thêm các trang khác khi bạn tạo chúng:
 

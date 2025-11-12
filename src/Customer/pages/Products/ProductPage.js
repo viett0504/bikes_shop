@@ -5,8 +5,8 @@ import ProductCard from '../../components/Product/ProductCard';
 import './ProductPage.css';
 
 const ProductPage = () => {
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedBrand, setSelectedBrand] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('Tất cả');
+  const [selectedBrand, setSelectedBrand] = useState('Tất cả');
   const [priceRange, setPriceRange] = useState([0, 50000000]);
   const [sortBy, setSortBy] = useState('featured');
 
@@ -22,8 +22,8 @@ const ProductPage = () => {
   ];
 
   const filteredProducts = products.filter(product => {
-    if (selectedCategory !== 'all' && product.category !== selectedCategory) return false;
-    if (selectedBrand !== 'all' && product.brand !== selectedBrand) return false;
+    if (selectedCategory !== 'Tất cả' && product.category !== selectedCategory) return false;
+    if (selectedBrand !== 'Tất cả' && product.brand !== selectedBrand) return false;
     if (product.price < priceRange[0] || product.price > priceRange[1]) return false;
     return true;
   });
@@ -51,7 +51,7 @@ const ProductPage = () => {
             {/* Category */}
             <div className="filter-section">
               <h3>Loại Xe</h3>
-              {['all', 'road', 'mountain', 'city'].map(cat => (
+              {['Tất cả', 'road', 'mountain', 'city'].map(cat => (
                 <label key={cat}>
                   <input
                     type="radio"
@@ -59,7 +59,7 @@ const ProductPage = () => {
                     checked={selectedCategory === cat}
                     onChange={() => setSelectedCategory(cat)}
                   />
-                  {cat === 'all' ? 'Tất cả' : cat === 'road' ? 'Xe đua' : cat === 'mountain' ? 'Xe địa hình' : 'Xe đạp phố'}
+                  {cat === 'Tất cả' ? 'Tất cả' : cat === 'road' ? 'Xe đua' : cat === 'mountain' ? 'Xe địa hình' : 'Xe đạp phố'}
                 </label>
               ))}
             </div>
@@ -67,7 +67,7 @@ const ProductPage = () => {
             {/* Brand */}
             <div className="filter-section">
               <h3>Thương Hiệu</h3>
-              {['all', 'Giant', 'Trek', 'Specialized', 'Cannondale'].map(brand => (
+              {['Tất cả', 'Giant', 'Trek', 'Specialized', 'Cannondale'].map(brand => (
                 <label key={brand}>
                   <input
                     type="radio"

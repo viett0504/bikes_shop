@@ -1,6 +1,7 @@
 .contact-page {
-  margin-top: 100px;
-  min-height: 100vh;
+  position: relative;
+  top: 140px;
+
   background: linear-gradient(135deg, #7c3aed, #4f46e5, #7e22ce);
   padding: 2rem 1rem;
 }
@@ -65,3 +66,4 @@
     padding: 2rem 1rem;
   }
 }
+
