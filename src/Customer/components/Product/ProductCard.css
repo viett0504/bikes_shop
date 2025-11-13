@@ -132,11 +132,15 @@ a {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .product-price {
   font-size: 1.1rem;
   font-weight: bold;
+  flex: 1 1 auto; /* linh hoạt chiếm chỗ */
+  min-width: 90px;
 }
 
 .add-cart-btn {
@@ -145,6 +149,7 @@ a {
   padding: 0.45rem 0.9rem;
   border-radius: 6px;
   font-size: 0.85rem;
+  flex-shrink: 0;
   cursor: pointer;
   transition: background 0.25s ease, transform 0.15s ease;
 }

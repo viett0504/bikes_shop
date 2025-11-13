@@ -8,6 +8,8 @@ import ProductPage from "../Customer/pages/Products/ProductPage";
 import ProductDetailPage from "../Customer/pages/Products/ProductDetailPage";
 import Contact from "../Customer/pages/Contact/Contact";
 import About from "../Customer/pages/About/About";
+import RegisterPage from "../Customer/pages/Register/RegisterPage";
+import LoginPage from "../Customer/pages/Login/Login";
 
 // ---------- ADMIN ----------
 import AdminLayout from "../Admin/componentsAD/AdminLayout";
