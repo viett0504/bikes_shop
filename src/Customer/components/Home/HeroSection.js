@@ -1,44 +1,54 @@
-import React, { useState } from "react";
-import '../../pages/Home/HomePage.css';
-import banner1 from "../../../assets/img/banner1.webp";   
-import banner2 from "../../../assets/img/banner2.webp";   
-import banner3 from "../../../assets/img/banner3.webp";   
-
-const images = [banner1, banner2, banner3];
+import React, { useEffect, useMemo, useState } from "react";
+import "../../pages/Home/HomePage.css";
+import { getHeroBanners } from "./homeAPI";
 
 const HeroSection = () => {
+  const [images, setImages] = useState([]);
   const [current, setCurrent] = useState(0);
 
-  const nextSlide = () => {
-    setCurrent((prev) => (prev + 1) % images.length);
-  };
+  useEffect(() => {
+    (async () => {
+      try {
+        const urls = await getHeroBanners();
+        setImages(urls);
+      } catch (e) {
+        console.error("Load banners error:", e.message);
+        setImages([]); // nếu muốn, có thể đặt fallback tại đây
+      }
+    })();
+  }, []);
 
-  const prevSlide = () => {
-    setCurrent((prev) => (prev - 1 + images.length) % images.length);
-  };
+  // auto slide mỗi 4s (khi đã có ảnh)
+  useEffect(() => {
+    if (!images.length) return;
+    const id = setInterval(() => setCurrent((p) => (p + 1) % images.length), 4000);
+    return () => clearInterval(id);
+  }, [images]);
+
+  const hasImages = images.length > 0;
+  const imgSrc = useMemo(() => (hasImages ? images[current] : ""), [images, current, hasImages]);
+
+  const nextSlide = () => hasImages && setCurrent((p) => (p + 1) % images.length);
+  const prevSlide = () => hasImages && setCurrent((p) => (p - 1 + images.length) % images.length);
 
   return (
     <section className="hero">
-      <img src={images[current]} alt="Banner" className="hero-image" />
+      {hasImages ? (
+        <img src={imgSrc} alt="Banner" className="hero-image" />
+      ) : (
+        <div className="hero-image skeleton" /> // tuỳ: khối loading
+      )}
 
-      {/* Nút trái */}
-      <button className="nav-button left" onClick={prevSlide}>
-        &#10094;
-      </button>
+      <button className="nav-button left" onClick={prevSlide}>&#10094;</button>
+      <button className="nav-button right" onClick={nextSlide}>&#10095;</button>
 
-      {/* Nút phải */}
-      <button className="nav-button right" onClick={nextSlide}>
-        &#10095;
-      </button>
-
-      {/* Dấu chấm trượt */}
       <div className="dots">
-        {images.map((_, index) => (
+        {images.map((_, idx) => (
           <span
-            key={index}
-            className={`dot ${index === current ? "active" : ""}`}
-            onClick={() => setCurrent(index)}
-          ></span>
+            key={idx}
+            className={`dot ${idx === current ? "active" : ""}`}
+            onClick={() => setCurrent(idx)}
+          />
         ))}
       </div>
     </section>
