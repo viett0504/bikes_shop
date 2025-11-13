@@ -1,5 +1,7 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+
+// ---------- CUSTOMER ----------
 import Header from "../Customer/components/Header/Header";
 import HomePage from "../Customer/pages/Home/HomePage";
 import ProductPage from "../Customer/pages/Products/ProductPage";
@@ -9,50 +11,47 @@ import About from "../Customer/pages/About/About";
 import RegisterPage from "../Customer/pages/Register/RegisterPage";
 import LoginPage from "../Customer/pages/Login/Login";
 
-// ⚠️ Import thêm các trang Admin khi có
-// import AdminDashboard from "../Admin/pages/Dashboard";
-// import AdminProducts from "../Admin/pages/Products";
-// ...
+// ---------- ADMIN ----------
+import AdminLayout from "../Admin/componentsAD/AdminLayout";
+import Dashboard from "../Admin/pagesAD/Dashboard/Dashboard";
+import Orders from "../Admin/pagesAD/Orders";
+import Products from "../Admin/pagesAD/Products";
+import Categories from "../Admin/pagesAD/Categories";   // <-- THÊM DÒNG NÀY
 
-// Component bọc logic ẩn Header
-function Layout() {
-  const location = useLocation();
-
-  // Các route KHÔNG hiển thị Header
-  const noHeaderRoutes = ["/register","/login", "/admin", "/admin/dashboard", "/admin/products"];
-
-  // Kiểm tra nếu đường dẫn hiện tại khớp với một route bị loại
-  const shouldHideHeader = noHeaderRoutes.some((path) => location.pathname.startsWith(path));
-
+function CustomerShell() {
   return (
     <>
-      {!shouldHideHeader && <Header />}
-
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/product" element={<ProductPage />} />
-        <Route path="/productDetail" element={<ProductDetailPage />} />
-
-        {/* 🔹 Trang đăng ký */}
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/login" element={<LoginPage />} />
-
-        {/* 🔹 Admin pages */}
-        {/* <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/products" element={<AdminProducts />} /> */}
-      </Routes>
+      <Header />
+      <Outlet />
     </>
   );
 }
 
-const AppRouter = () => {
+export default function AppRouter() {
   return (
-    <Router>
-      <Layout />
-    </Router>
-  );
-};
+    <BrowserRouter>
+      <Routes>
+        {/* -------- CUSTOMER -------- */}
+        <Route element={<CustomerShell />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/product" element={<ProductPage />} />
+          <Route path="/productDetail" element={<ProductDetailPage />} />
+        </Route>
 
-export default AppRouter;
+        {/* -------- ADMIN -------- */}
+        <Route path="/admin/*" element={<AdminLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="orders" element={<Orders />} />
+          <Route path="products" element={<Products />} />
+          <Route path="categories" element={<Categories />} /> {/* <-- THÊM ROUTE */}
+        </Route>
+
+        {/* 404 */}
+        <Route path="*" element={<div style={{ padding: 16 }}>404 – Not found</div>} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
