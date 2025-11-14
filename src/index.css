@@ -11,4 +11,5 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-
+.customer-scope { background:#fff; color:#222; }
+.customer-scope .container { max-width:1200px; }

@@ -21,8 +21,11 @@ import Categories from "../Admin/pagesAD/Categories";   // <-- THÊM DÒNG NÀY
 function CustomerShell() {
   return (
     <>
+      <div className="customer-scope">
       <Header />
       <Outlet />
+    </div>
+
     </>
   );
 }
@@ -39,6 +42,10 @@ export default function AppRouter() {
           <Route path="/product" element={<ProductPage />} />
           <Route path="/productDetail" element={<ProductDetailPage />} />
         </Route>
+
+                {/* -------- Login -------- */}
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
 
         {/* -------- ADMIN -------- */}
         <Route path="/admin/*" element={<AdminLayout />}>
