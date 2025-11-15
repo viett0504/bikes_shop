@@ -4,7 +4,7 @@ const apiURL = process.env.REACT_APP_API_URL;
 // Lấy toàn bộ đơn
 export const getAllOrders = async () => {
   try {
-    const res = await axios.get(`${apiURL}/api/order/all-order`);
+    const res = await axios.get(`${apiURL}/api/order/get-all-orders`);
     return res.data; // { Orders: [...] }
   } catch (e) { console.log(e); }
 };
@@ -12,7 +12,7 @@ export const getAllOrders = async () => {
 // Cập nhật trạng thái đơn
 export const updateOrderStatus = async ({ oId, status }) => {
   try {
-    const res = await axios.post(`${apiURL}/api/order/update-status`, { oId, status });
+    const res = await axios.post(`${apiURL}/api/order/update-order`, { oId, status });
     return res.data; // { success | error }
   } catch (e) { console.log(e); }
 };
@@ -20,7 +20,7 @@ export const updateOrderStatus = async ({ oId, status }) => {
 // Hủy / xóa đơn
 export const cancelOrder = async (oId) => {
   try {
-    const res = await axios.post(`${apiURL}/api/order/cancel`, { oId });
+    const res = await axios.post(`${apiURL}/api/order/delete-order`, { oId });
     return res.data; // { success | error }
   } catch (e) { console.log(e); }
 };

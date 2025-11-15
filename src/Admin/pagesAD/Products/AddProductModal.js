@@ -2,19 +2,24 @@
 import React, { useContext, useState, useEffect } from "react";
 import { ProductContext } from "./index";
 import { createProduct } from "./FetchApi";
-import * as XLSX from "xlsx";          // <-- thêm dòng này
-import { FiUpload } from "react-icons/fi";  // icon cho nút Excel (npm i react-icons nếu chưa có)
+import { getAllCategory } from "../Categories/FetchApi";
+import * as XLSX from "xlsx";
+import { FiUpload } from "react-icons/fi";
 
 export default function AddProductModal() {
   const { data, dispatch } = useContext(ProductContext);
+  const [loading, setLoading] = useState(false);
+
+  // State cho form sản phẩm
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
-  const [brand, setBrand] = useState("");
+  const [brand, setBrand] = useState(""); // sẽ lưu _id category
   const [stock, setStock] = useState(0);
   const [status, setStatus] = useState("Active");
   const [image, setImage] = useState(null);
 
-  const close = () => dispatch({ type: "addProductModal", payload: false });
+  // State cho danh sách category lấy từ BE
+  const [categories, setCategories] = useState([]);
 
   const resetForm = () => {
     setName("");
@@ -25,22 +30,98 @@ export default function AddProductModal() {
     setImage(null);
   };
 
+  const close = () => {
+    resetForm();
+    dispatch({ type: "addProductModal", payload: false });
+  };
+
+  // Chỉ load categories khi modal mở
+  useEffect(() => {
+    if (!data.addProductModal) return;
+
+    const fetchCategories = async () => {
+      try {
+        const res = await getAllCategory();
+        setCategories(res?.Categories || []);
+      } catch (err) {
+        console.log("Lỗi load categories:", err);
+      }
+    };
+
+    fetchCategories();
+  }, [data.addProductModal]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // TODO: gọi API thật
-    // const formData = new FormData();
-    // formData.append("name", name);
-    // formData.append("desc", desc);
-    // formData.append("brand", brand);
-    // formData.append("stock", stock);
-    // formData.append("status", status);
-    // if (image) formData.append("image", image);
-    // await createProduct(formData);
+    if (!name.trim()) {
+      alert("Vui lòng nhập tên sản phẩm");
+      return;
+    }
+    if (!desc.trim()) {
+      alert("Vui lòng nhập mô tả sản phẩm");
+      return;
+    }
+    if (!stock || Number(stock) <= 0) {
+      alert("Vui lòng nhập số lượng tồn kho hợp lệ");
+      return;
+    }
+    if (!brand) {
+      alert("Vui lòng chọn thương hiệu");
+      return;
+    }
+    if (!status) {
+      alert("Vui lòng chọn trạng thái");
+      return;
+    }
+    if (!image) {
+      alert("Vui lòng chọn ảnh sản phẩm");
+      return;
+    }
 
-    console.log("submit add product:", { name, desc, brand, stock, status, image });
-    close();
-    resetForm();
+    try {
+      setLoading(true);
+      const res = await createProduct({
+        name,
+        desc,
+        image,
+        status,
+        category: brand, // gửi _id category sang BE (pCategory)
+        stock,
+        price: 0,
+        offer: 0,
+      });
+      setLoading(false);
+
+      console.log("submit add product:", {
+        name,
+        desc,
+        stock,
+        status,
+        image,
+        brand,
+        res,
+      });
+
+      if (res?.error) {
+        alert(res.error);
+        return;
+      }
+
+      alert(res?.success || "Thêm sản phẩm thành công!");
+
+      resetForm();
+      window.location.reload();
+    } catch (err) {
+      setLoading(false);
+      console.log("Lỗi tạo sản phẩm (AxiosError):", err);
+
+      const msg =
+        err?.response?.data?.error ||
+        err?.message ||
+        "Lỗi server (500) khi tạo sản phẩm";
+      alert(msg);
+    }
   };
 
   // ======= IMPORT TỪ EXCEL =======
@@ -53,9 +134,6 @@ export default function AddProductModal() {
       const workbook = XLSX.read(data, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
-      // Chuyển sheet sang JSON dạng mảng object.
-      // Giả sử hàng đầu là header:
-      // Tên sản phẩm | Mô tả | Tồn kho | Thương hiệu | Trạng thái
       const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
       if (!rows.length) {
@@ -65,15 +143,30 @@ export default function AddProductModal() {
 
       const first = rows[0]; // lấy dòng đầu tiên để fill form
 
-      // Tùy bạn đặt tên cột trong Excel, ví dụ:
-      // "Tên sản phẩm", "Mô tả", "Tồn kho", "Thương hiệu", "Trạng thái"
       setName(first["Tên sản phẩm"] || first["Ten SP"] || "");
       setDesc(first["Mô tả"] || first["Mo ta"] || "");
       setStock(first["Tồn kho"] || first["Ton kho"] || 0);
-      setBrand(first["Thương hiệu"] || first["Thuong hieu"] || "");
+
+      // map tên thương hiệu trong Excel -> _id trong categories
+      const brandName =
+        first["Thương hiệu"] ||
+        first["Thuong hieu"] ||
+        first["Brand"] ||
+        "";
+
+      if (brandName && categories.length) {
+        const found = categories.find((c) => c.cName === brandName);
+        if (found) {
+          setBrand(found._id);
+        } else {
+          setBrand("");
+        }
+      }
+
       const st =
         first["Trạng thái"] ||
         first["Trang thai"] ||
+        first["Status"] ||
         "Active";
       setStatus(st === "Inactive" ? "Inactive" : "Active");
 
@@ -82,12 +175,14 @@ export default function AddProductModal() {
       console.error(err);
       alert("Không đọc được file Excel. Kiểm tra lại định dạng (.xlsx, .xls).");
     } finally {
-      // để lần sau chọn lại cùng file vẫn trigger onChange
       e.target.value = "";
     }
   };
 
-  if (!data.addProductModal) return null;
+  // Nếu cờ tắt thì không hiển thị
+  if (!data.addProductModal) {
+    return null;
+  }
 
   return (
     <div className="ad-card ad-form-card">
@@ -152,12 +247,17 @@ export default function AddProductModal() {
 
             <div className="ad-form-group ad-form-group-sm">
               <label>Thương hiệu</label>
-              <input
-                type="text"
+              <select
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
-                placeholder="Thêm tên thương hiệu"
-              />
+              >
+                <option value="">-- Chọn thương hiệu --</option>
+                {categories.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.cName}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="ad-form-group ad-form-group-sm">
@@ -186,15 +286,17 @@ export default function AddProductModal() {
               type="button"
               className="ad-btn"
               style={{ marginRight: 8 }}
-              onClick={() => {
-                close();
-                resetForm();
-              }}
+              onClick={close}
+              disabled={loading}
             >
               Hủy
             </button>
-            <button type="submit" className="ad-btn success">
-              Lưu
+            <button
+              type="submit"
+              className="ad-btn success"
+              disabled={loading}
+            >
+              {loading ? "Đang lưu..." : "Lưu"}
             </button>
           </div>
         </form>

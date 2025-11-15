@@ -4,8 +4,14 @@ const apiURL = process.env.REACT_APP_API_URL;
 export const getAllCategory = async () => {
   try {
     const res = await axios.get(`${apiURL}/api/category/all-category`);
+    console.log("👉 FE getAllCategory res.data =", res.data); // THÊM DÒNG NÀY
     return res.data;
-  } catch (e) { console.log(e); }
+  } catch (e) {
+    console.error(
+      "❌ getAllCategory error:",
+      e?.response?.data || e.message || e
+    ); // THÊM DÒNG NÀY
+  }
 };
 
 export const createCategory = async ({ cName, cImage, cDescription, cStatus }) => {
