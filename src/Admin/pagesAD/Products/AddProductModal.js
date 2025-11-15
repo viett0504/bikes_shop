@@ -1,26 +1,83 @@
 // src/Admin/pagesAD/Products/AddProductModal.js
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { ProductContext } from "./index";
 import { createProduct } from "./FetchApi";
+import { getAllCategory } from "../Categories/FetchApi"; 
 
 export default function AddProductModal() {
   const { data, dispatch } = useContext(ProductContext);
+
+   // State cho form sản phẩm
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
-  const [brand, setBrand] = useState("");
+  const [brand, setBrand] = useState(""); 
   const [stock, setStock] = useState(0);
   const [status, setStatus] = useState("Active");
   const [image, setImage] = useState(null);
 
+  // State cho danh sách category lấy từ BE
+  const [categories, setCategories] = useState([]);
+
   const close = () => dispatch({ type: "addProductModal", payload: false });
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await getAllCategory();
+        setCategories(res?.Categories || []);
+      } catch (err) {
+        console.log("Lỗi load categories:", err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  if (!data.addProductModal) {
+    return null;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: gọi API thật sau
-    await createProduct({ name, desc, stock, status, image });
-    
-    console.log("submit add product:", { name, desc, stock, status, image });
-    close();
+
+    if (!brand) {
+      alert("Vui lòng chọn thương hiệu");
+      return;
+    }
+
+    try {
+      await createProduct({
+        name,
+        desc,
+        image,
+        status,
+        category: brand, // 🔹 gửi _id category sang BE (pCategory)
+        stock,
+        price: 0, // nếu sau này có input giá thì thay vào đây
+        offer: 0, // nếu sau này có giảm giá thì thay vào đây
+      });
+
+      console.log("submit add product:", {
+        name,
+        desc,
+        stock,
+        status,
+        image,
+        brand,
+      });
+
+      // reset form
+      setName("");
+      setDesc("");
+      setBrand("");
+      setStock(0);
+      setStatus("Active");
+      setImage(null);
+
+      close();
+    } catch (err) {
+      console.log("Lỗi tạo sản phẩm:", err);
+    }
   };
 
   // Nếu cờ tắt thì không hiển thị
@@ -66,14 +123,20 @@ export default function AddProductModal() {
                 onChange={(e) => setStock(e.target.value)}
               />
             </div>
+            
             <div className="ad-form-group ad-form-group-sm">
               <label>Thương hiệu</label>
-              <textarea
-                rows={3}
-                value={desc}
-                onChange={(e) => setDesc(e.target.value)}
-                placeholder="Thêm thương hiệu"
-              />
+              <select
+                value={brand}
+                onChange={(e) => setBrand(e.target.value)}
+              >
+                <option value="">-- Chọn thương hiệu --</option>
+                {categories.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.cName}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="ad-form-group ad-form-group-sm">
