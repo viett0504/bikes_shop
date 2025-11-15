@@ -2,7 +2,7 @@ import axios from "axios";
 const apiURL = process.env.REACT_APP_API_URL;
 
 export const getAllAccount = async () => {
-  try { const res = await axios.get(`${apiURL}/api/account/all-account`); return res.data; }
+  try { const res = await axios.get(`${apiURL}/api/user/all-user`); return res.data; }
   catch (e) { console.log(e); }
 };
 
