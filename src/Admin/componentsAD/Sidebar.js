@@ -9,10 +9,12 @@ export default function Sidebar(){
     <aside className="ad-sidebar">
       <div className="ad-title">Admin</div>
       <nav>
-        <Item to="/admin/dashboard" label="Dashboard" />
-        <Item to="/admin/products"  label="Products" />
-        <Item to="/admin/orders"    label="Orders" />
-        <Item to="/admin/categories"label="Categories" />
+        <Item to="/admin/dashboard" label="Tổng quan" />
+        <Item to="/admin/products"  label="Sản phẩm" />
+        <Item to="/admin/orders"    label="Đơn hàng" />
+        <Item to="/admin/categories"label="Danh mục" />
+        <Item to="/admin/accounts"label="Tài khoản" />
+        <Item to="/admin/banners"label="Banner" />
       </nav>
     </aside>
   );
