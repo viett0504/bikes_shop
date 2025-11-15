@@ -17,7 +17,10 @@ const Orders = () => {
   return (
     <Fragment>
       <orderContext.Provider value={{ data, dispatch }}>
-        <OrdersComponent />
+        <div className="ad-col">
+          <OrdersComponent />
+        </div>
+        
       </orderContext.Provider>
     </Fragment>
   );
