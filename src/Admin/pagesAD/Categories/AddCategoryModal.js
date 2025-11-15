@@ -48,7 +48,7 @@ const AddCategoryModal = () => {
 return (
   <div className="ad-card">
     <div className="ad-body">
-      <h3 style={{ marginBottom: 16 }}>➕ Thêm danh mục</h3>
+      <h3 style={{ marginBottom: 16 }}>Thêm danh mục</h3>
 
       {/* FORM 2 CỘT GỌN GÀNG */}
       <div className="ad-form-grid">

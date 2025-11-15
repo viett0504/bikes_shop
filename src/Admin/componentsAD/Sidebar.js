@@ -7,12 +7,12 @@ export default function Sidebar(){
   );
   return (
     <aside className="ad-sidebar">
-      <div className="ad-title">Admin</div>
+      <div className="ad-title">Trang quản lý</div>
       <nav>
-        <Item to="/admin/dashboard" label="Dashboard" />
-        <Item to="/admin/products"  label="Products" />
-        <Item to="/admin/orders"    label="Orders" />
-        <Item to="/admin/categories"label="Categories" />
+        <Item to="/admin/dashboard" label="Tổng quan" />
+        <Item to="/admin/products"  label="Sản phẩm" />
+        <Item to="/admin/orders"    label="Đơn hàng" />
+        <Item to="/admin/categories"label="Thương hiệu" />
       </nav>
     </aside>
   );

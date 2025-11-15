@@ -16,7 +16,8 @@ export default function AddProductModal() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // TODO: gọi API thật sau
-    // await createProduct({ name, desc, stock, status, image });
+    await createProduct({ name, desc, stock, status, image });
+    
     console.log("submit add product:", { name, desc, stock, status, image });
     close();
   };

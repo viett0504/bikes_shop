@@ -12,10 +12,24 @@ export const categoryState = {
 
 export const categoryReducer = (state, action) => {
   switch (action.type) {
+    case "fetchCategories":
+      return { 
+        ...state, 
+        categories: action.payload 
+      };
+
     case "fetchCategoryAndChangeState":
-      return { ...state, categories: action.payload };
+      return { 
+        ...state, 
+        categories: action.payload 
+      };
+
     case "addCategoryModal":
-      return { ...state, addCategoryModal: action.payload };
+      return { 
+        ...state, 
+        addCategoryModal: action.payload 
+      };
+
     case "editCategoryModalOpen":
       return {
         ...state,
@@ -26,13 +40,24 @@ export const categoryReducer = (state, action) => {
           status: action.status,
         },
       };
+
     case "editCategoryModalClose":
       return {
         ...state,
-        editCategoryModal: { modal: false, cId: null, des: "", status: "" },
+        editCategoryModal: { 
+          modal: false, 
+          cId: null, 
+          des: "", 
+          status: "" 
+        },
       };
+
     case "loading":
-      return { ...state, loading: action.payload };
+      return { 
+        ...state, 
+        loading: action.payload 
+      };
+
     default:
       return state;
   }

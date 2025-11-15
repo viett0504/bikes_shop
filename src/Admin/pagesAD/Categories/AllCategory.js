@@ -1,26 +1,28 @@
 // src/Admin/pagesAD/Categories/AllCategory.js
-import { useContext, useEffect, useState } from "react";
-import { CategoryContext } from "./index";
-import { getAllCategory } from "./FetchApi";  // <-- đúng tên export
+import { useContext, useEffect } from "react";
+import { CategoryContext } from "./index";     
+import { getAllCategory } from "./FetchApi"; 
 
 const AllCategory = () => {
   const { data, dispatch } = useContext(CategoryContext);
-  const [loading, setLoading] = useState(false);
+  const { categories, loading } = data;         // lấy từ context
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
-      const res = await getAllCategory();     // <-- dùng getAllCategory
+      dispatch({ type: "loading", payload: true });
+
+      const res = await getAllCategory();
+      console.log("👉 res in AllCategory =", res);
+
       if (res && res.Categories) {
         dispatch({ type: "fetchCategories", payload: res.Categories });
       }
-      setLoading(false);
+
+      dispatch({ type: "loading", payload: false });
     };
 
     fetchData();
-  }, [dispatch]); // không còn cảnh báo fetchData
-
-  const { categories } = data;
+  }, [dispatch]);
 
   return (
     <div className="ad-card" style={{ marginTop: 16 }}>
@@ -55,7 +57,7 @@ const AllCategory = () => {
                     <td>
                       {c.cImage ? (
                         <img
-                          src={c.cImage}
+                          src={`${process.env.REACT_APP_API_URL}/uploads/categories/${c.cImage}`}
                           alt={c.cName}
                           style={{ width: 60, height: 40, objectFit: "cover", borderRadius: 4 }}
                         />
@@ -67,10 +69,7 @@ const AllCategory = () => {
                     <td>{new Date(c.createdAt).toLocaleString("vi-VN")}</td>
                     <td>{new Date(c.updatedAt).toLocaleString("vi-VN")}</td>
                     <td>
-                      {/* ở đây bạn có thể thêm nút Sửa / Xóa sau */}
-                      {/* ví dụ:
-                      <button className="ad-btn">Sửa</button>
-                      */}
+                      {/* sau này thêm Sửa/Xóa */}
                     </td>
                   </tr>
                 ))
