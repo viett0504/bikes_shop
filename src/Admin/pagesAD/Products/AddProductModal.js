@@ -1,25 +1,32 @@
 // src/Admin/pagesAD/Products/AddProductModal.js
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { ProductContext } from "./index";
-import { createProduct } from "./FetchApi";
+import { createProduct, editProduct, getAllProduct } from "./FetchApi";
 import { getAllCategory } from "../Categories/FetchApi";
 import * as XLSX from "xlsx";
 import { FiUpload } from "react-icons/fi";
 
 export default function AddProductModal() {
   const { data, dispatch } = useContext(ProductContext);
+  const { addProductModal, editProductModal } = data;
+
+  const isEditMode = !!editProductModal?.modal;       // đang sửa?
+  const isOpen = addProductModal || isEditMode;       // modal mở nếu add hoặc edit
+
   const [loading, setLoading] = useState(false);
 
-  // State cho form sản phẩm
+  // State form
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
-  const [brand, setBrand] = useState(""); // sẽ lưu _id category
+  const [brand, setBrand] = useState(""); // _id category
   const [stock, setStock] = useState(0);
   const [status, setStatus] = useState("Active");
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState(null); // file ảnh mới (nếu chọn)
 
-  // State cho danh sách category lấy từ BE
   const [categories, setCategories] = useState([]);
+
+  // Lưu tên gốc khi bắt đầu sửa, để so sánh xem user có đổi tên hay không
+  const originalNameRef = useRef("");
 
   const resetForm = () => {
     setName("");
@@ -31,13 +38,18 @@ export default function AddProductModal() {
   };
 
   const close = () => {
+    if (isEditMode) {
+      dispatch({ type: "editProductModalClose" });
+    } else {
+      dispatch({ type: "addProductModal", payload: false });
+    }
     resetForm();
-    dispatch({ type: "addProductModal", payload: false });
+    originalNameRef.current = "";
   };
 
-  // Chỉ load categories khi modal mở
+  // ======= LOAD DANH MỤC KHI MODAL MỞ =======
   useEffect(() => {
-    if (!data.addProductModal) return;
+    if (!isOpen) return;
 
     const fetchCategories = async () => {
       try {
@@ -49,10 +61,45 @@ export default function AddProductModal() {
     };
 
     fetchCategories();
-  }, [data.addProductModal]);
+  }, [isOpen]);
 
+  // ======= FILL FORM KHI ẤN SỬA / HOẶC RESET KHI ẤN THÊM =======
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (isEditMode && editProductModal) {
+      // fill data cũ vào form
+      setName(editProductModal.pName || "");
+      setDesc(editProductModal.pDescription || "");
+      setBrand(
+        editProductModal.pCategory?._id ||
+          editProductModal.pCategory ||
+          ""
+      );
+      setStock(editProductModal.pQuantity ?? 0);
+      setStatus(editProductModal.pStatus || "Active");
+      setImage(null);
+
+      originalNameRef.current = editProductModal.pName || "";
+    } else {
+      // chế độ thêm mới
+      resetForm();
+      originalNameRef.current = "";
+    }
+  }, [isOpen, isEditMode, editProductModal]);
+
+  // Nếu modal đóng thì không render gì
+  if (!isOpen) return null;
+
+  // ======= SUBMIT FORM =======
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const sameName =
+      isEditMode &&
+      originalNameRef.current &&
+      name.trim().toLowerCase() ===
+        originalNameRef.current.trim().toLowerCase();
 
     if (!name.trim()) {
       alert("Vui lòng nhập tên sản phẩm");
@@ -74,53 +121,96 @@ export default function AddProductModal() {
       alert("Vui lòng chọn trạng thái");
       return;
     }
-    if (!image) {
+    // YÊU CẦU ẢNH nếu:
+    // - đang THÊM mới, hoặc
+    // - đang SỬA nhưng ĐỔI TÊN (tức là sẽ tạo SP mới)
+    if (!image && !sameName) {
       alert("Vui lòng chọn ảnh sản phẩm");
       return;
     }
 
     try {
       setLoading(true);
-      const res = await createProduct({
-        name,
-        desc,
-        image,
-        status,
-        category: brand, // gửi _id category sang BE (pCategory)
-        stock,
-        price: 0,
-        offer: 0,
-      });
-      setLoading(false);
 
-      console.log("submit add product:", {
-        name,
-        desc,
-        stock,
-        status,
-        image,
-        brand,
-        res,
-      });
+      if (isEditMode) {
+        // ====== ĐANG Ở CHẾ ĐỘ SỬA ======
+        if (sameName) {
+          // 👉 Giữ nguyên tên -> CẬP NHẬT SẢN PHẨM HIỆN TẠI
+          const payload = {
+            pId: editProductModal._id || editProductModal.pId,
+            pName: name,
+            pDescription: desc,
+            pStatus: status,
+            pCategory: brand,
+            pQuantity: stock,
+            pPrice: editProductModal.pPrice ?? 0,
+            pOffer: editProductModal.pOffer ?? 0,
+            pImages: editProductModal.pImages || [],
+            pEditImages: image ? [image] : [],
+          };
 
-      if (res?.error) {
-        alert(res.error);
-        return;
+          const res = await editProduct(payload);
+          if (res?.success) {
+            alert("Cập nhật sản phẩm thành công");
+          } else if (res?.error) {
+            alert(res.error);
+          }
+        } else {
+          // 👉 ĐỔI TÊN SẢN PHẨM -> TẠO SẢN PHẨM MỚI
+          const res = await createProduct({
+            name,
+            desc,
+            image,
+            status,
+            category: brand,
+            stock,
+            price: editProductModal.pPrice ?? 0,
+            offer: editProductModal.pOffer ?? 0,
+          });
+
+          if (res?.success) {
+            alert("Đã thêm sản phẩm mới (do đổi tên sản phẩm)");
+          } else if (res?.error) {
+            alert(res.error);
+          }
+        }
+      } else {
+        // ====== CHẾ ĐỘ THÊM MỚI BÌNH THƯỜNG ======
+        const res = await createProduct({
+          name,
+          desc,
+          image,
+          status,
+          category: brand,
+          stock,
+          price: 0,
+          offer: 0,
+        });
+
+        if (res?.success) {
+          alert("Tạo sản phẩm thành công");
+        } else if (res?.error) {
+          alert(res.error);
+        }
       }
 
-      alert(res?.success || "Thêm sản phẩm thành công!");
+      // Load lại list sản phẩm sau khi lưu
+      const list = await getAllProduct();
+      dispatch({
+        type: "fetchProductsAndChangeState",
+        payload: list?.Products || [],
+      });
 
-      resetForm();
-      window.location.reload();
+      close();
     } catch (err) {
-      setLoading(false);
-      console.log("Lỗi tạo sản phẩm (AxiosError):", err);
-
+      console.log("Lỗi tạo/cập nhật sản phẩm:", err);
       const msg =
         err?.response?.data?.error ||
         err?.message ||
-        "Lỗi server (500) khi tạo sản phẩm";
+        "Lỗi server khi tạo/cập nhật sản phẩm";
       alert(msg);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -133,7 +223,6 @@ export default function AddProductModal() {
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
-
       const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
       if (!rows.length) {
@@ -156,11 +245,7 @@ export default function AddProductModal() {
 
       if (brandName && categories.length) {
         const found = categories.find((c) => c.cName === brandName);
-        if (found) {
-          setBrand(found._id);
-        } else {
-          setBrand("");
-        }
+        if (found) setBrand(found._id);
       }
 
       const st =
@@ -172,24 +257,20 @@ export default function AddProductModal() {
 
       console.log("Import từ Excel:", first);
     } catch (err) {
-      console.error(err);
-      alert("Không đọc được file Excel. Kiểm tra lại định dạng (.xlsx, .xls).");
-    } finally {
-      e.target.value = "";
+      console.log("Lỗi đọc file Excel:", err);
+      alert("Không đọc được file Excel, vui lòng kiểm tra lại.");
     }
   };
 
-  // Nếu cờ tắt thì không hiển thị
-  if (!data.addProductModal) {
-    return null;
-  }
-
+  // ======= RENDER UI =======
   return (
     <div className="ad-card ad-form-card">
       <div className="ad-body">
-        {/* ===== HEADER: tiêu đề + nút Excel ===== */}
+        {/* HEADER: tiêu đề + nút Excel */}
         <div className="ad-form-header">
-          <h2 className="ad-form-title">Thêm sản phẩm</h2>
+          <h2 className="ad-form-title">
+            {isEditMode ? "Sửa / thêm mới sản phẩm" : "Thêm sản phẩm"}
+          </h2>
 
           <div className="ad-form-tools">
             {/* input file Excel ẩn */}
