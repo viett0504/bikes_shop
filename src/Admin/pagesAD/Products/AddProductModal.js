@@ -6,6 +6,7 @@ import { getAllCategory } from "../Categories/FetchApi";
 
 export default function AddProductModal() {
   const { data, dispatch } = useContext(ProductContext);
+  const [loading, setLoading] = useState(false);
 
    // State cho form sản phẩm
   const [name, setName] = useState("");
@@ -18,8 +19,21 @@ export default function AddProductModal() {
   // State cho danh sách category lấy từ BE
   const [categories, setCategories] = useState([]);
 
-  const close = () => dispatch({ type: "addProductModal", payload: false });
+  const resetForm = () => {
+    setName("");
+    setDesc("");
+    setBrand("");
+    setStock(0);
+    setStatus("Active");
+    setImage(null);
+  }
 
+  const close = () => {
+    resetForm();
+    dispatch({ type: "addProductModal", payload: false });
+  };
+
+  // Chỉ load categories khi modal mở
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -33,6 +47,7 @@ export default function AddProductModal() {
     fetchCategories();
   }, []);
 
+  // Nếu cờ tắt thì không hiển thị
   if (!data.addProductModal) {
     return null;
   }
@@ -40,22 +55,44 @@ export default function AddProductModal() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!name.trim()) {
+      alert("Vui lòng nhập tên sản phẩm");
+      return;
+    }
+    if (!desc.trim()) {
+      alert("Vui lòng nhập mô tả sản phẩm");
+      return;
+    }
+    if (!stock || Number(stock) <= 0) {
+      alert("Vui lòng nhập số lượng tồn kho hợp lệ");
+      return;
+    }
     if (!brand) {
       alert("Vui lòng chọn thương hiệu");
       return;
     }
+    if (!status) {
+      alert("Vui lòng chọn trạng thái");
+      return;
+    }
+    if (!image) {
+      alert("Vui lòng chọn ảnh sản phẩm");
+      return;
+    }
 
     try {
-      await createProduct({
+      setLoading(true);
+      const res = await createProduct({
         name,
         desc,
         image,
         status,
         category: brand, // 🔹 gửi _id category sang BE (pCategory)
         stock,
-        price: 0, // nếu sau này có input giá thì thay vào đây
-        offer: 0, // nếu sau này có giảm giá thì thay vào đây
+        price: 0, 
+        offer: 0,
       });
+      setLoading(false);
 
       console.log("submit add product:", {
         name,
@@ -64,24 +101,35 @@ export default function AddProductModal() {
         status,
         image,
         brand,
+        res,
       });
 
-      // reset form
-      setName("");
-      setDesc("");
-      setBrand("");
-      setStock(0);
-      setStatus("Active");
-      setImage(null);
+      if (res?.error) {
+        // Lỗi validation BE hoặc lỗi khác nhưng BE trả message cụ thể
+        alert(res.error);
+        return;
+      }
 
-      close();
+      alert(res?.success || "Thêm sản phẩm thành công!");
+
+      // ✅ Reset form + đóng modal
+      resetForm();
+      // close();
+
+      // Reload lại trang 
+      window.location.reload();
+
     } catch (err) {
-      console.log("Lỗi tạo sản phẩm:", err);
+      setLoading(false);
+      console.log("Lỗi tạo sản phẩm (AxiosError):", err);
+
+      const msg =
+        err?.response?.data?.error ||
+        err?.message ||
+        "Lỗi server (500) khi tạo sản phẩm";
+      alert(msg);
     }
   };
-
-  // Nếu cờ tắt thì không hiển thị
-  if (!data.addProductModal) return null;
 
   return (
     <div className="ad-card ad-form-card">
@@ -123,7 +171,7 @@ export default function AddProductModal() {
                 onChange={(e) => setStock(e.target.value)}
               />
             </div>
-            
+
             <div className="ad-form-group ad-form-group-sm">
               <label>Thương hiệu</label>
               <select
@@ -166,13 +214,19 @@ export default function AddProductModal() {
               className="ad-btn"
               style={{ marginRight: 8 }}
               onClick={close}
+              disabled={loading}
             >
               Hủy
             </button>
-            <button type="submit" className="ad-btn success">
-              Lưu
+            <button
+              type="submit"
+              className="ad-btn success"
+              disabled={loading}
+            >
+              {loading ? "Đang lưu..." : "Lưu"}
             </button>
           </div>
+
         </form>
       </div>
     </div>

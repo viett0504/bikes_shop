@@ -23,24 +23,34 @@ export const createProduct = async ({
 }) => {
   const form = new FormData();
 
-  // Ảnh: chỉ 1 file
   if (image) {
-    form.append("pImage", image);       
+    // multer.any() -> req.files
+    form.append("pImage", image);
   }
 
   form.append("pName", name);
   form.append("pDescription", desc);
   form.append("pStatus", status);
-  form.append("pCategory", category);   
+  form.append("pCategory", category);
   form.append("pQuantity", stock);
   form.append("pPrice", price);
   form.append("pOffer", offer);
 
   try {
-    const res = await axios.post(`${apiURL}/api/product/add-product`, form);
+    const res = await axios.post(`${apiURL}/api/product/add-product`, form, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    console.log("👉 createProduct res.data =", res.data);
     return res.data;
   } catch (e) {
-    console.log(e);
+    console.error(
+      "❌ createProduct error:",
+      e?.response?.data || e.message || e
+    );
+    // đẩy lỗi ra ngoài để FE xử lý
+    throw e;
   }
 };
 
@@ -57,21 +67,21 @@ export const editProduct = async (product) => {
   form.append("pOffer", product.pOffer); 
   form.append("pImages", product.pImages);
 
-  try { 
-    const res = await axios.post(`${apiURL}/api/product/edit-product`, form); 
-    return res.data; 
-  }
-  catch (e) { 
-    console.log(e); 
+  try {
+    const res = await axios.post(`${apiURL}/api/product/edit-product`, form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data;
+  } catch (e) {
+    console.error("❌ editProduct error:", e?.response?.data || e.message || e);
   }
 };
 
 export const deleteProduct = async (pId) => {
-  try { 
-    const res = await axios.post(`${apiURL}/api/product/delete-product`, { pId }); 
-    return res.data; 
-  }
-  catch (e) { 
-    console.log(e); 
+  try {
+    const res = await axios.post(`${apiURL}/api/product/delete-product`, { pId });
+    return res.data;
+  } catch (e) {
+    console.error("❌ deleteProduct error:", e?.response?.data || e.message || e);
   }
 };
