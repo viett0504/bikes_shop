@@ -7,6 +7,7 @@ export default function AddProductModal() {
   const { data, dispatch } = useContext(ProductContext);
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
+  const [brand, setBrand] = useState("");
   const [stock, setStock] = useState(0);
   const [status, setStatus] = useState("Active");
   const [image, setImage] = useState(null);
@@ -63,6 +64,15 @@ export default function AddProductModal() {
                 min={0}
                 value={stock}
                 onChange={(e) => setStock(e.target.value)}
+              />
+            </div>
+            <div className="ad-form-group ad-form-group-sm">
+              <label>Thương hiệu</label>
+              <textarea
+                rows={3}
+                value={desc}
+                onChange={(e) => setDesc(e.target.value)}
+                placeholder="Thêm thương hiệu"
               />
             </div>
 

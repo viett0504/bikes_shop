@@ -1,42 +1,51 @@
-/* src/styles/ProductPage.css */
-
+/* ===========================
+   PRODUCT PAGE WRAPPER
+=========================== */
 .product-page-container {
-  position: relative;
   background: #f9fafb;
   min-height: 100vh;
-  padding: 2rem ;
-  top: 8rem;
-
+  padding: 2rem;
+  padding-top: 8rem;
 }
 
 .product-content-wrapper {
   display: flex;
   gap: 2rem;
   max-width: 1300px;
-  margin: 0 auto;          /* căn giữa, bỏ margin 3% gây tràn */
+  align-items: flex-start;
+  margin: 0 auto;
   padding: 0 1rem;
-  box-sizing: border-box;  /* tránh tràn do tính toán width */
-  overflow-x: hidden;      /* đảm bảo không tràn ngang */
+
+  box-sizing: border-box;
+  padding-top: 2rem;
 }
 
-
-
-
+/* ===========================
+   SIDEBAR FILTER
+=========================== */
 .sidebar.hide {
   width: 0;
   overflow: hidden;
 }
 .sidebar.show {
-  width: 250px; 
+  width: 250px;
 }
+
 .filter-box {
+  flex: 2;
   background: #fff;
   padding: 1.5rem;
   border-radius: 0.75rem;
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  top: 0;
   position: sticky;
-  top: 100px;
+  position: -webkit-sticky;   /* thêm cho Safari */ 
+  height: fit-content;
+  align-self: flex-start;     /* bắt buộc nếu parent là flex (nhất là Safari) */
+  z-index: 5;                 /* để không bị grid đè lên */
 }
+
+
 .filter-title {
   font-weight: bold;
   font-size: 1.1rem;
@@ -48,7 +57,6 @@
 
 .filter-section {
   margin-top: 1.5rem;
-
 }
 
 .filter-section h3 {
@@ -58,17 +66,14 @@
 
 .filter-section label {
   display: block;
-  align-items: center;     /* giúp checkbox và chữ thẳng hàng */
-  gap: 8px;                /* khoảng cách giữa ô và chữ */
-  font-size: 18 px;
-  color: #555;
-  margin: 4px 0;           /* cố định khoảng cách trên dưới */
+  margin: 6px 0;
   cursor: pointer;
+  color: #555;
+  font-size: 0.95rem;
 }
 
-
 .filter-section input[type="radio"] {
-  margin-right: 8px; /* tạo khoảng cách giữa ô checkbox và chữ */
+  margin-right: 8px;
 }
 
 .price-display {
@@ -77,6 +82,7 @@
   font-size: 0.85rem;
   color: #666;
 }
+
 .clear-btn {
   width: 100%;
   border: 1px solid #ddd;
@@ -84,56 +90,98 @@
   padding: 0.5rem;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 0.9rem;
   transition: 0.2s;
 }
 .clear-btn:hover {
   background: #f3f4f6;
 }
 
-/* Main */
+/* ===========================
+   MAIN CONTENT
+=========================== */
 .main-section {
-  flex: 1;
-
+  flex: 8;
 }
+
+/* ===== Toolbar ===== */
 .toolbar {
   background: #fff;
   padding: 1rem;
   border-radius: 8px;
   display: flex;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
   align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  position: sticky;
+  position: -webkit-sticky;  /* Safari */
+  top: 0;                 /* cùng cao độ với filter-box, nằm dưới header */
+  z-index: 10;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+
+  margin-bottom: 1rem;       /* tạo khoảng cách rõ với grid bên dưới */
 }
-.toggle-filter-btn {
-  border: 1px solid #ddd;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  background: #fff;
-}
-.toggle-filter-btn:hover {
-  background: #f3f4f6;
-}
+
 .sort-section {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
+
 .sort-section select {
   border: 1px solid #ddd;
-  padding: 0.5rem 1rem;
+  padding: 0.45rem 1rem;
   border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
 }
 
-/* Product Grid */
+/* ===== Toolbar Pagination (compact) ===== */
+.toolbar-pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-pagination .page-nav {
+  min-width: 26px;
+  min-height: 26px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.toolbar-pagination .page-nav:hover:not(:disabled) {
+  background: #111827;
+  color: #fff;
+}
+
+.toolbar-pagination .page-nav:disabled {
+  opacity: 0.4;
+}
+
+.toolbar-page-info {
+  font-size: 0.9rem;
+  color: #555;
+}
+.toolbar-page-info strong {
+  font-weight: 700;
+}
+
+/* ===========================
+   PRODUCT GRID
+=========================== */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
   max-width: 1100px;
-  width: 100%;
-  box-sizing: border-box;
 }
 
 .no-result {
@@ -142,12 +190,91 @@
   font-size: 1.1rem;
   margin-top: 3rem;
 }
+
+/* ===========================
+   BOTTOM PAGINATION (PRO)
+=========================== */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+
+.page-btn,
+.page-nav {
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  min-width: 32px;
+  min-height: 32px;
+  display: grid;
+  place-items: center;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+}
+
+/* Hover */
+.page-btn:hover,
+.page-nav:hover:not(:disabled) {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.25);
+}
+
+/* Active Page */
+.page-btn.active {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+  font-weight: 600;
+}
+
+/* Disabled nav */
+.page-nav:disabled {
+  opacity: 0.4;
+  cursor: default;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Ellipsis */
+.page-ellipsis {
+  padding: 0 4px;
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
 @media (max-width: 768px) {
   .product-content-wrapper {
     flex-direction: column;
   }
+
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .sidebar.show {
     width: 100%;
-    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-grid {
+    grid-template-columns: 1fr;
   }
 }

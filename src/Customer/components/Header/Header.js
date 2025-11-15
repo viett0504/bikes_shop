@@ -1,41 +1,54 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaShoppingCart } from "react-icons/fa";
+import { FaShoppingCart, FaUserCircle } from "react-icons/fa";
 import logo from "../../../assets/img/logo.png";
 
-import "./Header.css";  
+import "./Header.css";
 
 const Header = () => {
-  const location = useLocation(); // ← LẤY ĐƯỜNG DẪN HIỆN TẠI
+  const location = useLocation();
 
-  // Hàm kiểm tra xem có đang ở trang này không
-  const isActive = (path) => {
-    return location.pathname === path;
-  };
+  // Lấy thông tin user từ localStorage
+  // const user = JSON.parse(localStorage.getItem("user"));
+  // const username = user?.username || null;
 
-  // Hàm cho dropdown: kiểm tra xem có trong nhóm /product không
-  const isProductActive = () => {
-    return location.pathname.startsWith("/product") 
-  };
+  const username = "Việt"; 
+  // Kiểm tra route active
+  const isActive = (path) => location.pathname === path;
+  const isProductActive = () => location.pathname.startsWith("/product");
+
   return (
     <header>
-      {/* ===== HÀNG TRÊN ===== */}
+      {/* ===== TOP BAR ===== */}
       <div className="top-bar">
+        
         {/* Logo */}
         <div className="logo">
           <img src={logo} alt="logo" />
         </div>
 
-        {/* Thanh tìm kiếm */}
+        {/* Search */}
         <div className="search-bar">
           <input type="text" placeholder="Tìm kiếm sản phẩm..." />
         </div>
 
-        {/* Khu vực đăng nhập + giỏ hàng */}
+        {/* ==== USER ACTIONS ==== */}
         <div className="user-actions">
-          <Link to="/login" className="login-btn">
-            Đăng nhập
-          </Link>
+
+          {/* Nếu chưa đăng nhập → hiện nút đăng nhập */}
+          {!username ? (
+            <Link to="/login" className="login-btn">
+              Đăng nhập
+            </Link>
+          ) : (
+            /* Nếu đã đăng nhập → hiện avatar + xin chào */
+            <Link to="/account" className="user-box">
+              <FaUserCircle className="user-icon" />
+              <span>Xin chào, <strong>{username}</strong></span>
+            </Link>
+          )}
+
+          {/* Giỏ hàng */}
           <Link to="/cart" className="cart-icon">
             <FaShoppingCart />
             <span className="cart-count">0</span>
@@ -43,15 +56,16 @@ const Header = () => {
         </div>
       </div>
 
-      {/* ===== HÀNG DƯỚI (MENU) ===== */}
+      {/* ===== BOTTOM MENU ===== */}
       <nav className="bottom-nav">
         <ul>
           <li><Link to="/" className={isActive("/") ? "active" : ""}>Trang chủ</Link></li>
           <li><Link to="/about" className={isActive("/about") ? "active" : ""}>Về chúng tôi</Link></li>
 
-          {/* Dropdown sản phẩm */}
+          {/* ===== DROPDOWN SẢN PHẨM ===== */}
           <li className={`dropdown center ${isProductActive() ? "active" : ""}`}>
-            <Link to="/product" className="drop-btn " >Sản phẩm</Link>
+            <Link to="/product" className="drop-btn">Sản phẩm</Link>
+
             <div className="mega-menu">
               <div className="column">
                 <h4>Xe đạp</h4>
@@ -80,7 +94,6 @@ const Header = () => {
       </nav>
     </header>
   );
-}
+};
 
 export default Header;
-
