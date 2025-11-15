@@ -15,9 +15,9 @@ export default function OrderMenu() {
 
   return (
     <Fragment>
-      <div className="ad-card">
+      <div className="ad-card ad-refresh">
         <div className="ad-body" style={{ display: "flex", justifyContent: "flex-start" }}>
-          <button className="ad-btn" onClick={refresh} disabled={loading}>
+          <button className="ad-bt  n" onClick={refresh} disabled={loading}>
             {loading ? "Đang tải…" : "Làm mới"}
           </button>
         </div>

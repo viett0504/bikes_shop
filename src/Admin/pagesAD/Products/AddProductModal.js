@@ -2,16 +2,18 @@
 import React, { useContext, useState, useEffect } from "react";
 import { ProductContext } from "./index";
 import { createProduct } from "./FetchApi";
-import { getAllCategory } from "../Categories/FetchApi"; 
+import { getAllCategory } from "../Categories/FetchApi";
+import * as XLSX from "xlsx";
+import { FiUpload } from "react-icons/fi";
 
 export default function AddProductModal() {
   const { data, dispatch } = useContext(ProductContext);
   const [loading, setLoading] = useState(false);
 
-   // State cho form sản phẩm
+  // State cho form sản phẩm
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
-  const [brand, setBrand] = useState(""); 
+  const [brand, setBrand] = useState(""); // sẽ lưu _id category
   const [stock, setStock] = useState(0);
   const [status, setStatus] = useState("Active");
   const [image, setImage] = useState(null);
@@ -26,7 +28,7 @@ export default function AddProductModal() {
     setStock(0);
     setStatus("Active");
     setImage(null);
-  }
+  };
 
   const close = () => {
     resetForm();
@@ -35,6 +37,8 @@ export default function AddProductModal() {
 
   // Chỉ load categories khi modal mở
   useEffect(() => {
+    if (!data.addProductModal) return;
+
     const fetchCategories = async () => {
       try {
         const res = await getAllCategory();
@@ -45,12 +49,7 @@ export default function AddProductModal() {
     };
 
     fetchCategories();
-  }, []);
-
-  // Nếu cờ tắt thì không hiển thị
-  if (!data.addProductModal) {
-    return null;
-  }
+  }, [data.addProductModal]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -87,9 +86,9 @@ export default function AddProductModal() {
         desc,
         image,
         status,
-        category: brand, // 🔹 gửi _id category sang BE (pCategory)
+        category: brand, // gửi _id category sang BE (pCategory)
         stock,
-        price: 0, 
+        price: 0,
         offer: 0,
       });
       setLoading(false);
@@ -105,20 +104,14 @@ export default function AddProductModal() {
       });
 
       if (res?.error) {
-        // Lỗi validation BE hoặc lỗi khác nhưng BE trả message cụ thể
         alert(res.error);
         return;
       }
 
       alert(res?.success || "Thêm sản phẩm thành công!");
 
-      // ✅ Reset form + đóng modal
       resetForm();
-      // close();
-
-      // Reload lại trang 
       window.location.reload();
-
     } catch (err) {
       setLoading(false);
       console.log("Lỗi tạo sản phẩm (AxiosError):", err);
@@ -131,10 +124,90 @@ export default function AddProductModal() {
     }
   };
 
+  // ======= IMPORT TỪ EXCEL =======
+  const handleExcelImport = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+      if (!rows.length) {
+        alert("File Excel không có dữ liệu.");
+        return;
+      }
+
+      const first = rows[0]; // lấy dòng đầu tiên để fill form
+
+      setName(first["Tên sản phẩm"] || first["Ten SP"] || "");
+      setDesc(first["Mô tả"] || first["Mo ta"] || "");
+      setStock(first["Tồn kho"] || first["Ton kho"] || 0);
+
+      // map tên thương hiệu trong Excel -> _id trong categories
+      const brandName =
+        first["Thương hiệu"] ||
+        first["Thuong hieu"] ||
+        first["Brand"] ||
+        "";
+
+      if (brandName && categories.length) {
+        const found = categories.find((c) => c.cName === brandName);
+        if (found) {
+          setBrand(found._id);
+        } else {
+          setBrand("");
+        }
+      }
+
+      const st =
+        first["Trạng thái"] ||
+        first["Trang thai"] ||
+        first["Status"] ||
+        "Active";
+      setStatus(st === "Inactive" ? "Inactive" : "Active");
+
+      console.log("Import từ Excel:", first);
+    } catch (err) {
+      console.error(err);
+      alert("Không đọc được file Excel. Kiểm tra lại định dạng (.xlsx, .xls).");
+    } finally {
+      e.target.value = "";
+    }
+  };
+
+  // Nếu cờ tắt thì không hiển thị
+  if (!data.addProductModal) {
+    return null;
+  }
+
   return (
     <div className="ad-card ad-form-card">
       <div className="ad-body">
-        <h2 className="ad-form-title">Thêm sản phẩm</h2>
+        {/* ===== HEADER: tiêu đề + nút Excel ===== */}
+        <div className="ad-form-header">
+          <h2 className="ad-form-title">Thêm sản phẩm</h2>
+
+          <div className="ad-form-tools">
+            {/* input file Excel ẩn */}
+            <input
+              id="excel-upload"
+              type="file"
+              accept=".xlsx,.xls"
+              onChange={handleExcelImport}
+              style={{ display: "none" }}
+            />
+
+            {/* nút bấm đẹp để upload Excel */}
+            <label htmlFor="excel-upload" className="ad-btn secondary small">
+              <FiUpload style={{ marginRight: 6 }} />
+              Nhập từ Excel
+            </label>
+          </div>
+        </div>
 
         <form onSubmit={handleSubmit}>
           {/* Hàng 1: Tên + Mô tả */}
@@ -160,7 +233,7 @@ export default function AddProductModal() {
             </div>
           </div>
 
-          {/* Hàng 2: Tồn kho + Trạng thái + Ảnh */}
+          {/* Hàng 2: Tồn kho + Thương hiệu + Trạng thái + Ảnh */}
           <div className="ad-form-row">
             <div className="ad-form-group ad-form-group-sm">
               <label>Tồn kho</label>
@@ -226,7 +299,6 @@ export default function AddProductModal() {
               {loading ? "Đang lưu..." : "Lưu"}
             </button>
           </div>
-
         </form>
       </div>
     </div>
