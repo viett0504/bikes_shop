@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet, useLocation } from "react-router-dom";
 
 // ---------- CUSTOMER ----------
 import Header from "../Customer/components/Header/Header";
@@ -17,12 +17,17 @@ import Dashboard from "../Admin/pagesAD/Dashboard/Dashboard";
 import Orders from "../Admin/pagesAD/Orders";
 import Products from "../Admin/pagesAD/Products";
 import Categories from "../Admin/pagesAD/Categories";   // <-- THÊM DÒNG NÀY
+import AccountPage from "../Customer/pages/Account/AccountPage";
 
 function CustomerShell() {
+  const { pathname } = useLocation();
+  const hideHeaderPaths = ["/login", "/register", "/admin", "/account"];
+
+  const shouldShowHeader = !hideHeaderPaths.includes(pathname);
   return (
     <>
       <div className="customer-scope">
-      <Header />
+      {shouldShowHeader && <Header />}
       <Outlet />
     </div>
 
@@ -37,6 +42,7 @@ export default function AppRouter() {
         {/* -------- CUSTOMER -------- */}
         <Route element={<CustomerShell />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/account" element={<AccountPage   />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route path="/product" element={<ProductPage />} />

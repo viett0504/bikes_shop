@@ -220,3 +220,28 @@ header {
 .mega-menu a:hover {
   color: #007bff !important;
 }
+
+.user-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #333;
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+
+.user-box span  {
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.user-icon {
+  font-size: 1.4rem;
+  color: #fff;
+}
+.user-box:hover .user-icon {
+  color: #000;
+}
+.user-name {
+  font-weight: 500;
+}
