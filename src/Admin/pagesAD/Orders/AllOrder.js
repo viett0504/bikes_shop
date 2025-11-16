@@ -62,7 +62,7 @@ export default function AllOrder() {
                     <td className="text-center">
                       <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
                         <button className="ad-btn success" onClick={() => onUpdateStatus(o._id, "confirmed")}>Xác nhận</button>
-                        <button className="ad-btn" onClick={() => onUpdateStatus(o._id, "shipped")}>Giao hàng</button>
+                        <button className="ad-btn left" onClick={() => onUpdateStatus(o._id, "shipped")}>Giao hàng</button>
                         <button className="ad-btn danger" onClick={() => onCancel(o._id)}>Hủy</button>
                       </div>
                     </td>

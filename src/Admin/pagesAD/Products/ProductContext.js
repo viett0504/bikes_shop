@@ -4,7 +4,7 @@ export const productState = {
   editProductModal: {
     modal: false, pId: "", pName: "", pDescription: "",
     pImages: null, pStatus: "", pCategory: "", pQuantity: "",
-    pPrice: "", pOffer: "",
+    pPrice: "", pOffer: "", pType: "",
   },
 };
 
