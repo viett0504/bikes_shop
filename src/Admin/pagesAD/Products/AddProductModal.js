@@ -10,8 +10,8 @@ export default function AddProductModal() {
   const { data, dispatch } = useContext(ProductContext);
   const { addProductModal, editProductModal } = data;
 
-  const isEditMode = !!editProductModal?.modal;       // đang sửa?
-  const isOpen = addProductModal || isEditMode;       // modal mở nếu add hoặc edit
+  const isEditMode = !!editProductModal?.modal && !addProductModal;    
+  const isOpen = addProductModal || isEditMode;       
 
   const [loading, setLoading] = useState(false);
 
@@ -269,7 +269,7 @@ export default function AddProductModal() {
         {/* HEADER: tiêu đề + nút Excel */}
         <div className="ad-form-header">
           <h2 className="ad-form-title">
-            {isEditMode ? "Sửa / thêm mới sản phẩm" : "Thêm sản phẩm"}
+            {isEditMode ? "Sửa sản phẩm" : "Thêm sản phẩm"}
           </h2>
 
           <div className="ad-form-tools">
