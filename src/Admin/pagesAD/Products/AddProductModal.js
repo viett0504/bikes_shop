@@ -10,27 +10,27 @@ export default function AddProductModal() {
   const { data, dispatch } = useContext(ProductContext);
   const { addProductModal, editProductModal } = data;
 
-  const isEditMode = !!editProductModal?.modal;   // đang sửa?
-  const isOpen = addProductModal || isEditMode;   // mở modal nếu add hoặc edit
+  const isEditMode = !!editProductModal?.modal && !addProductModal;    
+  const isOpen = addProductModal || isEditMode;       
 
   const [loading, setLoading] = useState(false);
 
-  // ===== STATE FORM SẢN PHẨM =====
+  // State form
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
-  const [brand, setBrand] = useState("");      // category _id
+  const [brand, setBrand] = useState(""); // _id category
   const [stock, setStock] = useState(0);
   const [status, setStatus] = useState("Active");
-  const [image, setImage] = useState(null);
-  const [categories, setCategories] = useState([]);
+  const [image, setImage] = useState(null); // file ảnh mới (nếu chọn)
 
+  const [categories, setCategories] = useState([]);
   const [price, setPrice] = useState(0);
   const [offer, setOffer] = useState(0);
   const [type, setType] = useState("");
 
+  // Lưu tên gốc khi bắt đầu sửa, để so sánh xem user có đổi tên hay không
   const originalNameRef = useRef("");
 
-  // ===== RESET FORM =====
   const resetForm = () => {
     setName("");
     setDesc("");
@@ -43,19 +43,21 @@ export default function AddProductModal() {
     setType("");
   };
 
-  // ===== ĐÓNG MODAL =====
   const close = () => {
-    dispatch({ type: "addProductModal", payload: false });
-    dispatch({ type: "editProductModalClose" });
+    if (isEditMode) {
+      dispatch({ type: "editProductModalClose" });
+    } else {
+      dispatch({ type: "addProductModal", payload: false });
+    }
     resetForm();
     originalNameRef.current = "";
   };
 
-  // ===== LOAD CATEGORY =====
+  // ======= LOAD DANH MỤC KHI MODAL MỞ =======
   useEffect(() => {
     if (!isOpen) return;
 
-    const loadCat = async () => {
+    const fetchCategories = async () => {
       try {
         const res = await getAllCategory();
         setCategories(res?.Categories || []);
@@ -64,23 +66,25 @@ export default function AddProductModal() {
       }
     };
 
-    loadCat();
+    fetchCategories();
   }, [isOpen]);
 
-  // ===== FILL FORM KHI SỬA =====
+  // ======= FILL FORM KHI ẤN SỬA / HOẶC RESET KHI ẤN THÊM =======
   useEffect(() => {
     if (!isOpen) return;
 
     if (isEditMode && editProductModal) {
+      // fill data cũ vào form
       setName(editProductModal.pName || "");
       setDesc(editProductModal.pDescription || "");
       setBrand(
         editProductModal.pCategory?._id ||
-        editProductModal.pCategory ||
-        ""
+          editProductModal.pCategory ||
+          ""
       );
       setStock(editProductModal.pQuantity ?? 0);
       setStatus(editProductModal.pStatus || "Active");
+      setImage(null);
 
       setPrice(editProductModal.pPrice ?? 0);
       setOffer(editProductModal.pOffer ?? 0);
@@ -88,72 +92,121 @@ export default function AddProductModal() {
 
       originalNameRef.current = editProductModal.pName;
     } else {
+      // chế độ thêm mới
       resetForm();
     }
   }, [isOpen, isEditMode, editProductModal]);
 
+  // Nếu modal đóng thì không render gì
   if (!isOpen) return null;
 
-  // ===== SUBMIT FORM =====
+  // ======= SUBMIT FORM =======
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // VALIDATION
-    if (!name.trim()) return alert("Vui lòng nhập tên sản phẩm");
-    if (!desc.trim()) return alert("Vui lòng nhập mô tả");
-    if (!brand) return alert("Vui lòng chọn thương hiệu");
-    if (!stock || Number(stock) <= 0)
-      return alert("Tồn kho phải lớn hơn 0");
-
+    
     const sameName =
       isEditMode &&
+      originalNameRef.current &&
       name.trim().toLowerCase() ===
         originalNameRef.current.trim().toLowerCase();
 
-    if (!image && (!isEditMode || !sameName))
-      return alert("Vui lòng chọn ảnh");
+    if (!name.trim()) {
+      alert("Vui lòng nhập tên sản phẩm");
+      return;
+    }
+    if (!desc.trim()) {
+      alert("Vui lòng nhập mô tả sản phẩm");
+      return;
+    }
+    if (!stock || Number(stock) <= 0) {
+      alert("Vui lòng nhập số lượng tồn kho hợp lệ");
+      return;
+    }
+    if (!brand) {
+      alert("Vui lòng chọn thương hiệu");
+      return;
+    }
+    if (!status) {
+      alert("Vui lòng chọn trạng thái");
+      return;
+    }
+    // YÊU CẦU ẢNH nếu:
+    // - đang THÊM mới, hoặc
+    // - đang SỬA nhưng ĐỔI TÊN (tức là sẽ tạo SP mới)
+    if (!image && !sameName) {
+      alert("Vui lòng chọn ảnh sản phẩm");
+      return;
+    }
 
     try {
       setLoading(true);
 
-      let res;
-
       if (isEditMode) {
-        // ==== SỬA ====
-        const payload = {
-          pId: editProductModal._id,
-          pName: name,
-          pDescription: desc,
-          pStatus: status,
-          pCategory: brand,
-          pQuantity: stock,
-          pPrice: price,
-          pOffer: offer,
-          pType: type,
-          pImages: editProductModal.pImages || [],
-          pEditImages: image ? [image] : [],
-        };
+        // ====== ĐANG Ở CHẾ ĐỘ SỬA ======
+        if (sameName) {
+          // 👉 Giữ nguyên tên -> CẬP NHẬT SẢN PHẨM HIỆN TẠI
+          const payload = {
+            pId: editProductModal._id || editProductModal.pId,
+            pName: name,
+            pDescription: desc,
+            pStatus: status,
+            pCategory: brand,
+            pQuantity: stock,
+            pPrice: editProductModal.pPrice ?? 0,
+            pOffer: editProductModal.pOffer ?? 0,
+            pImages: editProductModal.pImages || [],
+            pEditImages: image ? [image] : [],
+          };
 
-        res = await editProduct(payload);
+          const res = await editProduct(payload);
+          if (res?.success) {
+            alert("Cập nhật sản phẩm thành công");
+          } else if (res?.error) {
+            alert(res.error);
+          }
+        } else {
+          // 👉 ĐỔI TÊN SẢN PHẨM -> TẠO SẢN PHẨM MỚI
+          const res = await createProduct({
+            name,
+            desc,
+            image,
+            status,
+            category: brand,
+            stock,
+            type,
+            price: editProductModal.pPrice ?? 0,
+            offer: editProductModal.pOffer ?? 0,
+          });
+
+          if (res?.success) {
+            alert("Đã thêm sản phẩm mới (do đổi tên sản phẩm)");
+          } else if (res?.error) {
+            alert(res.error);
+          }
+        }
       } else {
-        // ==== THÊM MỚI ====
-        res = await createProduct({
+        // ====== CHẾ ĐỘ THÊM MỚI BÌNH THƯỜNG ======
+        const res = await createProduct({
           name,
           desc,
           image,
           status,
           category: brand,
           stock,
-          price,
-          offer,
+          price: 0,
+          offer: 0,
           type,
         });
+
+        if (res?.success) {
+          alert("Tạo sản phẩm thành công");
+        } else if (res?.error) {
+          alert(res.error);
+        }
       }
 
-      if (res?.success) alert(res.success);
-      else if (res?.error) alert(res.error);
-
-      // Load lại danh sách
+      // Load lại list sản phẩm sau khi lưu
       const list = await getAllProduct();
       dispatch({
         type: "fetchProductsAndChangeState",
@@ -162,103 +215,150 @@ export default function AddProductModal() {
 
       close();
     } catch (err) {
-      console.log("Lỗi:", err);
-      alert("Có lỗi xảy ra khi lưu sản phẩm");
+      console.log("Lỗi tạo/cập nhật sản phẩm:", err);
+      const msg =
+        err?.response?.data?.error ||
+        err?.message ||
+        "Lỗi server khi tạo/cập nhật sản phẩm";
+      alert(msg);
     } finally {
       setLoading(false);
     }
   };
 
-  // ===== IMPORT EXCEL =====
+  // ======= IMPORT TỪ EXCEL =======
   const handleExcelImport = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
     try {
-      const file = e.target.files?.[0];
-      if (!file) return;
-
       const data = await file.arrayBuffer();
-      const wb = XLSX.read(data, { type: "array" });
-      const sheet = wb.Sheets[wb.SheetNames[0]];
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-      if (!rows.length) return;
 
-      const r = rows[0];
-      setName(r["Tên sản phẩm"]);
-      setDesc(r["Mô tả"]);
-      setStock(r["Tồn kho"]);
-      setPrice(r["Giá"] || 0);
-      setOffer(r["Ưu đãi"] || 0);
-      setType(r["Loại xe"] || "");
+      if (!rows.length) {
+        alert("File Excel không có dữ liệu.");
+        return;
+      }
 
-      const brandName = r["Thương hiệu"];
-      const b = categories.find((c) => c.cName === brandName);
-      if (b) setBrand(b._id);
+      const first = rows[0]; // lấy dòng đầu tiên để fill form
 
+      setName(first["Tên sản phẩm"] || first["Ten SP"] || "");
+      setDesc(first["Mô tả"] || first["Mo ta"] || "");
+      setStock(first["Tồn kho"] || first["Ton kho"] || 0);
+
+      // map tên thương hiệu trong Excel -> _id trong categories
+      const brandName =
+        first["Thương hiệu"] ||
+        first["Thuong hieu"] ||
+        first["Brand"] ||
+        "";
+
+      if (brandName && categories.length) {
+        const found = categories.find((c) => c.cName === brandName);
+        if (found) setBrand(found._id);
+      }
+
+      const st =
+        first["Trạng thái"] ||
+        first["Trang thai"] ||
+        first["Status"] ||
+        "Active";
+      setStatus(st === "Inactive" ? "Inactive" : "Active");
+
+      console.log("Import từ Excel:", first);
     } catch (err) {
-      console.log("Excel error:", err);
+      console.log("Lỗi đọc file Excel:", err);
+      alert("Không đọc được file Excel, vui lòng kiểm tra lại.");
     }
   };
 
-  // ===== UI FORM =====
+  // ======= RENDER UI =======
   return (
     <div className="ad-card ad-form-card">
       <div className="ad-body">
-
-        {/* Header */}
+        {/* HEADER: tiêu đề + nút Excel */}
         <div className="ad-form-header">
           <h2 className="ad-form-title">
             {isEditMode ? "Sửa sản phẩm" : "Thêm sản phẩm"}
           </h2>
 
           <div className="ad-form-tools">
+            {/* input file Excel ẩn */}
             <input
               id="excel-upload"
               type="file"
               accept=".xlsx,.xls"
-              style={{ display: "none" }}
               onChange={handleExcelImport}
+              style={{ display: "none" }}
             />
+
+            {/* nút bấm đẹp để upload Excel */}
             <label htmlFor="excel-upload" className="ad-btn secondary small">
               <FiUpload style={{ marginRight: 6 }} />
-              Import Excel
+              Nhập từ Excel
             </label>
           </div>
         </div>
 
         <form onSubmit={handleSubmit}>
-          
-          {/* Hàng 1 */}
+          {/* Hàng 1: Tên + Mô tả */}
           <div className="ad-form-row">
             <div className="ad-form-group">
               <label>Tên sản phẩm</label>
-              <input value={name} onChange={(e)=>setName(e.target.value)} />
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="VD: Xe đạp thể thao"
+              />
             </div>
 
             <div className="ad-form-group">
               <label>Mô tả</label>
-              <textarea value={desc} onChange={(e)=>setDesc(e.target.value)} rows={3}/>
+              <textarea
+                rows={3}
+                value={desc}
+                onChange={(e) => setDesc(e.target.value)}
+                placeholder="Mô tả ngắn gọn về sản phẩm"
+              />
             </div>
           </div>
 
-          {/* Hàng 2 */}
+          {/* Hàng 2: Tồn kho + Thương hiệu + Trạng thái + Ảnh */}
           <div className="ad-form-row">
             <div className="ad-form-group ad-form-group-sm">
               <label>Tồn kho</label>
-              <input type="number" value={stock} onChange={(e)=>setStock(e.target.value)} />
+              <input
+                type="number"
+                min={0}
+                value={stock}
+                onChange={(e) => setStock(e.target.value)}
+              />
             </div>
 
             <div className="ad-form-group ad-form-group-sm">
               <label>Thương hiệu</label>
-              <select value={brand} onChange={(e)=>setBrand(e.target.value)}>
+              <select
+                value={brand}
+                onChange={(e) => setBrand(e.target.value)}
+              >
                 <option value="">-- Chọn thương hiệu --</option>
-                {categories.map((c)=>(
-                  <option key={c._id} value={c._id}>{c.cName}</option>
+                {categories.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.cName}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div className="ad-form-group ad-form-group-sm">
               <label>Trạng thái</label>
-              <select value={status} onChange={(e)=>setStatus(e.target.value)}>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+              >
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
               </select>
@@ -266,7 +366,10 @@ export default function AddProductModal() {
 
             <div className="ad-form-group">
               <label>Ảnh</label>
-              <input type="file" onChange={(e)=>setImage(e.target.files[0])} />
+              <input
+                type="file"
+                onChange={(e) => setImage(e.target.files[0] || null)}
+              />
             </div>
           </div>
 
@@ -323,11 +426,22 @@ export default function AddProductModal() {
 
           </div>
 
-
           {/* Nút */}
           <div className="ad-form-actions">
-            <button type="button" className="ad-btn" onClick={close}>Hủy</button>
-            <button type="submit" className="ad-btn success">
+            <button
+              type="button"
+              className="ad-btn"
+              style={{ marginRight: 8 }}
+              onClick={close}
+              disabled={loading}
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              className="ad-btn success"
+              disabled={loading}
+            >
               {loading ? "Đang lưu..." : "Lưu"}
             </button>
           </div>
