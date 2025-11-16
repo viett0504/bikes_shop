@@ -71,10 +71,15 @@ export default function ProductTable() {
   return (
     <div className="ad-card">
       <div className="ad-body">
-        {/* wrapper để nếu nhiều cột thì cho scroll ngang */}
-        <div style={{ overflowX: "auto" }}>
-          {/* TABLE HEADER – không nằm trong div scroll dọc */}
-          <table className="ad-table">
+        {/* wrapper cho scroll dọc + ngang */}
+        <div
+          style={{
+            maxHeight: 600,        // khoảng 5–6 dòng
+            overflowY: "auto",
+            overflowX: "auto",
+          }}
+        >
+          <table className="ad-table ad-table-sticky" style={{ minWidth: 1200 }}>
             <thead>
               <tr>
                 <th>Tên SP</th>
@@ -83,103 +88,124 @@ export default function ProductTable() {
                 <th>Trạng thái</th>
                 <th>Tồn</th>
                 <th>Danh mục</th>
+                <th>Loại xe</th>   {/* NEW */}
+                <th>Giá tiền</th>  {/* NEW */}
                 <th>Ưu đãi (%)</th>
                 <th>Tạo lúc</th>
                 <th>Cập nhật</th>
                 <th>Hành động</th>
               </tr>
             </thead>
-          </table>
+            <tbody>
+              {products.length ? (
+                products.map((p) => (
+                  <tr key={p._id}>
+                    {/* Tên sản phẩm – không fix width nữa */}
+                    <td className="text-left">{p.pName}</td>
 
-          {/* BODY – chỉ phần này có thanh scroll dọc */}
-          <div
-            style={{
-              maxHeight: 360,        // khoảng 5 dòng
-              overflowY: "auto",     // scroll dọc
-              paddingRight: 8,       // cho thanh scroll cách nút Xóa ra
-            }}
-          >
-            <table className="ad-table">
-              <tbody>
-                {products.length ? (
-                  products.map((p) => (
-                    <tr key={p._id}>
-                      <td className="text-left">{p.pName}</td>
-                      <td className="text-left">
-                        {(p.pDescription || "").slice(0, 30)}…
-                      </td>
-                      <td className="text-center">
-                        {p.pImages?.[0] ? (
-                          <img
-                            alt=""
-                            style={{
-                              width: 40,
-                              height: 40,
-                              objectFit: "cover",
-                              borderRadius: 6,
-                            }}
-                            src={getImageSrc(p.pImages[0])}
-                          />
-                        ) : (
-                          "—"
-                        )}
-                      </td>
-                      <td className="text-center">
-                        <span
-                          className={`ad-badge ${
-                            p.pStatus === "Active" ? "success" : ""
-                          }`}
-                        >
-                          {p.pStatus || "—"}
-                        </span>
-                      </td>
-                      <td className="text-right">{p.pQuantity ?? 0}</td>
-                      <td className="text-center">
-                        {p.pCategory?.cName || "—"}
-                      </td>
-                      <td className="text-right">{p.pOffer ?? 0}</td>
-                      <td className="text-center">
-                        {p.createdAt ? moment(p.createdAt).format("lll") : "—"}
-                      </td>
-                      <td className="text-center">
-                        {p.updatedAt ? moment(p.updatedAt).format("lll") : "—"}
-                      </td>
-                      <td className="text-center" style={{ paddingRight: 12 }}>
-                        <div
+                    {/* Mô tả – rút ngắn để bảng gọn */}
+                    <td className="text-left">
+                      {(p.pDescription || "").length > 40
+                        ? (p.pDescription || "").slice(0, 40) + "..."
+                        : p.pDescription || "—"}
+                    </td>
+
+                    {/* Ảnh */}
+                    <td className="text-center">
+                      {p.pImages?.[0] ? (
+                        <img
+                          alt=""
                           style={{
-                            display: "flex",
-                            gap: 8,
-                            justifyContent: "center",
+                            width: 40,
+                            height: 40,
+                            objectFit: "cover",
+                            borderRadius: 6,
                           }}
+                          src={getImageSrc(p.pImages[0])}
+                        />
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+
+                    {/* Trạng thái */}
+                    <td className="text-center">
+                      <span
+                        className={`ad-badge ${
+                          p.pStatus === "Active" ? "success" : ""
+                        }`}
+                      >
+                        {p.pStatus || "—"}
+                      </span>
+                    </td>
+
+                    {/* Tồn */}
+                    <td className="text-right">{p.pQuantity ?? 0}</td>
+
+                    {/* Danh mục (tên category) */}
+                    <td className="text-center">
+                      {p.pCategory?.cName || "—"}
+                    </td>
+
+                    {/* Loại xe (nếu bạn có field type, không thì fallback cName) */}
+                    <td className="text-center">
+                      {p.pCategory?.type || p.pCategory?.cName || "—"}
+                    </td>
+
+                    {/* Giá tiền */}
+                    <td className="text-right">
+                      {p.pPrice
+                        ? p.pPrice.toLocaleString("vi-VN") + " ₫"
+                        : "—"}
+                    </td>
+
+                    {/* Ưu đãi */}
+                    <td className="text-right">{p.pOffer ?? 0}</td>
+
+                    {/* Thời gian */}
+                    <td className="text-center">
+                      {p.createdAt ? moment(p.createdAt).format("lll") : "—"}
+                    </td>
+                    <td className="text-center">
+                      {p.updatedAt ? moment(p.updatedAt).format("lll") : "—"}
+                    </td>
+
+                    {/* Hành động */}
+                    <td className="text-center" style={{ paddingRight: 12 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 8,
+                          justifyContent: "center",
+                        }}
+                      >
+                        <button
+                          className="ad-btn left"
+                          type="button"
+                          onClick={() => onEdit(p)}
                         >
-                          <button
-                            className="ad-btn"
-                            type="button"
-                            onClick={() => onEdit(p)}
-                          >
-                            Sửa
-                          </button>
-                          <button
-                            className="ad-btn danger"
-                            type="button"
-                            onClick={() => onDelete(p._id)}
-                          >
-                            Xóa
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="10" className="text-center">
-                      Chưa có sản phẩm
+                          Sửa
+                        </button>
+                        <button
+                          className="ad-btn danger"
+                          type="button"
+                          onClick={() => onDelete(p._id)}
+                        >
+                          Xóa
+                        </button>
+                      </div>
                     </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="12" className="text-center">
+                    Chưa có sản phẩm
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
 
         <div className="ad-muted" style={{ marginTop: 8 }}>

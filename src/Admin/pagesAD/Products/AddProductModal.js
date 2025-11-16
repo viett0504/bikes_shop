@@ -24,6 +24,9 @@ export default function AddProductModal() {
   const [image, setImage] = useState(null); // file ảnh mới (nếu chọn)
 
   const [categories, setCategories] = useState([]);
+  const [price, setPrice] = useState(0);
+  const [offer, setOffer] = useState(0);
+  const [type, setType] = useState("");
 
   // Lưu tên gốc khi bắt đầu sửa, để so sánh xem user có đổi tên hay không
   const originalNameRef = useRef("");
@@ -35,6 +38,9 @@ export default function AddProductModal() {
     setStock(0);
     setStatus("Active");
     setImage(null);
+    setPrice(0);
+    setOffer(0);
+    setType("");
   };
 
   const close = () => {
@@ -80,11 +86,14 @@ export default function AddProductModal() {
       setStatus(editProductModal.pStatus || "Active");
       setImage(null);
 
-      originalNameRef.current = editProductModal.pName || "";
+      setPrice(editProductModal.pPrice ?? 0);
+      setOffer(editProductModal.pOffer ?? 0);
+      setType(editProductModal.pType ?? "");
+
+      originalNameRef.current = editProductModal.pName;
     } else {
       // chế độ thêm mới
       resetForm();
-      originalNameRef.current = "";
     }
   }, [isOpen, isEditMode, editProductModal]);
 
@@ -95,6 +104,7 @@ export default function AddProductModal() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    
     const sameName =
       isEditMode &&
       originalNameRef.current &&
@@ -164,6 +174,7 @@ export default function AddProductModal() {
             status,
             category: brand,
             stock,
+            type,
             price: editProductModal.pPrice ?? 0,
             offer: editProductModal.pOffer ?? 0,
           });
@@ -185,6 +196,7 @@ export default function AddProductModal() {
           stock,
           price: 0,
           offer: 0,
+          type,
         });
 
         if (res?.success) {
@@ -359,6 +371,59 @@ export default function AddProductModal() {
                 onChange={(e) => setImage(e.target.files[0] || null)}
               />
             </div>
+          </div>
+
+          {/* Hàng 3: Loại xe + Giá tiền + Ưu đãi */}
+          <div
+            className="ad-form-row"
+            style={{
+              justifyContent: "center",
+              gap: "80px",
+            }}
+          >
+
+            <div
+              className="ad-form-group ad-form-group-sm"
+              style={{ maxWidth: "220px" }}
+            >
+              <label>Loại xe</label>
+              <input
+                type="text"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                placeholder="VD: Xe địa hình, Xe gấp..."
+              />
+            </div>
+
+            <div
+              className="ad-form-group ad-form-group-sm"
+              style={{ maxWidth: "220px" }}
+            >
+              <label>Giá tiền (₫)</label>
+              <input
+                type="number"
+                min={0}
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="VD: 5500000"
+              />
+            </div>
+
+            <div
+              className="ad-form-group ad-form-group-sm"
+              style={{ maxWidth: "220px" }}
+            >
+              <label>Ưu đãi (%)</label>
+              <input
+                type="number"
+                min={0}
+                max={100}
+                value={offer}
+                onChange={(e) => setOffer(e.target.value)}
+                placeholder="VD: 10"
+              />
+            </div>
+
           </div>
 
           {/* Nút */}

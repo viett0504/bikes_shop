@@ -1,4 +1,5 @@
-import React from "react";
+// src/Client/components/Header/Header.jsx
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaShoppingCart, FaUserCircle } from "react-icons/fa";
 import logo from "../../../assets/img/logo.png";
@@ -8,20 +9,141 @@ import "./Header.css";
 const Header = () => {
   const location = useLocation();
 
-  // Lấy thông tin user từ localStorage
   // const user = JSON.parse(localStorage.getItem("user"));
   // const username = user?.username || null;
+  const username = "Việt";
 
-  const username = "Việt"; 
-  // Kiểm tra route active
   const isActive = (path) => location.pathname === path;
   const isProductActive = () => location.pathname.startsWith("/product");
+
+  // ===== DATA MENU BIKES (giống style ảnh) =====
+  const productGroups = [
+    {
+      key: "electric",
+      label: "ELECTRIC",
+      items: [
+        {
+          key: "e-mountain",
+          name: "E-MOUNTAIN BIKE",
+          description: "Explore further, ride stronger with electric MTBs.",
+          to: "/products/e-mountain",
+          image:
+            "https://images.unsplash.com/photo-1593091860788-9369658f47cd?auto=format&fit=crop&w=1200&q=80",
+        },
+        {
+          key: "e-commuter",
+          name: "E-COMMUTER",
+          description: "Electric urban bikes for everyday commuting.",
+          to: "/products/e-commuter",
+          image:
+            "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80",
+        },
+        {
+          key: "e-gravel",
+          name: "E-GRAVEL",
+          description: "Electric gravel bikes for speed and versatility.",
+          to: "/products/e-gravel",
+          image:
+            "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1200&q=80",
+        },
+        {
+          key: "e-road",
+          name: "E-ROAD",
+          description: "Electric road bikes built for power and precision.",
+          to: "/products/e-road",
+          image:
+            "https://images.unsplash.com/photo-1518655048521-f130df041f66?auto=format&fit=crop&w=1200&q=80",
+        },
+      ],
+    },
+    {
+      key: "mountain",
+      label: "MOUNTAIN",
+      items: [
+        {
+          key: "trail",
+          name: "TRAIL BIKE",
+          description: "Versatile trail bikes for mixed terrain.",
+          to: "/products/trail",
+          image:
+            "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=1200&q=80",
+        },
+        {
+          key: "enduro",
+          name: "ENDURO BIKE",
+          description: "Long-travel bikes for aggressive descents.",
+          to: "/products/enduro",
+          image:
+            "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?auto=format&fit=crop&w=1200&q=80",
+        },
+      ],
+    },
+    {
+      key: "gravel",
+      label: "GRAVEL",
+      items: [
+        {
+          key: "all-road",
+          name: "ALL-ROAD",
+          description: "Fast on tarmac, confident on gravel.",
+          to: "/products/all-road",
+          image:
+            "https://images.unsplash.com/photo-1541622783521-4c1c67c90ff2?auto=format&fit=crop&w=1200&q=80",
+        },
+      ],
+    },
+    {
+      key: "road",
+      label: "ROAD",
+      items: [
+        {
+          key: "race",
+          name: "RACE BIKE",
+          description: "Ultra-lightweight bikes built for pure speed.",
+          to: "/products/race",
+          image:
+            "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?auto=format&fit=crop&w=1200&q=80",
+        },
+      ],
+    },
+    {
+      key: "city",
+      label: "CITY & HYBRID",
+      items: [
+        {
+          key: "city-bike",
+          name: "CITY BIKE",
+          description: "Comfortable bikes for everyday city riding.",
+          to: "/products/city",
+          image:
+            "https://images.unsplash.com/photo-1529424301806-4be0bb154e3b?auto=format&fit=crop&w=1200&q=80",
+        },
+      ],
+    },
+    {
+      key: "kids",
+      label: "KIDS",
+      items: [
+        {
+          key: "kids",
+          name: "KIDS BIKES",
+          description: "Safe and colorful bikes for young riders.",
+          to: "/products/kids",
+          image:
+            "https://images.unsplash.com/photo-1529424301806-4be0bb154e3b?auto=format&fit=crop&w=1200&q=80",
+        },
+      ],
+    },
+  ];
+
+  const [activeGroupKey, setActiveGroupKey] = useState(productGroups[0].key);
+  const activeGroup =
+    productGroups.find((g) => g.key === activeGroupKey) || productGroups[0];
 
   return (
     <header>
       {/* ===== TOP BAR ===== */}
       <div className="top-bar">
-        
         {/* Logo */}
         <div className="logo">
           <img src={logo} alt="logo" />
@@ -34,17 +156,16 @@ const Header = () => {
 
         {/* ==== USER ACTIONS ==== */}
         <div className="user-actions">
-
-          {/* Nếu chưa đăng nhập → hiện nút đăng nhập */}
           {!username ? (
             <Link to="/login" className="login-btn">
               Đăng nhập
             </Link>
           ) : (
-            /* Nếu đã đăng nhập → hiện avatar + xin chào */
             <Link to="/account" className="user-box">
               <FaUserCircle className="user-icon" />
-              <span>Xin chào, <strong>{username}</strong></span>
+              <span>
+                Xin chào, <strong>{username}</strong>
+              </span>
             </Link>
           )}
 
@@ -59,37 +180,78 @@ const Header = () => {
       {/* ===== BOTTOM MENU ===== */}
       <nav className="bottom-nav">
         <ul>
-          <li><Link to="/" className={isActive("/") ? "active" : ""}>Trang chủ</Link></li>
-          <li><Link to="/about" className={isActive("/about") ? "active" : ""}>Về chúng tôi</Link></li>
+          <li>
+            <Link to="/" className={isActive("/") ? "active" : ""}>
+              Trang chủ
+            </Link>
+          </li>
+          <li>
+            <Link to="/about" className={isActive("/about") ? "active" : ""}>
+              Về chúng tôi
+            </Link>
+          </li>
 
-          {/* ===== DROPDOWN SẢN PHẨM ===== */}
-          <li className={`dropdown center ${isProductActive() ? "active" : ""}`}>
-            <Link to="/product" className="drop-btn">Sản phẩm</Link>
+          {/* ===== DROPDOWN SẢN PHẨM GIỐNG ẢNH ===== */}
+          <li
+            className={`dropdown center ${
+              isProductActive() ? "active" : ""
+            }`}
+          >
+            <Link to="/product" className="drop-btn">
+              Sản phẩm
+            </Link>
 
             <div className="mega-menu">
+              {/* Cột trái: sidebar category */}
               <div className="column">
-                <h4>Xe đạp</h4>
-                <Link to="/products/road">Xe đạp đường trường</Link>
-                <Link to="/products/mountain">Xe đạp địa hình</Link>
-                <Link to="/products/folding">Xe gấp</Link>
+                <h4>Danh mục</h4>
+                <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                  {productGroups.map((g) => (
+                    <li
+                      key={g.key}
+                      onMouseEnter={() => setActiveGroupKey(g.key)}
+                      className={
+                        g.key === activeGroup.key ? "active" : ""
+                      }
+                    >
+                      <span>{g.label}</span>
+                      <span>{">"}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
+              {/* Cột phải: hàng card xe */}
               <div className="column">
-                <h4>Phụ kiện</h4>
-                <Link to="/products/helmets">Mũ bảo hiểm</Link>
-                <Link to="/products/lights">Đèn xe</Link>
-                <Link to="/products/locks">Khóa xe</Link>
-              </div>
-
-              <div className="column">
-                <h4>Dịch vụ</h4>
-                <Link to="/services/maintenance">Bảo dưỡng</Link>
-                <Link to="/services/custom">Độ xe</Link>
+                <div className="product-row">
+                  {activeGroup.items.map((item) => (
+                    <Link
+                      key={item.key}
+                      to={item.to}
+                      className="product-card"
+                    >
+                      <img src={item.image} alt={item.name} />
+                      <div className="product-card-title">
+                        {item.name}
+                      </div>
+                      <div className="product-card-desc">
+                        {item.description}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
           </li>
 
-          <li><Link to="/contact" className={isActive("/contact") ? "active" : ""}>Liên hệ</Link></li>
+          <li>
+            <Link
+              to="/contact"
+              className={isActive("/contact") ? "active" : ""}
+            >
+              Liên hệ
+            </Link>
+          </li>
         </ul>
       </nav>
     </header>

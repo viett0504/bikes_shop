@@ -178,7 +178,11 @@
   width: 100%;
   display: flex;
   align-items: center;
-  grid-template-columns: none !important;
+  /* grid-template-columns: none !important; */
+}
+
+section.features {
+   grid-template-columns: none !important; 
 }
 
 .features-grid {

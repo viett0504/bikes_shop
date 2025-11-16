@@ -1,7 +1,7 @@
 // src/Admin/pagesAD/Categories/AllCategory.js
 import { useContext, useEffect } from "react";
 import { CategoryContext } from "./index";     
-import { getAllCategory } from "./FetchApi"; 
+import { deleteCategory, getAllCategory } from "./FetchApi"; 
 
 const AllCategory = () => {
   const { data, dispatch } = useContext(CategoryContext);
@@ -23,6 +23,19 @@ const AllCategory = () => {
 
     fetchData();
   }, [dispatch]);
+
+  const onDelete = async (id) => {
+      const r = await deleteCategory(id);
+      if (r?.success) getAllCategory();
+    };
+
+  const onEdit = (a) => {
+    dispatch({
+      type: "editCategoryModalOpen",
+      category: a,
+    });
+  };
+
 
   return (
     <div className="ad-card" style={{ marginTop: 16 }}>
@@ -68,8 +81,29 @@ const AllCategory = () => {
                     <td>{c.cStatus}</td>
                     <td>{new Date(c.createdAt).toLocaleString("vi-VN")}</td>
                     <td>{new Date(c.updatedAt).toLocaleString("vi-VN")}</td>
-                    <td>
-                      {/* sau này thêm Sửa/Xóa */}
+                    <td className="text-center" style={{ paddingRight: 12 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 8,
+                          justifyContent: "center",
+                        }}
+                      >
+                        <button
+                          className="ad-btn left"
+                          type="button"
+                          onClick={() => onEdit(c)}
+                        >
+                          Sửa
+                        </button>
+                        <button
+                          className="ad-btn danger"
+                          type="button"
+                          onClick={() => onDelete(c._id)}
+                        >
+                          Xóa
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
