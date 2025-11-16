@@ -14,7 +14,10 @@ export default function AccountTable() {
   const fetchData = async () => {
     setLoading(true);
     const res = await getAllAccount();
-    dispatch({ type: "fetchAccountsAndChangeState", payload: res?.Accounts || [] });
+    dispatch({
+      type: "fetchAccountsAndChangeState",
+      payload: res?.Users || []   
+    });
     setLoading(false);
   };
 

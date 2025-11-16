@@ -3,15 +3,26 @@ import axios from "axios";
 
 const apiURL = process.env.REACT_APP_API_URL;
 
-// Lấy danh sách banner đang treo
+// Lấy danh sách banner đang treo từ BE (customize.js)
 export const getBanners = async () => {
   try {
-    const res = await axios.get(`${apiURL}/api/customize/images`);
-    // Giả sử BE trả về: { Images: [ { _id, imageUrl } ] }
-    return res;
+    // BE: router.get("/get-slide-image", customizeController.getImages);
+    const res = await axios.get(`${apiURL}/api/customize/get-slide-image`);
+
+    // BE trả: { Images: [ { _id, slideImage } ] }
+    const raw = res.data?.Images || [];
+
+    // Chuẩn hoá về dạng { _id, imageUrl } cho FE dễ dùng
+    const mapped = raw.map((img) => ({
+      _id: img._id,
+      // app.use(express.static("public")) => /uploads/customize/<file>
+      imageUrl: `${apiURL}/uploads/customize/${img.slideImage}`,
+    }));
+
+    return mapped;
   } catch (error) {
     console.error("❌ Lỗi getBanners:", error);
-    throw error;
+    return [];
   }
 };
 
@@ -19,9 +30,10 @@ export const getBanners = async () => {
 export const uploadBanner = async (imageFile) => {
   try {
     const formData = new FormData();
-    // TÊN FIELD "image" phải trùng với multer.single("image") bên BE
+    // TÊN FIELD "image" phải trùng với upload.single("image") bên BE
     formData.append("image", imageFile);
 
+    // BE: /api/customize/upload-slide-image (POST)
     const res = await axios.post(
       `${apiURL}/api/customize/upload-slide-image`,
       formData,
@@ -31,7 +43,8 @@ export const uploadBanner = async (imageFile) => {
         },
       }
     );
-    return res;
+
+    return res.data; // { success: "..."} / { error: "..." }
   } catch (error) {
     console.error("❌ Lỗi uploadBanner:", error);
     throw error;
@@ -41,8 +54,13 @@ export const uploadBanner = async (imageFile) => {
 // Xoá 1 banner
 export const deleteBanner = async (id) => {
   try {
-    const res = await axios.delete(`${apiURL}/api/customize/delete-image/${id}`);
-    return res;
+    // BE: router.post("/delete-slide-image", customizeController.deleteSlideImage);
+    // BE nhận { id } trong body
+    const res = await axios.post(
+      `${apiURL}/api/customize/delete-slide-image`,
+      { id }
+    );
+    return res.data;
   } catch (error) {
     console.error("❌ Lỗi deleteBanner:", error);
     throw error;
