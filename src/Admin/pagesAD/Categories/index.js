@@ -17,8 +17,17 @@ const Categories = () => {
         {/* Bọc bằng card cho giống style admin của bạn */}
             {/* Thanh nút “+ Thêm danh mục” */}
         <div className="ad-col">
-          <CategoryMenu />
+          <div className="ad-card ad-add">
+            <div className="ad-body" style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <button className="ad-btn" onClick={() => dispatch({ type: "addCategoryModal", payload: true })}>
+                + Thêm danh mục
+              </button>
+              {/* Sau này nhúng AddProductModal / EditProductModal nếu muốn */}
+            </div>
+          </div>
+
           <AllCategories />
+          <CategoryMenu />
         </div>              
       </CategoryContext.Provider>
     </Fragment>

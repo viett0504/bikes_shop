@@ -128,12 +128,13 @@ header {
 
 .bottom-nav .center a {
   font-size: 18px;
-
   color: white;
 }
+
 .bottom-nav .center a:hover {
   color: #ffeb3b;
 }
+
 /* ===== TRẠNG THÁI ACTIVE (TRANG HIỆN TẠI) ===== */
 .bottom-nav a.active,
 .dropdown.active > .drop-btn {
@@ -161,66 +162,159 @@ header {
 .dropdown.active > .drop-btn:hover {
   color: #fff !important;
 }
-/* ===== DROPDOWN ===== */
+
+/* ===== DROPDOWN BIKES STYLE GIỐNG ẢNH ===== */
 .dropdown {
   position: relative;
 }
 
+/* Khối dropdown chính */
 .mega-menu {
-  position: fixed; /* ✅ dùng fixed thay vì absolute để bám theo màn hình */
+  position: absolute;
   top: 100%;
   left: 50%;
-  transform: translateX(-50%);
-  background: white;
-  color: black;
-  width: 90vw; /* chiếm 90% chiều rộng màn hình */
+  transform: translate(-50%, 12px);
+  background: #ffffff;
+  color: #111827;
+  width: 90vw;
   max-width: 1200px;
-  padding: 25px 40px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 25px;
+  padding: 0;               /* bỏ padding, sẽ padding từng cột */
+  display: flex;            /* 2 cột: sidebar + content */
   border-radius: 0 0 12px 12px;
-  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.18);
 
   opacity: 0;
   visibility: hidden;
-  transform: translate(-50%, -10px);
-  transition: all 0.25s ease;
+  transition: all 0.22s ease;
   z-index: 999;
 }
 
+/* Hiện khi hover */
 .dropdown:hover .mega-menu {
   opacity: 1;
   visibility: visible;
   transform: translate(-50%, 0);
 }
 
-
-/* Cột trong menu */
+/* CỘT CHUNG */
 .mega-menu .column {
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
 
-.mega-menu h4 {
-  font-size: 15px;
-  font-weight: bold;
-  color: #000 !important;
-  margin-bottom: 10px;
+/* ===== CỘT TRÁI: SIDEBAR CATEGORY ===== */
+.mega-menu .column:first-child {
+  width: 230px;
+  background: #111827;
+  color: #f9fafb;
+  padding: 18px 18px;
+  border-radius: 0 0 0 12px;
 }
 
-.mega-menu a {
+.mega-menu .column:first-child h4 {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9ca3af !important;
+  margin: 0 0 10px;
+}
+
+.mega-menu .column:first-child ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  /* ép cho danh mục HIỂN THỊ DỌC */
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: stretch;
+}
+
+
+.mega-menu .column:first-child li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.mega-menu .column:first-child li span {
+  pointer-events: none;
+}
+
+.mega-menu .column:first-child li a {
+  color: inherit !important;
   text-decoration: none;
-  color: #444 !important;
+  flex: 1;
+}
+
+/* active / hover giống sidebar trong ảnh */
+.mega-menu .column:first-child li:hover,
+.mega-menu .column:first-child li.active {
+  background: #f9fafb;
+  color: #111827;
+}
+
+/* ===== CỘT PHẢI: HÀNG CARD XE ===== */
+.mega-menu .column:last-child {
+  flex: 1;
+  padding: 18px 24px 20px 24px;
+  border-radius: 0 0 12px 0;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.mega-menu .column:last-child h4 {
   font-size: 14px;
-  transition: color 0.2s;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #6b7280 !important;
+  margin: 0 0 12px;
 }
 
-.mega-menu a:hover {
-  color: #007bff !important;
+/* container chứ các card – nằm ngang giống ảnh */
+.mega-menu .product-row {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  padding-bottom: 6px;
 }
 
+/* card từng dòng xe */
+.mega-menu .product-card {
+  min-width: 190px;
+  text-decoration: none;
+  color: #111827 !important;
+}
+
+.mega-menu .product-card img {
+  width: 100%;
+  height: 130px;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+
+.mega-menu .product-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.mega-menu .product-card-desc {
+  font-size: 12px;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+/* ===== USER BOX ===== */
 .user-box {
   display: flex;
   align-items: center;

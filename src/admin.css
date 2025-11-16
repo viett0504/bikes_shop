@@ -5,7 +5,7 @@
   --border: #383839;    /* viền */
   --text:#e5e7eb;       /* chữ chính */
   --muted:#a3a3a3;      /* chữ mờ */
-  --primary:#3b82f6;    /* xanh lam */
+  --primary:#82adf4;    /* xanh lam */
   --accent:#60a5fa;     /* lam nhạt cho chart */
   --success:#10b981;    /* xanh lá */
   --danger:#ef4444;     /* đỏ */
@@ -37,7 +37,7 @@ button{
 
 .ad-sidebar{
   width:240px;
-  height:100vh;
+  height:120vh;
   position:sticky;
   top:0;
   padding:16px;
@@ -231,7 +231,9 @@ button{
   background:var(--primary);
   border-color:var(--primary);
 }
-
+.ad-btn.left{
+  background: #308bf9;
+}
 /* input chung */
 .ad-input{
   background:#0e1530;
@@ -299,7 +301,6 @@ button{
   display:flex;
   flex-direction:column;
   gap:16px;
-  padding-bottom:60px;
   overflow:visible;
 }
 
@@ -401,6 +402,39 @@ button{
 .ad-btn.secondary:hover {
   filter:brightness(1.1);
 }
+
+.ad-table-sticky thead th {
+  position: sticky;
+  top: 0;
+  background: var(--panel-2);
+  z-index: 1;
+}
+
+/* ===== Scrollbar dạng ĐƯỜNG THẲNG (Line Scrollbar) ===== */
+.ad-card ::-webkit-scrollbar {
+  width: 1px;       /* cực mảnh */
+  height: 1px;      /* scroll ngang mảnh */
+}
+
+.ad-card ::-webkit-scrollbar-track {
+  background: transparent;  /* không có nền, đúng kiểu line */
+}
+
+.ad-card ::-webkit-scrollbar-thumb {
+  background: rgba(140, 160, 255, 0.5);  /* màu xanh tím nhạt */
+  border-radius: 0;                      /* bỏ bo tròn → thành đường thẳng */
+}
+
+.ad-card ::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 160, 255, 0.9);
+}
+
+/* Firefox */
+.ad-card {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(140,160,255,0.7) transparent;
+}
+
 
 /* ==================== BANNER PAGE ==================== */
 
@@ -573,4 +607,81 @@ button{
 .banner-card__btn-delete:disabled {
   opacity:0.6;
   cursor:not-allowed;
+}
+/* ============ EDIT CATEGORY MODAL ============ */
+
+/* Không dùng overlay fullscreen nữa, coi như một card form nằm trên bảng */
+.ad-modal {
+  margin-top: 16px;
+}
+
+.ad-modal-content {
+  background: var(--panel-2);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  padding: 16px 24px;
+}
+
+/* Tiêu đề “✏️ Chỉnh sửa danh mục” */
+.ad-modal-content h3 {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Form nằm trên một hàng: label + input/textarea/select đặt cạnh nhau */
+.ad-modal-content .ad-form {
+  display: flex;
+  flex-wrap: wrap;                      /* xuống dòng nếu hẹp */
+  align-items: flex-start;
+  gap: 12px 16px;
+}
+
+/* Label */
+.ad-modal-content .ad-form label {
+  font-size: 14px;
+  color: var(--muted);
+  margin-right: 4px;
+}
+
+/* Ô nhập chung: input / textarea / select */
+.ad-modal-content .ad-form input,
+.ad-modal-content .ad-form textarea,
+.ad-modal-content .ad-form select {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+/* Kích thước từng trường cho giống ảnh */
+.ad-modal-content .ad-form input {
+  min-width: 220px;                     /* Tên danh mục */
+}
+
+.ad-modal-content .ad-form textarea {
+  min-width: 320px;                     /* Mô tả rộng hơn */
+  min-height: 60px;
+  resize: vertical;
+}
+
+.ad-modal-content .ad-form select {
+  min-width: 140px;                     /* Trạng thái */
+}
+
+/* “Tên danh mục” đang bị disable → cho hơi mờ xíu */
+.ad-modal-content .ad-form input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Hàng nút Hủy / Lưu thay đổi */
+.ad-modal-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
 }
