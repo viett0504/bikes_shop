@@ -53,10 +53,11 @@ const BannerList = () => {
           banners.map((banner) => (
             <div key={banner._id} className="banner-card">
               <img
-                src={banner.imageUrl}
+                src={banner.imageUrl}   // ← dùng field đã map ở FetchApi
                 alt="banner"
                 className="banner-card__image"
               />
+
               <button
                 className="banner-card__btn-delete"
                 onClick={() => handleDelete(banner._id)}
