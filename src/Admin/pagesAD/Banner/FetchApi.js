@@ -6,17 +6,11 @@ const apiURL = process.env.REACT_APP_API_URL;
 // Lấy danh sách banner đang treo từ BE (customize.js)
 export const getBanners = async () => {
   try {
-    // BE: router.get("/get-slide-image", customizeController.getImages);
     const res = await axios.get(`${apiURL}/api/customize/get-slide-image`);
-
-    // BE trả: { Images: [ { _id, slideImage } ] }
     const raw = res.data?.Images || [];
-
-    // Chuẩn hoá về dạng { _id, imageUrl } cho FE dễ dùng
     const mapped = raw.map((img) => ({
       _id: img._id,
-      // app.use(express.static("public")) => /uploads/customize/<file>
-      imageUrl: `${apiURL}/uploads/customize/${img.slideImage}`,
+      imageUrl: img.slideImage,  // dùng trực tiếp URL từ DB
     }));
 
     return mapped;
