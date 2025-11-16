@@ -10,26 +10,26 @@ export const BannerContext = createContext();
 export default function Banner() {
   const [data, dispatch] = useReducer(bannerReducer, bannerState);
 
-  // Nếu đang test fake data thì COMMENT toàn bộ useEffect này
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       dispatch({ type: "loading", payload: true });
-//       try {
-//         const res = await getBanners();
-//         const images = res.data?.Images || [];
-//         dispatch({
-//           type: "fetchBannerAndChangeState",
-//           payload: images,
-//         });
-//       } catch (err) {
-//         console.log(err);
-//       } finally {
-//         dispatch({ type: "loading", payload: false });
-//       }
-//     };
+  // GỌI API LẤY DANH SÁCH BANNER TỪ BE
+  useEffect(() => {
+    const fetchData = async () => {
+      dispatch({ type: "loading", payload: true });
+      try {
+        // getBanners giờ trả luôn [ { _id, imageUrl } ]
+        const images = await getBanners();
+        dispatch({
+          type: "fetchBannerAndChangeState",
+          payload: images,
+        });
+      } catch (err) {
+        console.log(err);
+      } finally {
+        dispatch({ type: "loading", payload: false });
+      }
+    };
 
-//     fetchData();
-//   }, []);
+    fetchData();
+  }, []);
 
   return (
     <BannerContext.Provider value={{ data, dispatch }}>

@@ -1,7 +1,7 @@
 // src/Admin/pagesAD/Banner/BannerUpload.js
 import React, { useContext, useState } from "react";
 import { BannerContext } from "./index";
-// import { uploadBanner, getBanners } from "./FetchApi"; // TODO: bật lại khi dùng API
+import { uploadBanner, getBanners } from "./FetchApi";
 
 const BannerUpload = () => {
   const { dispatch } = useContext(BannerContext);
@@ -9,7 +9,7 @@ const BannerUpload = () => {
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
-  const [uploading, setUploading] = useState(false); // giữ cho UI đồng nhất
+  const [uploading, setUploading] = useState(false);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -31,20 +31,19 @@ const BannerUpload = () => {
       return;
     }
 
-    // =======================
-    // ❌ LOGIC GỌI API – TẠM COMMENT
-    // =======================
-    /*
     try {
       setUploading(true);
       setErrorMsg("");
 
-      // 1. Gửi ảnh lên server
-      await uploadBanner(imageFile);
+      // 1. Upload lên BE
+      const res = await uploadBanner(imageFile);
+      if (res?.error) {
+        setErrorMsg(res.error);
+        return;
+      }
 
-      // 2. Lấy lại list mới nhất từ server
-      const resList = await getBanners();
-      const images = resList.data?.Images || [];
+      // 2. Lấy lại list mới nhất
+      const images = await getBanners();
 
       // 3. Cập nhật context
       dispatch({
@@ -57,29 +56,6 @@ const BannerUpload = () => {
       setPreview("");
     } catch (err) {
       setErrorMsg("Lỗi upload banner. Kiểm tra lại BE / API.");
-      console.log(err);
-    } finally {
-      setUploading(false);
-    }
-    */
-
-    // =======================
-    // ✅ LOGIC FAKE CỨNG – KHÔNG CẦN API
-    // =======================
-    try {
-      setUploading(true);
-      setErrorMsg("");
-
-      const newBanner = {
-        _id: Date.now().toString(), // id tạm
-        imageUrl: preview, // dùng luôn URL preview local
-      };
-
-      dispatch({ type: "addBanner", payload: newBanner });
-
-      setImageFile(null);
-      setPreview("");
-    } catch (err) {
       console.log(err);
     } finally {
       setUploading(false);
@@ -115,7 +91,7 @@ const BannerUpload = () => {
           className="banner-upload__btn"
           disabled={uploading}
         >
-          {uploading ? "Đang lưu..." : "Lưu Banner (fake)"}
+          {uploading ? "Đang lưu..." : "Lưu Banner"}
         </button>
       </form>
     </div>

@@ -16,19 +16,13 @@ export default function AccountTable() {
   }, []);
 
   const fetchData = async () => {
-    try {
-      setLoading(true);
-      const res = await getAllUsers();
-      // BE trả về { Users: [...] }
-      dispatch({
-        type: "fetchAccountsAndChangeState",
-        payload: res?.Users || [],
-      });
-    } catch (err) {
-      console.log("Lỗi load users:", err);
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true);
+    const res = await getAllAccount();
+    dispatch({
+      type: "fetchAccountsAndChangeState",
+      payload: res?.Users || []   
+    });
+    setLoading(false);
   };
 
   const onDelete = async (id) => {

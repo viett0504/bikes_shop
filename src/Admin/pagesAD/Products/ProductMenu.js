@@ -11,9 +11,10 @@ export default function ProductMenu() {
             dispatch({ type: "editProductModalClose" });          
             dispatch({ type: "addProductModal", payload: true }); 
           }}
-        >          
-        + Thêm sản phẩm
+        >
+          + Thêm sản phẩm
         </button>
+
         {/* Sau này nhúng AddProductModal / EditProductModal nếu muốn */}
       </div>
     </div>

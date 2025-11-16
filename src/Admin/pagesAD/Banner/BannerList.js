@@ -1,7 +1,7 @@
 // src/Admin/pagesAD/Banner/BannerList.js
 import React, { useContext, useState } from "react";
 import { BannerContext } from "./index";
-// import { deleteBanner, getBanners } from "./FetchApi"; // TODO: bật lại khi dùng API
+import { deleteBanner, getBanners } from "./FetchApi";
 
 const BannerList = () => {
   const { data, dispatch } = useContext(BannerContext);
@@ -13,42 +13,24 @@ const BannerList = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc muốn xoá banner này?")) return;
 
-    // =======================
-    // ❌ LOGIC GỌI API – TẠM COMMENT
-    // =======================
-    /*
     try {
       setDeletingId(id);
       setErrorMsg("");
 
-      // 1. Gọi API xoá
-      await deleteBanner(id);
+      const res = await deleteBanner(id);
+      if (res?.error) {
+        setErrorMsg(res.error);
+        return;
+      }
 
-      // 2. Lấy lại list mới nhất từ server
-      const resList = await getBanners();
-      const images = resList.data?.Images || [];
-
+      // Lấy lại danh sách mới nhất
+      const images = await getBanners();
       dispatch({
         type: "fetchBannerAndChangeState",
         payload: images,
       });
     } catch (err) {
       setErrorMsg("Lỗi xoá banner. Kiểm tra lại BE / API.");
-      console.log(err);
-    } finally {
-      setDeletingId(null);
-    }
-    */
-
-    // =======================
-    // ✅ LOGIC FAKE CỨNG – KHÔNG CẦN API
-    // =======================
-    try {
-      setDeletingId(id);
-      setErrorMsg("");
-
-      dispatch({ type: "deleteBanner", payload: id });
-    } catch (err) {
       console.log(err);
     } finally {
       setDeletingId(null);
@@ -80,7 +62,7 @@ const BannerList = () => {
                 onClick={() => handleDelete(banner._id)}
                 disabled={deletingId === banner._id}
               >
-                {deletingId === banner._id ? "Đang xoá..." : "Xoá banner (fake)"}
+                {deletingId === banner._id ? "Đang xoá..." : "Xoá banner"}
               </button>
             </div>
           ))}

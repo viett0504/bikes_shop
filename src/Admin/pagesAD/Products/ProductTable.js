@@ -32,11 +32,10 @@ export default function ProductTable() {
   };
 
   const onEdit = (p) => {
-// 🔹 Đang ở form Thêm thì tắt nó đi
+    // 🔹 Đang ở form Thêm thì tắt nó đi
     dispatch({ type: "addProductModal", payload: false });
 
     // 🔹 Mở mode Sửa với sản phẩm đã chọn
-
     dispatch({
       type: "editProductModalOpen",
       product: p,
