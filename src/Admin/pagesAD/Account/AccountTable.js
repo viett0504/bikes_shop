@@ -17,7 +17,7 @@ export default function AccountTable() {
 
   const fetchData = async () => {
     setLoading(true);
-    const res = await getAllAccount();
+    const res = await getAllUsers();
     dispatch({
       type: "fetchAccountsAndChangeState",
       payload: res?.Users || []   

@@ -20,6 +20,7 @@ import Categories from "../Admin/pagesAD/Categories";   // <-- THÊM DÒNG NÀY
 import AccountPage from "../Customer/pages/Account/AccountPage";
 import Account from "../Admin/pagesAD/Account";
 import Banner from "../Admin/pagesAD/Banner";
+import BikeTypes from "../Admin/pagesAD/BikeType";
 
 function CustomerShell() {
   const { pathname } = useLocation();
@@ -64,6 +65,7 @@ export default function AppRouter() {
           <Route path="categories" element={<Categories />} /> 
           <Route path="accounts" element={<Account />} /> 
           <Route path="banners" element={<Banner />} /> 
+          <Route path="bikeTypes" element={<BikeTypes />} /> 
         </Route>
 
         {/* 404 */}
