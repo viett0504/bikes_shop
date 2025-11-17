@@ -6,6 +6,14 @@ import { getAllProduct, deleteProduct } from "./FetchApi";
 
 const apiURL = process.env.REACT_APP_API_URL;
 
+const calcDiscountPrice = (price, offer) => {
+  const p = Number(price) || 0;
+  const o = Number(offer) || 0;
+  if (!p) return 0;
+  const final = p * (100 - o) / 100;
+  return Math.round(final);
+};
+
 export default function ProductTable() {
   const { data, dispatch } = useContext(ProductContext);
   const { products } = data;
@@ -32,10 +40,7 @@ export default function ProductTable() {
   };
 
   const onEdit = (p) => {
-    // 🔹 Đang ở form Thêm thì tắt nó đi
     dispatch({ type: "addProductModal", payload: false });
-
-    // 🔹 Mở mode Sửa với sản phẩm đã chọn
     dispatch({
       type: "editProductModalOpen",
       product: p,
@@ -71,15 +76,17 @@ export default function ProductTable() {
   return (
     <div className="ad-card">
       <div className="ad-body">
-        {/* wrapper cho scroll dọc + ngang */}
         <div
           style={{
-            maxHeight: 600,        // khoảng 5–6 dòng
+            maxHeight: 600,
             overflowY: "auto",
             overflowX: "auto",
           }}
         >
-          <table className="ad-table ad-table-sticky" style={{ minWidth: 1200 }}>
+          <table
+            className="ad-table ad-table-sticky"
+            style={{ minWidth: 1300 }}
+          >
             <thead>
               <tr>
                 <th>Tên SP</th>
@@ -88,9 +95,10 @@ export default function ProductTable() {
                 <th>Trạng thái</th>
                 <th>Tồn</th>
                 <th>Thương hiệu</th>
-                <th>Loại xe</th>   {/* NEW */}
-                <th>Giá tiền</th>  {/* NEW */}
-                <th>Ưu đãi (%)</th>
+                <th>Loại xe</th>
+                <th>Giá gốc</th>
+                <th>Giảm giá (%)</th>
+                <th>Giá sau giảm</th>
                 <th>Tạo lúc</th>
                 <th>Cập nhật</th>
                 <th>Hành động</th>
@@ -98,108 +106,121 @@ export default function ProductTable() {
             </thead>
             <tbody>
               {products.length ? (
-                products.map((p) => (
-                  <tr key={p._id}>
-                    {/* Tên sản phẩm – không fix width nữa */}
-                    <td className="text-left">{p.pName}</td>
+                products.map((p) => {
+                  const discountPrice = calcDiscountPrice(
+                    p.pPrice,
+                    p.pOffer
+                  );
 
-                    {/* Mô tả – rút ngắn để bảng gọn */}
-                    <td className="text-left">
-                      {(p.pDescription || "").length > 40
-                        ? (p.pDescription || "").slice(0, 40) + "..."
-                        : p.pDescription || "—"}
-                    </td>
+                  return (
+                    <tr key={p._id}>
+                      <td className="text-left">{p.pName}</td>
 
-                    {/* Ảnh */}
-                    <td className="text-center">
-                      {p.pImages?.[0] ? (
-                        <img
-                          alt=""
+                      <td className="text-left">
+                        {(p.pDescription || "").length > 40
+                          ? (p.pDescription || "").slice(0, 40) + "..."
+                          : p.pDescription || "—"}
+                      </td>
+
+                      <td className="text-center">
+                        {p.pImages?.[0] ? (
+                          <img
+                            alt=""
+                            style={{
+                              width: 40,
+                              height: 40,
+                              objectFit: "cover",
+                              borderRadius: 6,
+                            }}
+                            src={getImageSrc(p.pImages[0])}
+                          />
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+
+                      <td className="text-center">
+                        <span
+                          className={`ad-badge ${
+                            p.pStatus === "Active" ? "success" : ""
+                          }`}
+                        >
+                          {p.pStatus || "—"}
+                        </span>
+                      </td>
+
+                      <td className="text-right">
+                        {p.pQuantity ?? 0}
+                      </td>
+
+                      <td className="text-center">
+                        {p.pCategory?.cName || "—"}
+                      </td>
+
+                      <td className="text-center">
+                        {p.pBiketype?.tName || "—"}
+                      </td>
+
+                      <td className="text-right">
+                        {p.pPrice
+                          ? p.pPrice.toLocaleString("vi-VN") + " ₫"
+                          : "—"}
+                      </td>
+
+                      <td className="text-right">
+                        {p.pOffer ?? 0}
+                      </td>
+
+                      <td className="text-right">
+                        {discountPrice
+                          ? discountPrice.toLocaleString("vi-VN") + " ₫"
+                          : "—"}
+                      </td>
+
+                      <td className="text-center">
+                        {p.createdAt
+                          ? moment(p.createdAt).format("lll")
+                          : "—"}
+                      </td>
+                      <td className="text-center">
+                        {p.updatedAt
+                          ? moment(p.updatedAt).format("lll")
+                          : "—"}
+                      </td>
+
+                      <td
+                        className="text-center"
+                        style={{ paddingRight: 12 }}
+                      >
+                        <div
                           style={{
-                            width: 40,
-                            height: 40,
-                            objectFit: "cover",
-                            borderRadius: 6,
+                            display: "flex",
+                            gap: 8,
+                            justifyContent: "center",
                           }}
-                          src={getImageSrc(p.pImages[0])}
-                        />
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-
-                    {/* Trạng thái */}
-                    <td className="text-center">
-                      <span
-                        className={`ad-badge ${
-                          p.pStatus === "Active" ? "success" : ""
-                        }`}
-                      >
-                        {p.pStatus || "—"}
-                      </span>
-                    </td>
-
-                    {/* Tồn */}
-                    <td className="text-right">{p.pQuantity ?? 0}</td>
-
-                    {/* Thương hiệu (tên category) */}
-                    <td className="text-center">
-                      {p.pCategory?.cName || "—"}
-                    </td>
-
-                    {/* Loại xe (nếu bạn có field type, không thì fallback cName) */}
-                    <td className="text-center">
-                      {p.pCategory?.type || p.pCategory?.cName || "—"}
-                    </td>
-
-                    {/* Giá tiền */}
-                    <td className="text-right">
-                      {p.pPrice
-                        ? p.pPrice.toLocaleString("vi-VN") + " ₫"
-                        : "—"}
-                    </td>
-
-                    {/* Ưu đãi */}
-                    <td className="text-right">{p.pOffer ?? 0}</td>
-
-                    {/* Thời gian */}
-                    <td className="text-center">
-                      {p.createdAt ? moment(p.createdAt).format("lll") : "—"}
-                    </td>
-                    <td className="text-center">
-                      {p.updatedAt ? moment(p.updatedAt).format("lll") : "—"}
-                    </td>
-
-                    {/* Hành động */}
-                    <td className="text-center" style={{ paddingRight: 12 }}>
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: 8,
-                          justifyContent: "center",
-                        }}
-                      >
-                        <button
-                          className="ad-btn left"
-                          type="button"
-                          onClick={() => onEdit(p)}
                         >
-                          Sửa
-                        </button>
-                        <button
-                          className="ad-btn danger"
-                          type="button"
-                          onClick={() => onDelete(p._id)}
-                        >
-                          Xóa
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                          <button
+                            className="ad-btn left"
+                            type="button"
+                            onClick={() => onEdit(p)}
+                          >
+                            Sửa
+                          </button>
+                          <button
+                            className="ad-btn danger"
+                            type="button"
+                            onClick={() => onDelete(p._id)}
+                          >
+                            Xóa
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
-                  <td colSpan="12" className="text-center">
+                  <td colSpan="13" className="text-center">
                     Chưa có sản phẩm
                   </td>
                 </tr>
