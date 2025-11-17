@@ -25,7 +25,9 @@ export default function BikeTypeTable() {
   };
 
   const onEdit = (t) => {
+    // nếu đang ở form Thêm thì tắt
     dispatch({ type: "addTypeModal", payload: false });
+
     dispatch({
       type: "editTypeModalOpen",
       typeData: t,
@@ -49,6 +51,7 @@ export default function BikeTypeTable() {
   return (
     <div className="ad-card">
       <div className="ad-body">
+        {/* ✅ wrapper giống các bảng khác: scroll dọc + ngang */}
         <div
           style={{
             maxHeight: 600,
@@ -56,7 +59,10 @@ export default function BikeTypeTable() {
             overflowX: "auto",
           }}
         >
-          <table className="ad-table" style={{ minWidth: 900 }}>
+          <table
+            className="ad-table ad-table-sticky"
+            style={{ minWidth: 800 }}
+          >
             <thead>
               <tr>
                 <th>Tên loại xe</th>
@@ -64,7 +70,7 @@ export default function BikeTypeTable() {
                 <th>Trạng thái</th>
                 <th>Ngày tạo</th>
                 <th>Cập nhật</th>
-                <th>Hành động</th>
+                <th className="text-center">Hành động</th>
               </tr>
             </thead>
             <tbody>
@@ -72,11 +78,13 @@ export default function BikeTypeTable() {
                 types.map((t) => (
                   <tr key={t._id}>
                     <td className="text-left">{t.name}</td>
+
                     <td className="text-left">
                       {(t.description || "").length > 50
                         ? (t.description || "").slice(0, 50) + "..."
                         : t.description || "—"}
                     </td>
+
                     <td className="text-center">
                       <span
                         className={
@@ -87,23 +95,26 @@ export default function BikeTypeTable() {
                         {t.status || "—"}
                       </span>
                     </td>
+
                     <td className="text-left">
                       {t.createdAt ? moment(t.createdAt).format("lll") : "—"}
                     </td>
+
                     <td className="text-left">
                       {t.updatedAt ? moment(t.updatedAt).format("lll") : "—"}
                     </td>
-                    <td className="text-left" style={{ paddingRight: 12 }}>
+
+                    <td className="text-center" style={{ paddingRight: 12 }}>
                       <div
                         style={{
                           display: "flex",
                           gap: 8,
-                          justifyContent: "left",
+                          justifyContent: "center",
                         }}
                       >
                         <button
                           type="button"
-                          className="ad-btn"
+                          className="ad-btn left"
                           onClick={() => onEdit(t)}
                         >
                           Sửa
@@ -121,7 +132,7 @@ export default function BikeTypeTable() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="text-center">
+                  <td colSpan="6" className="text-center" style={{ padding: 16 }}>
                     Chưa có loại xe
                   </td>
                 </tr>
