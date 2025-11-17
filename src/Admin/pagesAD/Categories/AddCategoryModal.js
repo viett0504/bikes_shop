@@ -1,26 +1,24 @@
 // src/Admin/pagesAD/Categories/AddCategoryModal.js
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { CategoryContext } from "./index";
-import { createCategory } from "./FetchApi";
+import { createCategory, editCategory, getAllCategory } from "./FetchApi";
 import * as XLSX from "xlsx";
 import { FiUpload } from "react-icons/fi";
 
 const AddCategoryModal = () => {
   const { data, dispatch } = useContext(CategoryContext);
-  const { addCategoryModal } = data;
+  const { addCategoryModal, editCategoryModal } = data;
+  // editCategoryModal: { modal, cId, des, status, cName }
 
-  // 🔹 Hook luôn đặt ở top
+  // ✅ mode giống AddProductModal
+  const isEditMode = !!editCategoryModal?.modal && !addCategoryModal;
+  const isOpen = addCategoryModal || isEditMode;
+
   const [cName, setCName] = useState("");
   const [cDescription, setCDescription] = useState("");
   const [cStatus, setCStatus] = useState("Active");
   const [cImage, setCImage] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  if (!addCategoryModal) return null;
-
-  const close = () => {
-    dispatch({ type: "addCategoryModal", payload: false });
-  };
 
   const resetForm = () => {
     setCName("");
@@ -29,32 +27,89 @@ const AddCategoryModal = () => {
     setCImage(null);
   };
 
-  const handleAdd = async () => {
+  const close = () => {
+    if (isEditMode) {
+      dispatch({ type: "editCategoryModalClose" });
+    } else {
+      dispatch({ type: "addCategoryModal", payload: false });
+    }
+    resetForm();
+  };
+
+  // Fill form khi ấn Sửa / reset khi Thêm mới
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (isEditMode && editCategoryModal) {
+      setCName(editCategoryModal.cName || "");
+      setCDescription(editCategoryModal.des || "");
+      setCStatus(editCategoryModal.status || "Active");
+      setCImage(null);
+    } else {
+      resetForm();
+    }
+  }, [isOpen, isEditMode, editCategoryModal]);
+
+  if (!isOpen) return null;
+
+  // ================== SUBMIT ==================
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     if (!cName.trim()) {
       alert("Tên danh mục không được để trống");
       return;
     }
 
-    setLoading(true);
-    const res = await createCategory({
-      cName,
-      cDescription,
-      cStatus,
-      cImage,
-    });
-    setLoading(false);
+    try {
+      setLoading(true);
 
-    if (res?.success) {
-      alert("Thêm danh mục thành công!");
+      if (isEditMode) {
+        // 🔧 CẬP NHẬT DANH MỤC
+        const res = await editCategory({
+          cId: editCategoryModal.cId,
+          des: cDescription,
+          status: cStatus,
+        });
+
+        if (res?.success) {
+          alert("Cập nhật danh mục thành công!");
+        } else {
+          alert(res?.message || "Có lỗi xảy ra!");
+        }
+      } else {
+        // ➕ THÊM DANH MỤC
+        const res = await createCategory({
+          cName,
+          cDescription,
+          cStatus,
+          cImage,
+        });
+
+        if (res?.success) {
+          alert("Thêm danh mục thành công!");
+        } else {
+          alert(res?.message || "Có lỗi xảy ra!");
+        }
+      }
+
+      // 🔁 Load lại list cho AllCategory, không dùng reload()
+      const list = await getAllCategory();
+      dispatch({
+        type: "fetchCategoryAndChangeState",
+        payload: list?.Categories || [],
+      });
+
       close();
-      resetForm();
-      window.location.reload(); // tạm thời reload list
-    } else {
-      alert(res?.message || "Có lỗi xảy ra!");
+    } catch (err) {
+      console.error(err);
+      alert("Lỗi server khi xử lý danh mục");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // ================== IMPORT EXCEL ==================
+  // ================== IMPORT EXCEL (chung form, chủ yếu dùng khi Thêm) ==================
   const handleExcelImport = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -101,16 +156,18 @@ const AddCategoryModal = () => {
       console.error(err);
       alert("Không đọc được file Excel. Vui lòng kiểm tra lại.");
     } finally {
-      e.target.value = ""; // reset input để chọn lại cùng file vẫn được
+      e.target.value = "";
     }
   };
 
   return (
     <div className="ad-card ad-form-card">
       <div className="ad-body">
-        {/* ===== HEADER + NÚT EXCEL ===== */}
+        {/* ===== HEADER giống AddProduct ===== */}
         <div className="ad-form-header">
-          <h3 className="ad-form-title">Thêm danh mục</h3>
+          <h3 className="ad-form-title">
+            {isEditMode ? "Sửa danh mục" : "Thêm danh mục"}
+          </h3>
 
           <div className="ad-form-tools">
             <input
@@ -131,60 +188,79 @@ const AddCategoryModal = () => {
           </div>
         </div>
 
-        {/* FORM 2 CỘT GỌN GÀNG */}
-        <div className="ad-form-grid">
-          <div className="ad-form-group">
-            <label>Tên danh mục</label>
-            <input
-              value={cName}
-              onChange={(e) => setCName(e.target.value)}
-              placeholder="Ví dụ: Xe đạp địa hình"
-            />
+        {/* ===== FORM giống style AddProductModal ===== */}
+        <form onSubmit={handleSubmit}>
+          {/* Hàng 1: Tên + Mô tả */}
+          <div className="ad-form-row">
+            <div className="ad-form-group">
+              <label>Tên danh mục</label>
+              <input
+                value={cName}
+                onChange={(e) => setCName(e.target.value)}
+                placeholder="Ví dụ: Xe đạp địa hình"
+                // Nếu bạn muốn cấm đổi tên khi sửa thì thêm disabled={isEditMode}
+              />
+            </div>
+
+            <div className="ad-form-group">
+              <label>Mô tả</label>
+              <textarea
+                rows={3}
+                value={cDescription}
+                onChange={(e) => setCDescription(e.target.value)}
+                placeholder="Mô tả ngắn về danh mục..."
+              />
+            </div>
           </div>
 
-          <div className="ad-form-group ad-form-group-full">
-            <label>Mô tả</label>
-            <textarea
-              rows="3"
-              value={cDescription}
-              onChange={(e) => setCDescription(e.target.value)}
-              placeholder="Mô tả ngắn về danh mục..."
-            />
+          {/* Hàng 2: Trạng thái + Ảnh */}
+          <div className="ad-form-row">
+            <div className="ad-form-group ad-form-group-sm">
+              <label>Trạng thái</label>
+              <select
+                value={cStatus}
+                onChange={(e) => setCStatus(e.target.value)}
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+
+            {/* Ảnh – bạn có thể ẩn khi edit nếu BE chưa hỗ trợ sửa ảnh */}
+            <div className="ad-form-group ad-form-group-sm">
+              <label>Ảnh danh mục</label>
+              <input
+                type="file"
+                onChange={(e) => setCImage(e.target.files[0] || null)}
+              />
+            </div>
           </div>
 
-          <div className="ad-form-group">
-            <label>Trạng thái</label>
-            <select
-              value={cStatus}
-              onChange={(e) => setCStatus(e.target.value)}
+          {/* NÚT – 2 nút trong 1 form giống AddProduct */}
+          <div className="ad-form-actions">
+            <button
+              type="button"
+              className="ad-btn"
+              onClick={close}
+              disabled={loading}
             >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
+              Hủy
+            </button>
+            <button
+              type="submit"
+              className="ad-btn success"
+              disabled={loading}
+            >
+              {loading
+                ? isEditMode
+                  ? "Đang lưu..."
+                  : "Đang thêm..."
+                : isEditMode
+                ? "Lưu thay đổi"
+                : "Thêm mới"}
+            </button>
           </div>
-
-          <div className="ad-form-group">
-            <label>Ảnh danh mục</label>
-            <input
-              type="file"
-              onChange={(e) => setCImage(e.target.files[0] || null)}
-            />
-          </div>
-        </div>
-
-        {/* NÚT */}
-        <div className="ad-form-actions">
-          <button className="ad-btn" onClick={close}>
-            Hủy
-          </button>
-          <button
-            className="ad-btn success"
-            onClick={handleAdd}
-            disabled={loading}
-          >
-            {loading ? "Đang thêm..." : "Thêm mới"}
-          </button>
-        </div>
+        </form>
       </div>
     </div>
   );

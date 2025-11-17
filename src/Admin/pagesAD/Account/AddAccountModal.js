@@ -1,19 +1,22 @@
 // src/Admin/pagesAD/Accounts/AddAccountModal.js
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AccountContext } from "./index";
 import * as XLSX from "xlsx";
 import { FiUpload } from "react-icons/fi"; // icon Excel
 
 export default function AddAccountModal() {
   const { data, dispatch } = useContext(AccountContext);
+  const { addAccountModal, editAccountModal } = data;
+
+  // ✅ Giống AddProduct: 1 form dùng cho cả Thêm + Sửa
+  const isEditMode = !!editAccountModal?.modal && !addAccountModal;
+  const isOpen = addAccountModal || isEditMode;
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [position, setPosition] = useState("");
+  const [position, setPosition] = useState(""); // text mô tả role
   const [password, setPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-
-  const close = () => dispatch({ type: "addAccountModal", payload: false });
 
   const resetForm = () => {
     setName("");
@@ -23,19 +26,72 @@ export default function AddAccountModal() {
     setPhoneNumber("");
   };
 
+  const close = () => {
+    if (isEditMode) {
+      dispatch({ type: "editAccountModalClose" });
+    } else {
+      dispatch({ type: "addAccountModal", payload: false });
+    }
+    resetForm();
+  };
+
+  // 👉 Fill form khi ở chế độ Sửa, reset khi Thêm
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (isEditMode && editAccountModal) {
+      setName(editAccountModal.name || "");
+      setEmail(editAccountModal.email || "");
+      setPosition(editAccountModal.position || "");
+      setPhoneNumber(editAccountModal.phoneNumber || "");
+      setPassword(""); // password thường không cho xem lại, để rỗng
+    } else {
+      // chế độ Thêm
+      resetForm();
+    }
+  }, [isOpen, isEditMode, editAccountModal]);
+
+  if (!isOpen) return null;
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log("submit add account:", {
-      name,
-      email,
-      password,
-      position,
-      phoneNumber,
-    });
+    if (!name.trim()) {
+      alert("Vui lòng nhập tên tài khoản");
+      return;
+    }
+    if (!email.trim()) {
+      alert("Vui lòng nhập email");
+      return;
+    }
+    if (!isEditMode && !password.trim()) {
+      alert("Vui lòng nhập mật khẩu");
+      return;
+    }
+
+    // TODO: nối với API BE (create / edit user)
+    if (isEditMode) {
+      console.log("submit EDIT account:", {
+        id: editAccountModal.aId,
+        name,
+        email,
+        position,
+        phoneNumber,
+        password: password || "(không đổi)",
+      });
+      alert("Đã gửi dữ liệu sửa tài khoản (bạn nối BE sau nha).");
+    } else {
+      console.log("submit ADD account:", {
+        name,
+        email,
+        password,
+        position,
+        phoneNumber,
+      });
+      alert("Đã gửi dữ liệu thêm tài khoản (bạn nối BE sau nha).");
+    }
 
     close();
-    resetForm();
   };
 
   // ================== IMPORT EXCEL ==================
@@ -56,7 +112,6 @@ export default function AddAccountModal() {
 
       const first = rows[0];
 
-      // hỗ trợ các kiểu tên cột khác nhau
       setName(first["Tên"] || first["Họ tên"] || first["Name"] || "");
       setEmail(first["Email"] || first["Mail"] || "");
       setPassword(first["Mật khẩu"] || first["Password"] || "");
@@ -72,15 +127,14 @@ export default function AddAccountModal() {
     }
   };
 
-  if (!data.addAccountModal) return null;
-
   return (
     <div className="ad-card ad-form-card">
       <div className="ad-body">
-
         {/* ===== HEADER + NÚT EXCEL ===== */}
         <div className="ad-form-header">
-          <h2 className="ad-form-title">Thêm tài khoản</h2>
+          <h2 className="ad-form-title">
+            {isEditMode ? "Sửa tài khoản" : "Thêm tài khoản"}
+          </h2>
 
           <div className="ad-form-tools">
             <input
@@ -91,7 +145,10 @@ export default function AddAccountModal() {
               style={{ display: "none" }}
             />
 
-            <label htmlFor="excel-upload-account" className="ad-btn secondary small">
+            <label
+              htmlFor="excel-upload-account"
+              className="ad-btn secondary small"
+            >
               <FiUpload size={16} style={{ marginRight: 6 }} />
               Nhập từ Excel
             </label>
@@ -100,7 +157,6 @@ export default function AddAccountModal() {
 
         <form onSubmit={handleSubmit}>
           <div className="ad-form-row">
-
             <div className="ad-form-group">
               <label>Tên tài khoản</label>
               <input
@@ -122,12 +178,16 @@ export default function AddAccountModal() {
             </div>
 
             <div className="ad-form-group">
-              <label>Mật khẩu</label>
+              <label>Mật khẩu {isEditMode && "(bỏ trống nếu không đổi)"}</label>
               <input
                 type="text"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Nhập mật khẩu"
+                placeholder={
+                  isEditMode
+                    ? "Nhập mật khẩu mới (hoặc để trống)"
+                    : "Nhập mật khẩu"
+                }
               />
             </div>
 
@@ -158,11 +218,10 @@ export default function AddAccountModal() {
               Hủy
             </button>
             <button type="submit" className="ad-btn success">
-              Lưu
+              {isEditMode ? "Lưu thay đổi" : "Lưu"}
             </button>
           </div>
         </form>
-
       </div>
     </div>
   );

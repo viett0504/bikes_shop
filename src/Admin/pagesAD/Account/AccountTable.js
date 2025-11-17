@@ -40,6 +40,17 @@ export default function AccountTable() {
     }
   };
 
+  const onEdit = (p) => {
+    // 🔹 Đang ở form Thêm thì tắt nó đi
+    dispatch({ type: "addAccountModal", payload: false });
+
+    // 🔹 Mở mode Sửa với sản phẩm đã chọn
+    dispatch({
+      type: "editAccountModalOpen",
+      account: p,
+    });
+  };
+
   if (loading) {
     return (
       <div className="ad-card">
@@ -56,10 +67,10 @@ export default function AccountTable() {
             <tr>
               <th>Họ tên</th>
               <th>Email</th>
-              <th>Ảnh</th>
+              {/* <th>Ảnh</th> */}
               <th>Chức vụ</th>
               <th>SĐT</th>
-              <th>Hành động</th>
+              <th className="text-center">Hành động</th>
             </tr>
           </thead>
           <tbody>
@@ -69,8 +80,8 @@ export default function AccountTable() {
                   <td className="text-left">{u.name}</td>
                   <td className="text-left">{u.email || "—"}</td>
 
-                  {/* Ảnh tài khoản */}
-                  <td className="text-center">
+                  {/* Ảnh tài khoản
+                  <td className="text-left">
                     {u.userImage ? (
                       <img
                         src={
@@ -88,7 +99,7 @@ export default function AccountTable() {
                     ) : (
                       "—"
                     )}
-                  </td>
+                  </td> */}
 
                   {/* userRole: 0 = Khách, 1 = Admin (theo schema bạn đưa) */}
                   <td className="text-left">
@@ -105,7 +116,11 @@ export default function AccountTable() {
                         justifyContent: "center",
                       }}
                     >
-                      <button className="ad-btn">Sửa</button>
+                      <button 
+                        className="ad-btn left"
+                        onClick={() => onEdit(u)}
+                        >Sửa
+                      </button>
                       <button
                         className="ad-btn danger"
                         onClick={() => onDelete(u._id)}

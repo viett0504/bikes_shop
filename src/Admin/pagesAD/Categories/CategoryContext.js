@@ -4,11 +4,13 @@ export const categoryState = {
   editCategoryModal: {
     modal: false,
     cId: null,
+    cName: "",   // 👈 THÊM DÒNG NÀY
     des: "",
     status: "",
   },
   loading: false,
 };
+
 
 export const categoryReducer = (state, action) => {
   switch (action.type) {
@@ -35,9 +37,10 @@ export const categoryReducer = (state, action) => {
         ...state,
         editCategoryModal: {
           modal: true,
-          cId: action.cId,
-          des: action.des,
-          status: action.status,
+          cId: action.category._id,          // lấy từ category
+          cName: action.category.cName,      // 🔹 tên danh mục
+          des: action.category.cDescription, // 🔹 mô tả
+          status: action.category.cStatus,   // 🔹 trạng thái
         },
       };
 
@@ -47,10 +50,12 @@ export const categoryReducer = (state, action) => {
         editCategoryModal: { 
           modal: false, 
           cId: null, 
+          cName: "",     // 👈 reset luôn
           des: "", 
           status: "" 
         },
       };
+
 
     case "loading":
       return { 

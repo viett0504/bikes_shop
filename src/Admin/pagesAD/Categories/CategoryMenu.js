@@ -1,7 +1,6 @@
 import React, { Fragment, useContext } from "react";
 import { CategoryContext } from "./index";
 import AddCategoryModal from "./AddCategoryModal";
-import EditCategoryModal from "./EditCategoryModal";
 
 const CategoryMenu = () => {
   const { dispatch } = useContext(CategoryContext);
@@ -11,7 +10,6 @@ const CategoryMenu = () => {
       
       {/* Hai modal – bình thường ẩn, chỉ hiện khi click */}
       <AddCategoryModal />
-      <EditCategoryModal />
     </Fragment>
   );
 };
