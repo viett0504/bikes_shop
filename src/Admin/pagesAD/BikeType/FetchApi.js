@@ -3,11 +3,23 @@ import axios from "axios";
 
 const apiURL = process.env.REACT_APP_API_URL;
 
+// Hàm chuẩn hoá data từ BE (tName → name, v.v..)
+const normalizeBikeTypes = (res) => {
+  const raw = res?.data?.BikeTypes || [];
+  const mapped = raw.map((t) => ({
+    ...t,
+    name: t.tName,
+    description: t.tDescription,
+    status: t.tStatus,
+  }));
+  return { BikeTypes: mapped };
+};
+
 // Lấy tất cả loại xe
 export const getAllBikeType = async () => {
   try {
     const res = await axios.get(`${apiURL}/api/bike-type/all-type`);
-    return res.data; // mong đợi { BikeTypes: [...] }
+    return normalizeBikeTypes(res); // { BikeTypes: [...] } đã map name/description/status
   } catch (e) {
     console.error("❌ getAllBikeType error:", e?.response?.data || e.message || e);
   }
@@ -16,10 +28,11 @@ export const getAllBikeType = async () => {
 // Thêm loại xe
 export const addBikeType = async ({ name, description, status }) => {
   try {
+    // BE đang nhận tName, tDescription, tStatus
     const res = await axios.post(`${apiURL}/api/bike-type/add-type`, {
-      name,
-      description,
-      status,
+      tName: name,
+      tDescription: description,
+      tStatus: status,
     });
     return res.data;
   } catch (e) {
@@ -30,11 +43,12 @@ export const addBikeType = async ({ name, description, status }) => {
 // Sửa loại xe
 export const editBikeType = async ({ tId, name, description, status }) => {
   try {
+    // BE hiện tại chỉ dùng tDescription, tStatus (không sửa tên)
     const res = await axios.post(`${apiURL}/api/bike-type/edit-type`, {
       tId,
-      name,
-      description,
-      status,
+      tDescription: description,
+      tStatus: status,
+      // nếu sau này bạn sửa BE cho phép đổi tên thì gửi thêm tName: name
     });
     return res.data;
   } catch (e) {

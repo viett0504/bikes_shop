@@ -61,7 +61,7 @@ export default function EditBikeTypeModal() {
   return (
     <div className="ad-modal">
       <div className="ad-modal-content">
-        <h3>✏️ Chỉnh sửa loại xe</h3>
+        <h3>Chỉnh sửa loại xe</h3>
 
         <form className="ad-form" onSubmit={handleSave}>
           <label>Tên loại xe</label>

@@ -52,7 +52,7 @@ export default function AddBikeTypeModal() {
   return (
     <div className="ad-modal">
       <div className="ad-modal-content">
-        <h3>+ Thêm loại xe</h3>
+        <h3>Thêm loại xe</h3>
 
         <form className="ad-form" onSubmit={handleSubmit}>
           <label>Tên loại xe</label>

@@ -30,7 +30,7 @@ export default function AccountTable() {
     if (!ok) return;
 
     // gửi oId + status, tuỳ bạn muốn đặt status gì
-    const r = await deleteUser({ oId: id, status: "DELETED" });
+    const r = await deleteUser({ uId: id, status: "DELETED" });
 
     if (r?.success) {
       alert(r.success);
