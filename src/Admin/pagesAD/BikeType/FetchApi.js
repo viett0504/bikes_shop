@@ -43,12 +43,11 @@ export const addBikeType = async ({ name, description, status }) => {
 // Sửa loại xe
 export const editBikeType = async ({ tId, name, description, status }) => {
   try {
-    // BE hiện tại chỉ dùng tDescription, tStatus (không sửa tên)
     const res = await axios.post(`${apiURL}/api/bike-type/edit-type`, {
       tId,
+      tName: name,
       tDescription: description,
       tStatus: status,
-      // nếu sau này bạn sửa BE cho phép đổi tên thì gửi thêm tName: name
     });
     return res.data;
   } catch (e) {

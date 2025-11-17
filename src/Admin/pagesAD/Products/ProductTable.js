@@ -87,7 +87,7 @@ export default function ProductTable() {
                 <th>Ảnh</th>
                 <th>Trạng thái</th>
                 <th>Tồn</th>
-                <th>Danh mục</th>
+                <th>Thương hiệu</th>
                 <th>Loại xe</th>   {/* NEW */}
                 <th>Giá tiền</th>  {/* NEW */}
                 <th>Ưu đãi (%)</th>
@@ -142,7 +142,7 @@ export default function ProductTable() {
                     {/* Tồn */}
                     <td className="text-right">{p.pQuantity ?? 0}</td>
 
-                    {/* Danh mục (tên category) */}
+                    {/* Thương hiệu (tên category) */}
                     <td className="text-center">
                       {p.pCategory?.cName || "—"}
                     </td>
