@@ -3,7 +3,7 @@ const apiURL = process.env.REACT_APP_API_URL;
 
 export const getAllUsers = async () => {
   try {
-    const res = await axios.get(`${apiURL}/api/user/all-users`);
+    const res = await axios.get(`${apiURL}/api/user/all-user`);
     return res.data;
   } catch (err) {
     console.error("Lỗi getAllUsers:", err);
@@ -11,13 +11,13 @@ export const getAllUsers = async () => {
   }
 };
 
-export const getSingleUser = async (uId) => {
+export const getSingleUser = async (uId) => { 
   try {
     const res = await axios.post(`${apiURL}/api/user/sinlge-user`, { uId });
     return res.data;
   } catch (err) {
     console.error("Lỗi getSingleUser:", err);
-    return { error: "Không lấy được thông tin user" };
+    return { error: "Không lấy được thông tin người dùng" };
   }
 };
 
