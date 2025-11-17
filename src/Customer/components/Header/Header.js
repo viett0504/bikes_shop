@@ -1,6 +1,6 @@
 // src/Client/components/Header/Header.jsx
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaShoppingCart, FaUserCircle } from "react-icons/fa";
 import logo from "../../../assets/img/logo.png";
 
@@ -8,6 +8,7 @@ import "./Header.css";
 
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   // const user = JSON.parse(localStorage.getItem("user"));
   // const username = user?.username || null;
@@ -140,6 +141,20 @@ const Header = () => {
   const activeGroup =
     productGroups.find((g) => g.key === activeGroupKey) || productGroups[0];
 
+  // ===== DROPDOWN USER =====
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  const handleToggleUserMenu = () => {
+    setIsUserMenuOpen((prev) => !prev);
+  };
+
+  const handleLogout = () => {
+    // Xóa thông tin user (tuỳ bạn lưu gì)
+    localStorage.removeItem("user");
+    setIsUserMenuOpen(false);
+    navigate("/login");
+  };
+
   return (
     <header>
       {/* ===== TOP BAR ===== */}
@@ -161,12 +176,46 @@ const Header = () => {
               Đăng nhập
             </Link>
           ) : (
-            <Link to="/account" className="user-box">
-              <FaUserCircle className="user-icon" />
-              <span>
-                Xin chào, <strong>{username}</strong>
-              </span>
-            </Link>
+            <div className="user-menu-wrapper">
+              <button
+                type="button"
+                className="user-box"
+                onClick={handleToggleUserMenu}
+              >
+                <FaUserCircle className="user-icon" />
+                <span>
+                  Xin chào, <strong>{username}</strong>
+                </span>
+              </button>
+
+              {isUserMenuOpen && (
+                <div className="user-dropdown">
+                  <Link
+                    to="/account"
+                    className="user-dropdown-item"
+                    onClick={() => setIsUserMenuOpen(false)}
+                  >
+                    Thông tin tài khoản
+                  </Link>
+
+                  <Link
+                    to="/admin"
+                    className="user-dropdown-item"
+                    onClick={() => setIsUserMenuOpen(false)}
+                  >
+                    Trang admin
+                  </Link>
+
+                  <button
+                    type="button"
+                    className="user-dropdown-item user-dropdown-logout"
+                    onClick={handleLogout}
+                  >
+                    Đăng xuất
+                  </button>
+                </div>
+              )}
+            </div>
           )}
 
           {/* Giỏ hàng */}

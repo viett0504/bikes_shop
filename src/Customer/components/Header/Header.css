@@ -339,3 +339,80 @@ header {
 .user-name {
   font-weight: 500;
 }
+
+/* ===== USER BOX ===== */
+.user-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  font-size: 0.95rem;
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.15);
+  transition: background 0.2s ease;
+}
+
+.user-box:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+.user-box span  {
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.user-icon {
+  font-size: 1.4rem;
+  color: #fff;
+}
+
+.user-box:hover .user-icon {
+  color: #000;
+}
+
+.user-name {
+  font-weight: 500;
+}
+
+/* ===== WRAPPER ĐỂ ĐỊNH VỊ DROPDOWN ===== */
+.user-menu-wrapper {
+  position: relative;
+}
+
+/* ===== DROPDOWN TÀI KHOẢN ===== */
+.user-dropdown {
+  position: absolute;
+  top: 115%;
+  right: 0;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+
+  border-radius: 10px;
+  padding: 6px 0;
+  min-width: 190px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  z-index: 2000;
+}
+
+.user-dropdown-item {
+  width: 100%;
+  display: block;
+  text-align: left;
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  color: #e5e7eb;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.user-dropdown-item:hover {
+  background: #4591fc;
+}
+
+.user-dropdown-logout {
+  border-top: 1px solid rgba(55,65,81,0.9);
+  margin-top: 4px;
+}

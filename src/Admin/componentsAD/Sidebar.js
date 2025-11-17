@@ -13,6 +13,7 @@ export default function Sidebar(){
         <Item to="/admin/products"  label="Sản phẩm" />
         <Item to="/admin/orders"    label="Đơn hàng" />
         <Item to="/admin/categories"label="Thương hiệu" />
+        <Item to="/admin/bikeTypes"label="Loại sản phẩm" />
         <Item to="/admin/accounts"label="Tài khoản" />
         <Item to="/admin/banners"label="Banner" />
       </nav>
