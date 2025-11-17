@@ -1,10 +1,19 @@
+// src/Admin/pagesAD/Products/ProductContext.js
 export const productState = {
-  products: [],            // <- mảng rỗng
+  products: [],
   addProductModal: false,
   editProductModal: {
-    modal: false, pId: "", pName: "", pDescription: "",
-    pImages: null, pStatus: "", pCategory: "", pQuantity: "",
-    pPrice: "", pOffer: "", pType: "",
+    modal: false,
+    pId: "",
+    pName: "",
+    pDescription: "",
+    pImages: null,
+    pStatus: "",
+    pCategory: "",
+    pQuantity: "",
+    pPrice: "",
+    pOffer: "",
+    pBiketype: "",   
   },
 };
 
@@ -15,9 +24,15 @@ export const productReducer = (state, action) => {
     case "addProductModal":
       return { ...state, addProductModal: action.payload };
     case "editProductModalOpen":
-      return { ...state, editProductModal: { modal: true, ...action.product } };
+      return {
+        ...state,
+        editProductModal: { modal: true, ...action.product },
+      };
     case "editProductModalClose":
-      return { ...state, editProductModal: { ...productState.editProductModal } };
+      return {
+        ...state,
+        editProductModal: { ...productState.editProductModal },
+      };
     default:
       return state;
   }

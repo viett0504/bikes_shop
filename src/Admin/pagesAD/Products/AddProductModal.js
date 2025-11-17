@@ -1,8 +1,14 @@
 // src/Admin/pagesAD/Products/AddProductModal.js
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { ProductContext } from "./index";
 import { createProduct, editProduct, getAllProduct } from "./FetchApi";
 import { getAllCategory } from "../Categories/FetchApi";
+import { getAllBikeType } from "../BikeType/FetchApi"; // 🆕
 import * as XLSX from "xlsx";
 import { FiUpload } from "react-icons/fi";
 
@@ -10,25 +16,26 @@ export default function AddProductModal() {
   const { data, dispatch } = useContext(ProductContext);
   const { addProductModal, editProductModal } = data;
 
-  const isEditMode = !!editProductModal?.modal && !addProductModal;    
-  const isOpen = addProductModal || isEditMode;       
+  const isEditMode = !!editProductModal?.modal && !addProductModal;
+  const isOpen = addProductModal || isEditMode;
 
   const [loading, setLoading] = useState(false);
 
   // State form
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
-  const [brand, setBrand] = useState(""); // _id category
+  const [brand, setBrand] = useState("");
   const [stock, setStock] = useState(0);
   const [status, setStatus] = useState("Active");
-  const [image, setImage] = useState(null); // file ảnh mới (nếu chọn)
+  const [image, setImage] = useState(null);
 
   const [categories, setCategories] = useState([]);
-  const [price, setPrice] = useState(0);
-  const [offer, setOffer] = useState(0);
-  const [type, setType] = useState("");
+  const [bikeTypes, setBikeTypes] = useState([]); // 🆕 list loại xe
 
-  // Lưu tên gốc khi bắt đầu sửa, để so sánh xem user có đổi tên hay không
+  const [price, setPrice] = useState(0); // Giá gốc
+  const [offer, setOffer] = useState(0); // % giảm giá
+  const [type, setType] = useState(""); // id loại xe
+
   const originalNameRef = useRef("");
 
   const resetForm = () => {
@@ -53,28 +60,31 @@ export default function AddProductModal() {
     originalNameRef.current = "";
   };
 
-  // ======= LOAD DANH MỤC KHI MODAL MỞ =======
+  // Load Category + BikeType khi modal mở
   useEffect(() => {
     if (!isOpen) return;
 
-    const fetchCategories = async () => {
+    const fetchMeta = async () => {
       try {
-        const res = await getAllCategory();
-        setCategories(res?.Categories || []);
+        const [catRes, typeRes] = await Promise.all([
+          getAllCategory(),
+          getAllBikeType(),
+        ]);
+        setCategories(catRes?.Categories || []);
+        setBikeTypes(typeRes?.BikeTypes || []);
       } catch (err) {
-        console.log("Lỗi load categories:", err);
+        console.log("Lỗi load meta:", err);
       }
     };
 
-    fetchCategories();
+    fetchMeta();
   }, [isOpen]);
 
-  // ======= FILL FORM KHI ẤN SỬA / HOẶC RESET KHI ẤN THÊM =======
+  // Fill form khi ấn Sửa
   useEffect(() => {
     if (!isOpen) return;
 
     if (isEditMode && editProductModal) {
-      // fill data cũ vào form
       setName(editProductModal.pName || "");
       setDesc(editProductModal.pDescription || "");
       setBrand(
@@ -88,23 +98,25 @@ export default function AddProductModal() {
 
       setPrice(editProductModal.pPrice ?? 0);
       setOffer(editProductModal.pOffer ?? 0);
-      setType(editProductModal.pType ?? "");
 
-      originalNameRef.current = editProductModal.pName;
+      setType(
+        editProductModal.pBiketype?._id ||
+          editProductModal.pBiketype ||
+          ""
+      );
+
+      originalNameRef.current = editProductModal.pName || "";
     } else {
-      // chế độ thêm mới
       resetForm();
     }
   }, [isOpen, isEditMode, editProductModal]);
 
-  // Nếu modal đóng thì không render gì
   if (!isOpen) return null;
 
   // ======= SUBMIT FORM =======
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    
     const sameName =
       isEditMode &&
       originalNameRef.current &&
@@ -127,13 +139,26 @@ export default function AddProductModal() {
       alert("Vui lòng chọn thương hiệu");
       return;
     }
+    if (!type) {
+      alert("Vui lòng chọn loại xe");
+      return;
+    }
     if (!status) {
       alert("Vui lòng chọn trạng thái");
       return;
     }
-    // YÊU CẦU ẢNH nếu:
-    // - đang THÊM mới, hoặc
-    // - đang SỬA nhưng ĐỔI TÊN (tức là sẽ tạo SP mới)
+
+    const priceNumber = Number(price) || 0;
+    const offerNumber = Number(offer) || 0;
+    if (priceNumber < 0) {
+      alert("Giá tiền phải >= 0");
+      return;
+    }
+    if (offerNumber < 0 || offerNumber > 100) {
+      alert("Ưu đãi (%) phải từ 0 đến 100");
+      return;
+    }
+
     if (!image && !sameName) {
       alert("Vui lòng chọn ảnh sản phẩm");
       return;
@@ -143,9 +168,8 @@ export default function AddProductModal() {
       setLoading(true);
 
       if (isEditMode) {
-        // ====== ĐANG Ở CHẾ ĐỘ SỬA ======
         if (sameName) {
-          // 👉 Giữ nguyên tên -> CẬP NHẬT SẢN PHẨM HIỆN TẠI
+          // Cập nhật sản phẩm hiện tại
           const payload = {
             pId: editProductModal._id || editProductModal.pId,
             pName: name,
@@ -153,8 +177,9 @@ export default function AddProductModal() {
             pStatus: status,
             pCategory: brand,
             pQuantity: stock,
-            pPrice: editProductModal.pPrice ?? 0,
-            pOffer: editProductModal.pOffer ?? 0,
+            pPrice: priceNumber,
+            pOffer: offerNumber,
+            pBiketype: type,
             pImages: editProductModal.pImages || [],
             pEditImages: image ? [image] : [],
           };
@@ -166,7 +191,7 @@ export default function AddProductModal() {
             alert(res.error);
           }
         } else {
-          // 👉 ĐỔI TÊN SẢN PHẨM -> TẠO SẢN PHẨM MỚI
+          // Đổi tên => tạo sản phẩm mới
           const res = await createProduct({
             name,
             desc,
@@ -175,8 +200,8 @@ export default function AddProductModal() {
             category: brand,
             stock,
             type,
-            price: editProductModal.pPrice ?? 0,
-            offer: editProductModal.pOffer ?? 0,
+            price: priceNumber,
+            offer: offerNumber,
           });
 
           if (res?.success) {
@@ -186,7 +211,7 @@ export default function AddProductModal() {
           }
         }
       } else {
-        // ====== CHẾ ĐỘ THÊM MỚI BÌNH THƯỜNG ======
+        // Thêm mới
         const res = await createProduct({
           name,
           desc,
@@ -194,9 +219,9 @@ export default function AddProductModal() {
           status,
           category: brand,
           stock,
-          price: 0,
-          offer: 0,
           type,
+          price: priceNumber,
+          offer: offerNumber,
         });
 
         if (res?.success) {
@@ -206,7 +231,6 @@ export default function AddProductModal() {
         }
       }
 
-      // Load lại list sản phẩm sau khi lưu
       const list = await getAllProduct();
       dispatch({
         type: "fetchProductsAndChangeState",
@@ -226,7 +250,8 @@ export default function AddProductModal() {
     }
   };
 
-  // ======= IMPORT TỪ EXCEL =======
+  // Import Excel giữ nguyên (chỉ fill name/desc/stock/brand/status)
+
   const handleExcelImport = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -242,13 +267,12 @@ export default function AddProductModal() {
         return;
       }
 
-      const first = rows[0]; // lấy dòng đầu tiên để fill form
+      const first = rows[0];
 
       setName(first["Tên sản phẩm"] || first["Ten SP"] || "");
       setDesc(first["Mô tả"] || first["Mo ta"] || "");
       setStock(first["Tồn kho"] || first["Ton kho"] || 0);
 
-      // map tên thương hiệu trong Excel -> _id trong categories
       const brandName =
         first["Thương hiệu"] ||
         first["Thuong hieu"] ||
@@ -266,26 +290,22 @@ export default function AddProductModal() {
         first["Status"] ||
         "Active";
       setStatus(st === "Inactive" ? "Inactive" : "Active");
-
-      console.log("Import từ Excel:", first);
     } catch (err) {
       console.log("Lỗi đọc file Excel:", err);
       alert("Không đọc được file Excel, vui lòng kiểm tra lại.");
     }
   };
 
-  // ======= RENDER UI =======
+  // ======= UI =======
   return (
     <div className="ad-card ad-form-card">
       <div className="ad-body">
-        {/* HEADER: tiêu đề + nút Excel */}
         <div className="ad-form-header">
           <h2 className="ad-form-title">
             {isEditMode ? "Sửa sản phẩm" : "Thêm sản phẩm"}
           </h2>
 
           <div className="ad-form-tools">
-            {/* input file Excel ẩn */}
             <input
               id="excel-upload"
               type="file"
@@ -294,8 +314,10 @@ export default function AddProductModal() {
               style={{ display: "none" }}
             />
 
-            {/* nút bấm đẹp để upload Excel */}
-            <label htmlFor="excel-upload" className="ad-btn secondary small">
+            <label
+              htmlFor="excel-upload"
+              className="ad-btn secondary small"
+            >
               <FiUpload style={{ marginRight: 6 }} />
               Nhập từ Excel
             </label>
@@ -303,7 +325,7 @@ export default function AddProductModal() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* Hàng 1: Tên + Mô tả */}
+          {/* Hàng 1: Tên + mô tả */}
           <div className="ad-form-row">
             <div className="ad-form-group">
               <label>Tên sản phẩm</label>
@@ -326,7 +348,7 @@ export default function AddProductModal() {
             </div>
           </div>
 
-          {/* Hàng 2: Tồn kho + Thương hiệu + Trạng thái + Ảnh */}
+          {/* Hàng 2: tồn kho + thương hiệu + trạng thái + ảnh */}
           <div className="ad-form-row">
             <div className="ad-form-group ad-form-group-sm">
               <label>Tồn kho</label>
@@ -368,31 +390,34 @@ export default function AddProductModal() {
               <label>Ảnh</label>
               <input
                 type="file"
-                onChange={(e) => setImage(e.target.files[0] || null)}
+                onChange={(e) =>
+                  setImage(e.target.files[0] || null)
+                }
               />
             </div>
           </div>
 
-          {/* Hàng 3: Loại xe + Giá tiền + Ưu đãi */}
+          {/* Hàng 3: Loại xe + Giá + Ưu đãi */}
           <div
             className="ad-form-row"
-            style={{
-              justifyContent: "center",
-              gap: "80px",
-            }}
+            style={{ justifyContent: "center", gap: "40px" }}
           >
-
             <div
               className="ad-form-group ad-form-group-sm"
               style={{ maxWidth: "220px" }}
             >
               <label>Loại xe</label>
-              <input
-                type="text"
+              <select
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                placeholder="VD: Xe địa hình, Xe gấp..."
-              />
+              >
+                <option value="">-- Chọn loại xe --</option>
+                {bikeTypes.map((t) => (
+                  <option key={t._id} value={t._id}>
+                    {t.tName}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div
@@ -404,7 +429,9 @@ export default function AddProductModal() {
                 type="number"
                 min={0}
                 value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                onChange={(e) =>
+                  setPrice(e.target.value ? Number(e.target.value) : 0)
+                }
                 placeholder="VD: 5500000"
               />
             </div>
@@ -419,11 +446,12 @@ export default function AddProductModal() {
                 min={0}
                 max={100}
                 value={offer}
-                onChange={(e) => setOffer(e.target.value)}
+                onChange={(e) =>
+                  setOffer(e.target.value ? Number(e.target.value) : 0)
+                }
                 placeholder="VD: 10"
               />
             </div>
-
           </div>
 
           {/* Nút */}

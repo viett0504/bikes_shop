@@ -22,7 +22,7 @@ export const createProduct = async ({
   stock,
   price = 0,
   offer = 0,
-  type = "", // 🔹 loại xe (nếu có)
+  type = "", 
 }) => {
   const form = new FormData();
 
@@ -39,7 +39,7 @@ export const createProduct = async ({
   form.append("pPrice", price);
   form.append("pOffer", offer);
 
-  // 🔹 gửi thêm loại xe (nếu BE có field này thì sẽ nhận, không có cũng không sao)
+  // ID loại xe
   if (type) {
     form.append("pType", type);
   }
@@ -77,12 +77,8 @@ export const editProduct = async (product) => {
   form.append("pQuantity", product.pQuantity);
   form.append("pPrice", product.pPrice ?? 0);
   form.append("pOffer", product.pOffer ?? 0);
-
-  // nếu BE lưu loại xe trong pType
-  if (product.pType) {
-    form.append("pType", product.pType);
-  }
-
+  form.append("pBiketype", product.pBiketype._id || product.pBiketype);
+  
   // pImages có thể là array, tùy BE đang xử lý thế nào
   form.append("pImages", product.pImages);
 
