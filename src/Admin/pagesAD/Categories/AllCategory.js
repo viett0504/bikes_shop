@@ -3,6 +3,30 @@ import { useContext, useEffect } from "react";
 import { CategoryContext } from "./index";
 import { deleteCategory, getAllCategory } from "./FetchApi";
 
+const apiURL = process.env.REACT_APP_API_URL;
+
+// ✅ Chuẩn hoá URL ảnh category (IPFS + local)
+const getCategoryImageSrc = (url) => {
+  if (!url) return "";
+
+  // Trường hợp URL dạng http.../ipfs/<cid> (kể cả bucket.cus.ipfs.filebase.io)
+  if (url.startsWith("http") && url.includes("/ipfs/")) {
+    const cid = url.split("/ipfs/")[1];
+    if (cid) {
+      // Luôn dùng gateway chính có SSL chuẩn
+      return `https://ipfs.filebase.io/ipfs/${cid}`;
+    }
+  }
+
+  // Trường hợp chỉ là tên file (lưu local trên server)
+  if (!url.startsWith("http")) {
+    return `${apiURL}/uploads/categories/${url}`;
+  }
+
+  // Mặc định trả lại url
+  return url;
+};
+
 const AllCategory = () => {
   const { data, dispatch } = useContext(CategoryContext);
   const { categories, loading } = data;
@@ -15,8 +39,6 @@ const AllCategory = () => {
     console.log("👉 res in AllCategory =", res);
 
     if (res && res.Categories) {
-      // nếu reducer của bạn dùng type khác (vd: fetchCategoryAndChangeState)
-      // thì đổi lại cho khớp
       dispatch({ type: "fetchCategories", payload: res.Categories });
     }
 
@@ -37,8 +59,10 @@ const AllCategory = () => {
   };
 
   const onEdit = (c) => {
+    // đóng form thêm nếu đang mở
     dispatch({ type: "addCategoryModal", payload: false });
 
+    // mở form sửa với dữ liệu category hiện tại
     dispatch({
       type: "editCategoryModalOpen",
       category: c,
@@ -55,15 +79,12 @@ const AllCategory = () => {
         {/* ✅ wrapper scroll dọc + ngang giống ProductTable */}
         <div
           style={{
-            maxHeight: 600,       // ~5–6 dòng, thừa sẽ xuất hiện thanh trượt
+            maxHeight: 600, // ~5–6 dòng, thừa sẽ xuất hiện thanh trượt
             overflowY: "auto",
             overflowX: "auto",
           }}
         >
-          <table
-            className="ad-table ad-table-sticky"
-            style={{ minWidth: 900 }}
-          >
+          <table className="ad-table ad-table-sticky" style={{ minWidth: 900 }}>
             <thead>
               <tr>
                 <th>Tên danh mục</th>
@@ -78,10 +99,7 @@ const AllCategory = () => {
             <tbody>
               {loading ? (
                 <tr>
-                  <td
-                    colSpan="7"
-                    style={{ textAlign: "center", padding: 16 }}
-                  >
+                  <td colSpan="7" style={{ textAlign: "center", padding: 16 }}>
                     Đang tải...
                   </td>
                 </tr>
@@ -93,17 +111,17 @@ const AllCategory = () => {
                     <td>
                       {c.cImage ? (
                         <img
-                          src={`${process.env.REACT_APP_API_URL}/uploads/categories/${c.cImage}`}
+                          src={getCategoryImageSrc(c.cImage)}
                           alt={c.cName}
                           style={{
                             width: 60,
                             height: 40,
                             objectFit: "cover",
-                            borderRadius: 4,
+                            borderRadius: 6,
                           }}
                         />
                       ) : (
-                        "–"
+                        "—"
                       )}
                     </td>
                     <td>{c.cStatus}</td>
@@ -145,10 +163,7 @@ const AllCategory = () => {
                 ))
               ) : (
                 <tr>
-                  <td
-                    colSpan="7"
-                    style={{ textAlign: "center", padding: 16 }}
-                  >
+                  <td colSpan="7" style={{ textAlign: "center", padding: 16 }}>
                     Chưa có danh mục
                   </td>
                 </tr>

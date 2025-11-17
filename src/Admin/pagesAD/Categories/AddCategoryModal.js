@@ -65,7 +65,6 @@ const AddCategoryModal = () => {
       setLoading(true);
 
       if (isEditMode) {
-        // 🔧 CẬP NHẬT DANH MỤC
         const res = await editCategory({
           cId: editCategoryModal.cId,
           des: cDescription,
@@ -75,9 +74,10 @@ const AddCategoryModal = () => {
         if (res?.success) {
           alert("Cập nhật danh mục thành công!");
         } else {
-          alert(res?.message || "Có lỗi xảy ra!");
+          alert(res?.error || res?.message || "Có lỗi xảy ra!");
         }
-      } else {
+      }
+      else {
         // ➕ THÊM DANH MỤC
         const res = await createCategory({
           cName,
