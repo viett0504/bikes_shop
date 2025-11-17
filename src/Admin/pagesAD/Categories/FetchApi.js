@@ -26,12 +26,22 @@ export const createCategory = async ({ cName, cImage, cDescription, cStatus }) =
   } catch (e) { console.log(e); }
 };
 
-export const editCategory = async (cId, des, status) => {
+export const editCategory = async ({ cId, des, status }) => {
   try {
-    const res = await axios.post(`${apiURL}/api/category/edit-category`, { cId, cDescription: des, cStatus: status });
+    const res = await axios.post(`${apiURL}/api/category/edit-category`, {
+      cId,
+      cDescription: des,
+      cStatus: status,
+    });
     return res.data;
-  } catch (e) { console.log(e); }
+  } catch (e) {
+    console.error(
+      "❌ editCategory error:",
+      e?.response?.data || e.message || e
+    );
+  }
 };
+
 
 export const deleteCategory = async (cId) => {
   try {

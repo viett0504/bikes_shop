@@ -100,7 +100,7 @@ export default function EditBikeTypeModal() {
               className="ad-btn success"
               disabled={loading}
             >
-              {loading ? "Đang lưu..." : "Lưu thay đổi"}
+              {loading ? "Đang lưu..." : "Lưu"}
             </button>
           </div>
         </form>
