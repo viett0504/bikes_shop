@@ -37,12 +37,14 @@ button{
 
 .ad-sidebar{
   width:240px;
-  height:120vh;
+  min-height:100vh;
   position:sticky;
   top:0;
   padding:16px;
   background:var(--panel);
   border-right:1px solid var(--border);
+  display: flex;                 /* Kích hoạt Flexbox */
+  flex-direction: column;
 }
 .ad-sidebar .ad-title{
   font-weight:700;
@@ -690,4 +692,229 @@ button{
 }
 .text-center {
   text-align: center;
+}
+
+/* Overlay */
+.ad-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+/* Modal */
+.ad-modal {
+  width: 800px;
+  max-width: 95%;
+  background: #0f172a;
+  color: #e5e7eb;
+  border-radius: 12px;
+  padding: 20px 22px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.ad-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ad-modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.ad-modal-close {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.ad-modal-body {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ad-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+  gap: 8px;
+}
+
+.ad-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ad-form-group label {
+  font-size: 14px;
+  color: #d1d5db;
+}
+
+.ad-input {
+  border-radius: 8px;
+  border: 1px solid #4b5563;
+  background: #020617;
+  color: #e5e7eb;
+  padding: 8px 10px;
+  outline: none;
+  font-size: 14px;
+}
+
+.ad-input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.6);
+}
+
+/* Table */
+.ad-table-wrapper {
+  flex: 1;
+  overflow: auto;
+  border-radius: 8px;
+  border: 1px solid #1f2937;
+}
+
+.ad-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.ad-table thead {
+  background: #111827;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.ad-table th,
+.ad-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #1f2937;
+}
+
+.ad-table tbody tr:hover {
+  background: rgba(55, 65, 81, 0.5);
+}
+
+/* Buttons */
+.ad-btn {
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+}
+
+.ad-btn-secondary {
+  background: #374151;
+  color: #e5e7eb;
+}
+.ad-btn-secondary:hover {
+  background: #4b5563;
+}
+
+.ad-menu-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+/* SEARCH BOX */
+.ad-search-box {
+  position: relative;
+  width: 260px;
+  margin-left: 16px;
+}
+
+.ad-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #9ca3af;
+}
+
+.ad-search-input {
+  width: 100%;
+  padding: 10px 12px 10px 38px;
+  border-radius: 8px;
+  border: 1px solid #374151;
+  background: #111827;
+  color: #e5e7eb;
+  outline: none;
+  font-size: 14px;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.ad-search-input::placeholder {
+  color: #6b7280;
+}
+
+.ad-search-input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96,165,250,.4);
+}
+
+/* BUTTON */
+.ad-btn-primary {
+  background: #3b82f6;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.ad-btn-primary:hover {
+  background: #2563eb;
+}
+
+/* ==================== Thanh bên (Sidebar) - BOTTOM ACTIONS ==================== */
+
+/* Container cho nút dưới đáy */
+.ad-sidebar-bottom-actions {
+  margin-top: auto; /* Đẩy tất cả các thành phần phía trên lên đầu, đặt phần này ở cuối */
+  padding-top: 16px; /* Khoảng đệm trên đường kẻ */
+  border-top: 1px solid var(--border); /* Đường phân cách */
+}
+
+/* Định kiểu cho nút Quay lại */
+.ad-link.return-btn {
+  /* Các thuộc tính giữ nguyên */
+  color: var(--primary); 
+  font-weight: 600;      
+  padding: 5px 7px;
+  border: 1px solid var(--primary);
+  border-radius: 12px;
+  text-align: center;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.18s ease;
+  font-size: 14px;
+  /* Đảm bảo nút chiếm toàn bộ chiều ngang có thể của padding */
+  display: block; 
+}
+
+/* Hiệu ứng HOVER cho nút Quay lại */
+.ad-link.return-btn:hover {
+  background: rgba(96, 165, 250, 0.15); 
+  color: var(--primary); 
+  transform: none; 
+  box-shadow: 0 0 10px rgba(96, 165, 250, 0.4); 
 }

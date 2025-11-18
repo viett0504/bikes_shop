@@ -1,11 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./RegisterPage.css";    
+import "./RegisterPage.css";
+
 export default function RegisterPage() {
   return (
     <>
       <div className="register-root">
         <div className="register-card">
+
           {/* Left visual */}
           <div className="visual">
             <div className="brand">BIKES</div>
@@ -17,9 +19,10 @@ export default function RegisterPage() {
 
           {/* Right form */}
           <div className="form">
-            <h1 className="title">Register</h1>
-            <p className="subtitle">Sign up with</p>
+            <h1 className="title">Đăng ký</h1>
+            <p className="subtitle">Đăng ký bằng</p>
 
+            {/* Social */}
             <div className="socials">
               <button className="social-btn">
                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" />
@@ -32,42 +35,55 @@ export default function RegisterPage() {
               </button>
             </div>
 
-            <div className="or">OR</div>
+            <div className="or">HOẶC</div>
 
+            {/* Name */}
             <div className="field-group">
-              <label className="section-label">Your Name</label>
+              <label className="section-label">Tên của bạn</label>
               <div className="grid-2">
-                <input className="input" placeholder="First Name" />
-                <input className="input" placeholder="Last Name" />
+                <input className="input" placeholder="Họ" />
+                <input className="input" placeholder="Tên" />
               </div>
             </div>
 
+            {/* Login details */}
             <div className="field-group">
-              <label className="section-label">Login Details</label>
+              <label className="section-label">Thông tin đăng nhập</label>
               <input className="input" placeholder="Email" type="email" />
-              <input className="input" placeholder="Password" type="password" />
+              <input className="input" placeholder="Mật khẩu" type="password" />
+
               <p className="hint">
-                Minimum 8 characters with at least one uppercase, one lowercase, one special character and a number
+                Mật khẩu tối thiểu 8 ký tự, gồm chữ hoa, chữ thường, ký tự đặc biệt và số.
               </p>
             </div>
 
             <label className="checkbox">
               <input type="checkbox" />
               <span>
-                By clicking 'Log In' you agree to our website KicksClub <Link to="#">Terms & Conditions</Link>, Kicks <Link to="/privacy">Privacy Notice</Link> and <Link to="/terms">Terms & Conditions</Link>.
+                Khi đăng ký, bạn đồng ý với{" "}
+                <Link to="#">Điều khoản & Điều kiện</Link>,{" "}
+                <Link to="/privacy">Chính sách bảo mật</Link> và{" "}
+                <Link to="/terms">Điều khoản sử dụng</Link>.
               </span>
             </label>
 
             <label className="checkbox">
               <input type="checkbox" />
               <span>
-                Keep me logged in - applies to all log in options below. <Link to="#">More info</Link>
+                Giữ tôi đăng nhập — áp dụng cho tất cả các phương thức bên dưới.{" "}
+                <Link to="#">Xem thêm</Link>
               </span>
             </label>
 
             <button className="primary-btn" type="button">
-              REGISTER <span className="arrow">→</span>
+              ĐĂNG KÝ <span className="arrow">→</span>
             </button>
+
+            {/* 🔥 Thêm đoạn Đăng nhập */}
+            <p className="login-redirect">
+              Bạn đã có tài khoản?{" "}
+              <Link to="/login" className="underline">Đăng nhập ngay</Link>
+            </p>
           </div>
         </div>
       </div>

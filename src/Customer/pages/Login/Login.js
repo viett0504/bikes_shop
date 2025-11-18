@@ -1,12 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./Login.css"; // CSS tách file riêng
+import "./Login.css";
 
 export default function LoginPage() {
   return (
-    <div className="login-root">            
+    <div className="login-root">
       <div className="login-card">
-        {/* Left visual */}
+        {/* Left visual - giữ nguyên */}
         <div className="visual">
           <div className="brand">BIKES</div>
           <img
@@ -17,26 +17,31 @@ export default function LoginPage() {
 
         {/* Right form */}
         <div className="form">
-          <h1 className="title">Login</h1>
-
-          <div className="top-links">
-            <Link to="/forgot" className="muted underline">Forgot your password?</Link>
-          </div>
+          <h1 className="title">Đăng nhập</h1>
 
           <input className="input" type="email" placeholder="Email" />
-          <input className="input" type="password" placeholder="Password" />
+          <input className="input" type="password" placeholder="Mật khẩu" />
 
           <label className="checkbox">
             <input type="checkbox" />
             <span>
-              Keep me logged in - applies to all log in options below.{" "}
-              <Link to="/info" className="underline">More info</Link>
+              Giữ tôi đăng nhập — áp dụng cho tất cả các phương thức đăng nhập bên dưới.{" "}
+              <Link to="/info" className="underline">Xem thêm thông tin</Link>
             </span>
           </label>
 
           <button className="primary-btn" type="button">
-            EMAIL LOGIN <span className="arrow">→</span>
+            ĐĂNG NHẬP <span className="arrow">→</span>
           </button>
+
+          {/* 🔥 Thêm phần "Chưa có tài khoản? Đăng ký" */}
+          <div className="top-links">
+            <Link to="/forgot" className="muted underline">Quên mật khẩu?</Link>
+          </div>
+          <p className="no-account">
+            Chưa có tài khoản?{" "}
+            <Link to="/register" className="underline">Đăng ký ngay</Link>
+          </p>
 
           <div className="socials">
             <button className="social-btn">
@@ -51,11 +56,12 @@ export default function LoginPage() {
           </div>
 
           <p className="terms">
-            By clicking 'Log In' you agree to our website KicksClub
-            <Link to="/terms" className="underline"> Terms & Conditions</Link>, Kicks
-            <Link to="/privacy" className="underline"> Privacy Notice</Link> and
-            <Link to="/terms" className="underline"> Terms & Conditions</Link>.
+            Khi bấm “Đăng nhập”, bạn đồng ý với{" "}
+            <Link to="/terms" className="underline">Điều Khoản & Điều Kiện</Link> của KicksClub,{" "}
+            <Link to="/privacy" className="underline">Chính Sách Bảo Mật</Link> và{" "}
+            <Link to="/terms" className="underline">Điều Khoản Sử Dụng</Link>.
           </p>
+
         </div>
       </div>
     </div>
