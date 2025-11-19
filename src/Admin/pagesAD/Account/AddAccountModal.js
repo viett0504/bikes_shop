@@ -21,6 +21,7 @@ export default function AddAccountModal() {
   // avatar
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState("");
+  
 
   const resetForm = () => {
     setName("");

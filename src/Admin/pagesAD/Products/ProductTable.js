@@ -38,10 +38,16 @@ export default function ProductTable() {
     setLoading(false);
   };
 
-  const onDelete = async (id) => {
+  const onDelete = async (id, name) => {
+    const ok = window.confirm(
+      `Bạn có chắc chắn muốn xóa sản phẩm "${name}" không?`
+    );
+    if (!ok) return;
+
     const r = await deleteProduct(id);
     if (r?.success) fetchData();
   };
+
 
   const onEdit = (p) => {
     dispatch({ type: "addProductModal", payload: false });
@@ -144,8 +150,8 @@ export default function ProductTable() {
                           <img
                             alt=""
                             style={{
-                              width: 40,
-                              height: 40,
+                              width: 60,
+                              height: 60,
                               objectFit: "cover",
                               borderRadius: 6,
                             }}
@@ -226,10 +232,11 @@ export default function ProductTable() {
                           <button
                             className="ad-btn danger"
                             type="button"
-                            onClick={() => onDelete(p._id)}
+                            onClick={() => onDelete(p._id, p.pName)}
                           >
                             Xóa
                           </button>
+
                         </div>
                       </td>
                     </tr>

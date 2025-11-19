@@ -2,7 +2,7 @@
 .account-page {
   background: #f3f4f6;
   min-height: 100vh;
-  padding-top: 7rem; /* chừa header */
+  padding-top: 12rem; /* chừa header */
 }
 
 .account-container {

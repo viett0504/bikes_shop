@@ -35,6 +35,7 @@ export default function AddProductModal() {
   const [price, setPrice] = useState(0); // Giá gốc
   const [offer, setOffer] = useState(0); // % giảm giá
   const [type, setType] = useState(""); // id loại xe
+  const [imagePreview, setImagePreview] = useState(""); // 🔥 URL xem trước
 
   const originalNameRef = useRef("");
 
@@ -45,6 +46,7 @@ export default function AddProductModal() {
     setStock(0);
     setStatus("Active");
     setImage(null);
+    setImagePreview("");
     setPrice(0);
     setOffer(0);
     setType("");
@@ -57,6 +59,7 @@ export default function AddProductModal() {
       dispatch({ type: "addProductModal", payload: false });
     }
     resetForm();
+    setImagePreview("");
     originalNameRef.current = "";
   };
 
@@ -95,6 +98,11 @@ export default function AddProductModal() {
       setStock(editProductModal.pQuantity ?? 0);
       setStatus(editProductModal.pStatus || "Active");
       setImage(null);
+      setImagePreview(
+        Array.isArray(editProductModal.pImages) && editProductModal.pImages.length
+          ? editProductModal.pImages[0]
+          : ""
+      );
 
       setPrice(editProductModal.pPrice ?? 0);
       setOffer(editProductModal.pOffer ?? 0);
@@ -390,11 +398,39 @@ export default function AddProductModal() {
               <label>Ảnh</label>
               <input
                 type="file"
-                onChange={(e) =>
-                  setImage(e.target.files[0] || null)
-                }
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setImage(file);
+                    // 🔥 tạo URL xem trước
+                    const url = URL.createObjectURL(file);
+                    setImagePreview(url);
+                  } else {
+                    setImage(null);
+                    setImagePreview("");
+                  }
+                }}
               />
+
+              {/* 🔥 khu vực xem trước ảnh */}
+              {imagePreview && (
+                <div style={{ marginTop: 8 }}>
+                  <img
+                    src={imagePreview}
+                    alt="Xem trước ảnh sản phẩm"
+                    style={{
+                      maxWidth: "120px",
+                      maxHeight: "120px",
+                      borderRadius: "8px",
+                      objectFit: "cover",
+                      border: "1px solid #333",
+                    }}
+                  />
+                </div>
+              )}
             </div>
+
           </div>
 
           {/* Hàng 3: Loại xe + Giá + Ưu đãi */}

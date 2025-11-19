@@ -6,17 +6,15 @@ export default function ProductMenu() {
   const searchText = data?.searchText || "";
 
   return (
-    // 🔥 container ngoài dùng flex để xếp 1 hàng
     <div
       style={{
         display: "flex",
         alignItems: "center",
         gap: "16px",
-        marginBottom: "16px",
-        marginTop: "16px",
+        margin: "16px 0",
       }}
     >
-      {/* Chỉ button nằm trong ad-card ad-add */}
+      {/* Nút thêm sản phẩm */}
       <div className="ad-card ad-add" style={{ margin: 0 }}>
         <div className="ad-body">
           <button
@@ -31,22 +29,24 @@ export default function ProductMenu() {
         </div>
       </div>
 
-      {/* Ô tìm kiếm đứng cạnh, KHÔNG dính ad-add */}
+      {/* Ô tìm kiếm – gọn, không kéo full width */}
       <input
         type="text"
         value={searchText}
         onChange={(e) =>
           dispatch({ type: "setSearchText", payload: e.target.value })
         }
-        placeholder="Tìm kiếm sản phẩm..."
+        placeholder="Tìm kiếm tên sản phẩm..."
         style={{
-          flex: 1,
-          width: "3rem",
-          padding: "10px 14px",
+          flex: "0 1 25%",       // chiếm ~60% hàng, có thể co giãn
+          maxWidth: "720px",     // không dài quá
+          minWidth: "260px",     // không nhỏ quá khi thu hẹp
+          padding: "10px 18px",
           borderRadius: "999px",
-          border: "1px solid #ccc",
+          border: "1px solid #3b3b3b",
           outline: "none",
           background: "#fff",
+          fontSize: "14px",
         }}
       />
     </div>

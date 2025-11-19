@@ -21,22 +21,31 @@ import AccountPage from "../Customer/pages/Account/AccountPage";
 import Account from "../Admin/pagesAD/Account";
 import Banner from "../Admin/pagesAD/Banner";
 import BikeTypes from "../Admin/pagesAD/BikeType";
+import Footer from "../Customer/components/Footer/Footer";
 
 function CustomerShell() {
   const { pathname } = useLocation();
-  const hideHeaderPaths = ["/login", "/register", "/admin", "/account"];
+  
+  const hideHeaderPaths = ["/login", "/register", "/admin"];
+  const hideFooterPaths = ["/login", "/register", "/admin"];
 
   const shouldShowHeader = !hideHeaderPaths.includes(pathname);
-  return (
-    <>
-      <div className="customer-scope">
-      {shouldShowHeader && <Header />}
-      <Outlet />
-    </div>
+  const shouldShowFooter = !hideFooterPaths.includes(pathname);
 
-    </>
+  return (
+    <div className="customer-scope">
+      {/* Header */}
+      {shouldShowHeader && <Header />}
+
+      {/* Nội dung */}
+      <Outlet />
+
+      {/* Footer */}
+      {shouldShowFooter && <Footer />}
+    </div>
   );
 }
+
 
 export default function AppRouter() {
   return (
