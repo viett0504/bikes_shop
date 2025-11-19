@@ -1,11 +1,20 @@
-import { apiURL } from "../../utils/apiURL";
+// src/pages/Home/homeAPI.js (hoặc đúng path mà bạn đang dùng)
 import axios from "axios";
+
+const apiURL = process.env.REACT_APP_API_URL;
+
 
 export const getHeroBanners = async () => {
   try {
     const res = await axios.get(`${apiURL}/api/customize/get-slide-image`);
-    // BE trả về dạng { images: ["url1", "url2", ...] }
-    return res.data.images || [];
+
+    // BE trả về { Images: [ { _id, slideImage, ... }, ... ] }
+    const raw = res.data?.Images || [];
+
+    // HeroSection chỉ cần mảng URL ảnh
+    const urls = raw.map((item) => item.slideImage);
+
+    return urls;
   } catch (error) {
     console.error("getHeroBanners error:", error);
     return [];

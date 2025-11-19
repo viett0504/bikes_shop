@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "../../pages/Home/HomePage.css";
-import { getHeroBanners } from "./homeAPI";
-
+import { getHeroBanners } from "./FetchApi"
 const HeroSection = () => {
   const [images, setImages] = useState([]);
   const [current, setCurrent] = useState(0);
