@@ -117,7 +117,7 @@ button{
   border-radius:16px;
 }
 .ad-card > .ad-body{
-  padding:16px;
+  padding:2px;
 }
 
 .ad-row{
@@ -375,6 +375,7 @@ button{
 }
 .ad-card.ad-refresh {
   margin-bottom:1rem;
+  padding: 8px;
 }
 
 /* Header form: tiêu đề + nút tools (Excel, import…) */
