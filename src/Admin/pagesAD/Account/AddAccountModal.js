@@ -246,12 +246,15 @@ export default function AddAccountModal() {
 
             <div className="ad-form-group">
               <label>Chức vụ</label>
-              <input
-                type="text"
+              <select
                 value={position}
                 onChange={(e) => setPosition(e.target.value)}
-                placeholder="Khách hàng / Nhân viên / Quản lý"
-              />
+              >
+                <option value=""> Chọn chức vụ </option>
+                <option value="Khách hàng">Khách hàng</option>
+                <option value="Nhân viên">Nhân viên</option>
+                <option value="Admin">Admin</option>
+              </select>
             </div>
 
             <div className="ad-form-group">
