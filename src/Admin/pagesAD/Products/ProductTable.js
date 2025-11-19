@@ -10,13 +10,17 @@ const calcDiscountPrice = (price, offer) => {
   const p = Number(price) || 0;
   const o = Number(offer) || 0;
   if (!p) return 0;
-  const final = p * (100 - o) / 100;
+  const final = (p * (100 - o)) / 100;
   return Math.round(final);
 };
 
 export default function ProductTable() {
   const { data, dispatch } = useContext(ProductContext);
-  const { products } = data;
+
+  // Chống crash nếu data chưa có
+  const products = data?.products || [];
+  const searchText = data?.searchText || "";
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -60,12 +64,25 @@ export default function ProductTable() {
     }
 
     if (!img.startsWith("http")) {
+      // 🔧 chỗ này lúc nãy dễ bị thiếu dấu ` hoặc dấu "
       return `${apiURL}/uploads/products/${img}`;
     }
 
     return img;
   };
 
+  // ------ FILTER THEO TÊN/MÔ TẢ ------
+  const normalizedSearch = searchText.trim().toLowerCase();
+  const filteredProducts = normalizedSearch
+    ? products.filter((p) => {
+        const name = (p.pName || "").toLowerCase();
+        return (
+          name.includes(normalizedSearch) 
+        );
+      })
+    : products;
+
+  // ------ UI ------
   if (loading)
     return (
       <div className="ad-card">
@@ -105,8 +122,8 @@ export default function ProductTable() {
               </tr>
             </thead>
             <tbody>
-              {products.length ? (
-                products.map((p) => {
+              {filteredProducts.length ? (
+                filteredProducts.map((p) => {
                   const discountPrice = calcDiscountPrice(
                     p.pPrice,
                     p.pOffer
@@ -230,7 +247,7 @@ export default function ProductTable() {
         </div>
 
         <div className="ad-muted" style={{ marginTop: 8 }}>
-          Tổng: {products.length} sản phẩm
+          Tổng: {filteredProducts.length} sản phẩm
         </div>
       </div>
     </div>

@@ -15,6 +15,7 @@ export const productState = {
     pOffer: "",
     pBiketype: "",   
   },
+  searchText: "",
 };
 
 export const productReducer = (state, action) => {
@@ -33,6 +34,8 @@ export const productReducer = (state, action) => {
         ...state,
         editProductModal: { ...productState.editProductModal },
       };
+    case "setSearchText":                 // 👈 thêm
+      return { ...state, searchText: action.payload };
     default:
       return state;
   }
