@@ -1,4 +1,4 @@
-// src/pages/Home/homeAPI.js (hoặc đúng path mà bạn đang dùng)
+// src/pages/Home/homeAPI.js
 import axios from "axios";
 
 const apiURL = process.env.REACT_APP_API_URL;
