@@ -20,3 +20,15 @@ export const getHeroBanners = async () => {
     return [];
   }
 };
+
+// Lấy danh sách sản phẩm cho trang Home (sản phẩm nổi bật, v.v.)
+export const getHomeProducts = async () => {
+  try {
+    const res = await axios.get(`${apiURL}/api/product/all-product`);
+    // BE trả về { Products: [...] }
+    return res.data?.Products || [];
+  } catch (error) {
+    console.error("getHomeProducts error:", error);
+    return [];
+  }
+};

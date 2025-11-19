@@ -98,6 +98,7 @@ button{
   width:84rem;
   height:56px;
   padding:0 16px;
+  position: sticky;
   border-bottom:1px solid var(--border);
   display:flex;
   align-items:center;
@@ -106,8 +107,6 @@ button{
 }
 
 .ad-container{
-  position:relative;
-  top:3rem;
   padding:16px;
 }
 

@@ -4,7 +4,6 @@ import { AccountContext } from "./index";
 import { getAllUsers, deleteUser } from "./FetchApi";
 
 const apiURL = process.env.REACT_APP_API_URL || "http://localhost:8000";
-
 const getAvatarSrc = (img) => {
   if (!img) return "";
 
@@ -40,8 +39,10 @@ const getRoleLabel = (role) => {
 
 export default function AccountTable() {
   const { data, dispatch } = useContext(AccountContext);
-  const { accounts } = data;
   const [loading, setLoading] = useState(false);
+  const accounts = data?.accounts || [];
+  const searchText = data?.searching || "";
+
 
   useEffect(() => {
     fetchData();
@@ -88,6 +89,19 @@ export default function AccountTable() {
     );
   }
 
+  const normalizedSearch = searchText.trim().toLowerCase();
+  const filteredAccounts = normalizedSearch
+    ? accounts.filter((a) => {
+        const name = (a.name || "").toLowerCase();
+        const email = (a.email || "").toLowerCase();
+        return (
+          name.includes(normalizedSearch) || 
+          email.includes(normalizedSearch) 
+        );
+      })
+    : accounts;
+
+
   return (
     <div className="ad-card">
       <div className="ad-body" style={{ overflowX: "auto" }}>
@@ -104,8 +118,8 @@ export default function AccountTable() {
             </tr>
           </thead>
           <tbody>
-            {accounts.length ? (
-              accounts.map((u) => (
+            {filteredAccounts.length ? (
+              filteredAccounts.map((u) => (
                 <tr key={u._id}>
                   <td className="text-left">{u.name}</td>
 
