@@ -146,6 +146,13 @@
   margin-top: 6px;
 }
 
+.no-account {
+  text-align: center;
+  margin: 10px 0 20px;
+  font-size: 15px;
+  color: #111827;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .login-card { grid-template-columns: 1fr; }

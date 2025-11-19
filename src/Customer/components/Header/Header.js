@@ -199,7 +199,7 @@ const Header = () => {
                   </Link>
 
                   <Link
-                    to="/admin"
+                    to="/admin/dashboard"
                     className="user-dropdown-item"
                     onClick={() => setIsUserMenuOpen(false)}
                   >

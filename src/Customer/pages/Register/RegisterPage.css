@@ -186,6 +186,18 @@
 .arrow {
   font-size: 18px;
 }
+.login-redirect {
+  font-size: 15px;
+  color: #111827;
+  margin-top: 16px;
+  text-align: center;
+}
+.login-redirect .underline {
+  text-decoration: underline;
+  color: #111827;
+  font-weight: 600;
+}
+ 
 
 /* Responsive */
 @media (max-width: 1024px) {
