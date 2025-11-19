@@ -1,6 +1,19 @@
+// src/Admin/pagesAD/Accounts/FetchApi.js
 import axios from "axios";
 const apiURL = process.env.REACT_APP_API_URL;
 
+const mapPositionToRole = (position) => {
+  if (!position) return 0;
+  const p = position.toLowerCase().trim();
+
+  if (p.includes("quản lý") || p.includes("quan ly")) return 2;
+  if (p.includes("nhân viên") || p.includes("nhan vien")) return 1;
+
+  // mặc định: khách hàng
+  return 0;
+};
+
+// Lấy danh sách user
 export const getAllUsers = async () => {
   try {
     const res = await axios.get(`${apiURL}/api/user/all-user`);
@@ -11,9 +24,10 @@ export const getAllUsers = async () => {
   }
 };
 
-export const getSingleUser = async (uId) => { 
+// Lấy 1 user
+export const getSingleUser = async (uId) => {
   try {
-    const res = await axios.post(`${apiURL}/api/user/sinlge-user`, { uId });
+    const res = await axios.post(`${apiURL}/api/user/signle-user`, { uId });
     return res.data;
   } catch (err) {
     console.error("Lỗi getSingleUser:", err);
@@ -21,30 +35,74 @@ export const getSingleUser = async (uId) => {
   }
 };
 
-export const addUser = async (payload) => {
-  // payload = { allProduct, user, amount, transactionId, address, phone }
+// Thêm user (admin)
+export const addUser = async ({
+  name,
+  email,
+  password,
+  phoneNumber,
+  position,
+  imageFile,
+}) => {
   try {
-    const res = await axios.post(`${apiURL}/api/user/add-user`, payload);
+    const form = new FormData();
+    form.append("name", name);
+    form.append("email", email);
+    form.append("password", password);
+    form.append("phoneNumber", phoneNumber || "");
+    form.append("userRole", mapPositionToRole(position));
+
+    if (imageFile) {
+      form.append("userImage", imageFile);
+    }
+
+    const res = await axios.post(`${apiURL}/api/user/add-user`, form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     return res.data;
   } catch (err) {
-    console.error("Lỗi addUser:", err);
+    console.error("Lỗi addUser:", err?.response?.data || err.message || err);
     return { error: "Không thêm được user" };
   }
 };
 
-export const editUser = async ({ uId, name, phoneNumber }) => {
+// Sửa user (admin)
+export const editUser = async ({
+  uId,
+  name,
+  email,
+  phoneNumber,
+  position,
+  password,
+  imageFile,
+}) => {
   try {
-    const res = await axios.post(`${apiURL}/api/user/edit-user`, {
-      uId,
-      name,
-      phoneNumber,
+    const form = new FormData();
+    form.append("uId", uId);
+    form.append("name", name);
+    form.append("email", email);
+    form.append("phoneNumber", phoneNumber || "");
+    form.append("userRole", mapPositionToRole(position));
+
+    if (password && password.trim()) {
+      form.append("newPassword", password.trim());
+    }
+
+    if (imageFile) {
+      form.append("userImage", imageFile);
+    }
+
+    const res = await axios.post(`${apiURL}/api/user/edit-user`, form, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
     return res.data;
   } catch (err) {
-    console.error("Lỗi editUser:", err);
+    console.error("Lỗi editUser:", err?.response?.data || err.message || err);
     return { error: "Không sửa được user" };
   }
 };
+
+// Đổi mật khẩu 
 export const changePassword = async ({ uId, oldPassword, newPassword }) => {
   try {
     const res = await axios.post(`${apiURL}/api/user/change-password`, {
@@ -59,16 +117,13 @@ export const changePassword = async ({ uId, oldPassword, newPassword }) => {
   }
 };
 
-// Xóa / đổi trạng thái user
-export const deleteUser = async ({ uId, status }) => {
+// Xóa user
+export const deleteUser = async (uId) => {
   try {
-    const res = await axios.post(`${apiURL}/api/user/delete-user`, {
-      uId,
-      status,
-    });
+    const res = await axios.post(`${apiURL}/api/user/delete-user`, { uId });
     return res.data;
   } catch (err) {
-    console.error("Lỗi deleteUser:", err);
+    console.error("Lỗi deleteUser:", err?.response?.data || err.message || err);
     return { error: "Không xóa được user" };
   }
 };

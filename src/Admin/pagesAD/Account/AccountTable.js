@@ -5,6 +5,39 @@ import { getAllUsers, deleteUser } from "./FetchApi";
 
 const apiURL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
+const getAvatarSrc = (img) => {
+  if (!img) return "";
+
+  // URL bucket Filebase -> chuyển sang ipfs.filebase.io để tránh lỗi SSL
+  if (img.startsWith("http") && img.includes("/ipfs/")) {
+    const cid = img.split("/ipfs/")[1];
+    if (cid) return `https://ipfs.filebase.io/ipfs/${cid}`;
+  }
+
+  // Nếu BE chỉ lưu CID
+  if (!img.startsWith("http") && img.startsWith("Qm")) {
+    return `https://ipfs.filebase.io/ipfs/${img}`;
+  }
+
+  // Local cũ: /uploads/users/user.png
+  if (!img.startsWith("http")) {
+    return `${apiURL}/uploads/users/${img}`;
+  }
+
+  return img;
+};
+
+const getRoleLabel = (role) => {
+  switch (role) {
+    case 2:
+      return "Quản lý";
+    case 1:
+      return "Nhân viên";
+    default:
+      return "Khách hàng";
+  }
+};
+
 export default function AccountTable() {
   const { data, dispatch } = useContext(AccountContext);
   const { accounts } = data;
@@ -20,7 +53,7 @@ export default function AccountTable() {
     const res = await getAllUsers();
     dispatch({
       type: "fetchAccountsAndChangeState",
-      payload: res?.Users || []   
+      payload: res?.Users || [],
     });
     setLoading(false);
   };
@@ -29,8 +62,7 @@ export default function AccountTable() {
     const ok = window.confirm("Bạn có chắc muốn xóa tài khoản này?");
     if (!ok) return;
 
-    // gửi oId + status, tuỳ bạn muốn đặt status gì
-    const r = await deleteUser({ uId: id, status: "DELETED" });
+    const r = await deleteUser(id);
 
     if (r?.success) {
       alert(r.success);
@@ -40,14 +72,11 @@ export default function AccountTable() {
     }
   };
 
-  const onEdit = (p) => {
-    // 🔹 Đang ở form Thêm thì tắt nó đi
+  const onEdit = (u) => {
     dispatch({ type: "addAccountModal", payload: false });
-
-    // 🔹 Mở mode Sửa với sản phẩm đã chọn
     dispatch({
       type: "editAccountModalOpen",
-      account: p,
+      account: u,
     });
   };
 
@@ -66,10 +95,11 @@ export default function AccountTable() {
           <thead>
             <tr>
               <th>Họ tên</th>
+              <th>Ảnh</th>
               <th>Email</th>
-              {/* <th>Ảnh</th> */}
               <th>Chức vụ</th>
-              <th>SĐT</th>
+              <th>Mật khẩu</th>
+              <th>Số điện thoại</th>
               <th className="text-center">Hành động</th>
             </tr>
           </thead>
@@ -78,16 +108,11 @@ export default function AccountTable() {
               accounts.map((u) => (
                 <tr key={u._id}>
                   <td className="text-left">{u.name}</td>
-                  <td className="text-left">{u.email || "—"}</td>
 
-                  {/* Ảnh tài khoản
                   <td className="text-left">
                     {u.userImage ? (
                       <img
-                        src={
-                          // nếu BE của bạn trả full URL thì có thể dùng luôn u.userImage
-                          `${apiURL}/uploads/users/${u.userImage}`
-                        }
+                        src={getAvatarSrc(u.userImage)}
                         alt={u.name}
                         style={{
                           width: 40,
@@ -99,14 +124,20 @@ export default function AccountTable() {
                     ) : (
                       "—"
                     )}
-                  </td> */}
-
-                  {/* userRole: 0 = Khách, 1 = Admin (theo schema bạn đưa) */}
-                  <td className="text-left">
-                    {u.userRole === 1 ? "Admin" : "Khách hàng"}
                   </td>
 
-                  <td className="text-left">{u.phoneNumber || "—"}</td>
+                  <td className="text-left">{u.email || "—"}</td>
+
+                  <td className="text-left">
+                    {getRoleLabel(u.userRole)}
+                  </td>
+
+                  {/* Không show password thật, chỉ hiển thị placeholder */}
+                  <td className="text-left">********</td>
+
+                  <td className="text-left">
+                    {u.phoneNumber ? u.phoneNumber : "—"}
+                  </td>
 
                   <td className="text-center">
                     <div
@@ -116,10 +147,11 @@ export default function AccountTable() {
                         justifyContent: "center",
                       }}
                     >
-                      <button 
+                      <button
                         className="ad-btn left"
                         onClick={() => onEdit(u)}
-                        >Sửa
+                      >
+                        Sửa
                       </button>
                       <button
                         className="ad-btn danger"
@@ -133,13 +165,14 @@ export default function AccountTable() {
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="text-center">
+                <td colSpan="7" className="text-center">
                   Chưa có tài khoản
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+
         <div className="ad-muted" style={{ marginTop: 8 }}>
           Tổng: {accounts.length} tài khoản
         </div>
