@@ -22,13 +22,12 @@ export const createProduct = async ({
   stock,
   price = 0,
   offer = 0,
-  type = "", 
+  type = "",
 }) => {
   const form = new FormData();
 
   if (image) {
-    // multer.any() -> req.files
-    form.append("pImage", image);
+    form.append("pImage", image); 
   }
 
   form.append("pName", name);
@@ -39,9 +38,8 @@ export const createProduct = async ({
   form.append("pPrice", price);
   form.append("pOffer", offer);
 
-  // ID loại xe
   if (type) {
-    form.append("pType", type);
+    form.append("pBiketype", type);   
   }
 
   try {
@@ -57,7 +55,6 @@ export const createProduct = async ({
       "❌ createProduct error:",
       e?.response?.data || e.message || e
     );
-    // đẩy lỗi ra ngoài để FE xử lý
     throw e;
   }
 };
