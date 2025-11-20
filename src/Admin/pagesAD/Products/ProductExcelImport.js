@@ -57,6 +57,10 @@ export default function ProductExcelImport({
 
         setLoading(true);
 
+        // ĐẾM SỐ SP IMPORT THÀNH CÔNG / THẤT BẠI
+        let successCount = 0;
+        let failCount = 0;
+
         for (const row of rows) {
           const nameRow =
             row["Tên sản phẩm"] ||
@@ -64,12 +68,22 @@ export default function ProductExcelImport({
             row["Ten SP"] ||
             "";
 
+          // Nếu không có tên sản phẩm thì bỏ qua dòng này
           if (!nameRow) continue;
 
-          const descRow = row["Mô tả"] || row["Mo ta"] || "";
-          const stockRow = row["Tồn kho"] || row["Ton kho"] || 0;
-          const priceRow = row["Giá tiền"] || row["Gia tien"] || 0;
-          const offerRow = row["Ưu đãi (%)"] || row["Uu dai"] || 0;
+          // Nếu mô tả trống -> gán mặc định để không bị fail
+          const descRow =
+            row["Mô tả"] || row["Mo ta"] || "Không có mô tả";
+
+          const stockRow = Number(
+            row["Tồn kho"] || row["Ton kho"] || 0
+          );
+          const priceRow = Number(
+            row["Giá tiền"] || row["Gia tien"] || 0
+          );
+          const offerRow = Number(
+            row["Ưu đãi (%)"] || row["Uu dai"] || 0
+          );
 
           const brandName =
             row["Thương hiệu"] ||
@@ -90,11 +104,21 @@ export default function ProductExcelImport({
             if (found) categoryId = found._id;
           }
 
+          // Nếu vẫn không map được -> gán tạm category đầu tiên (để không bị lỗi)
+          if (!categoryId && Array.isArray(categories) && categories.length) {
+            categoryId = categories[0]._id;
+          }
+
           // Map loại xe -> bikeType id
           let bikeTypeId = "";
           if (typeName && Array.isArray(bikeTypes) && bikeTypes.length) {
             const foundType = bikeTypes.find((t) => t.tName === typeName);
             if (foundType) bikeTypeId = foundType._id;
+          }
+
+          // Nếu vẫn không map được -> gán tạm loại xe đầu tiên
+          if (!bikeTypeId && Array.isArray(bikeTypes) && bikeTypes.length) {
+            bikeTypeId = bikeTypes[0]._id;
           }
 
           const statusRaw =
@@ -104,23 +128,53 @@ export default function ProductExcelImport({
             "Active";
           const statusRow = statusRaw === "Inactive" ? "Inactive" : "Active";
 
-          await createProduct({
-            name: nameRow,
-            desc: descRow,
-            image: null, // Excel không có ảnh
-            status: statusRow,
-            category: categoryId,
-            stock: stockRow,
-            price: priceRow,
-            offer: offerRow,
-            type: bikeTypeId,
-          });
+          try {
+            const res = await createProduct({
+              name: nameRow,
+              desc: descRow,
+              image: null, // Excel không có ảnh
+              status: statusRow,
+              category: categoryId,
+              stock: stockRow,
+              price: priceRow,
+              offer: offerRow,
+              type: bikeTypeId,
+            });
+
+            // Kiểm tra BE trả về
+            if (res && res.success) {
+              successCount++;
+            } else {
+              failCount++;
+              console.warn(
+                "❌ Không import được dòng:",
+                row,
+                "Lý do:",
+                res?.error
+              );
+            }
+          } catch (err) {
+            failCount++;
+            console.error("❌ Lỗi khi gọi createProduct:", err, row);
+          }
         }
 
         // Sau khi tạo xong -> load lại sản phẩm
-        const res = await getAllProduct();
-        if (onAfterImport) {
-          await onAfterImport(res?.Products || []);
+        if (successCount === 0) {
+          alert(
+            "❌ Không có sản phẩm nào được import. Vui lòng kiểm tra lại file Excel (Tên, Thương hiệu, Loại xe...)."
+          );
+        } else {
+          alert(
+            `✅ Đã nhập thành công ${successCount} sản phẩm từ Excel.` +
+              (failCount
+                ? ` (${failCount} sản phẩm bị bỏ qua do lỗi.)`
+                : "")
+          );
+
+          const list = await getAllProduct();
+          onAfterImport?.(list?.Products || list?.products || []);
+          setExcelFile(null);
         }
 
         alert(`✅ Đã nhập thành công ${rows.length} sản phẩm từ Excel.`);
