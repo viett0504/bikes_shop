@@ -1,7 +1,7 @@
 /* Hero Section */
 .home-page {
   position: relative;
-  top: 138px;
+  top: 8rem;
 }
 .hero {
   justify-content: center;
@@ -298,4 +298,49 @@ section.features {
   .bikes-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* --- BRAND GRID FIX --- */
+.brand-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+
+  transition: transform 0.3s;
+}
+
+.brand-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Khung chứa ảnh — CHỐT LẠI TỶ LỆ */
+.brand-image-wrap {
+  width: 160px;       /* cố định để tất cả bằng nhau */
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+}
+
+/* Ảnh logo */
+.brand-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;    /* Không bị méo, luôn nằm trong khung */
+}
+
+/* Tên thương hiệu */
+.brand-name {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  text-align: center;
+  font-weight: 600;
 }

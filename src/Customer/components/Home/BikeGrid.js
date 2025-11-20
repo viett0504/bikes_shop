@@ -88,6 +88,25 @@ const BikeGrid = () => {
 
   return (
     <div className="bike-grid-section">
+
+      <div className="container" id="bikes">
+        <h2 className="section-title">Sản phẩm nổi bật</h2>
+
+        {loading ? (
+          <div style={{ textAlign: "center" }}>Đang tải...</div>
+        ) : (
+          <div className="bikes-grid">
+            {products.map((p) => (
+              <ProductCard
+                key={p.id}
+                product={p}
+                formatPrice={formatPrice}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* ========== THƯƠNG HIỆU NỔI BẬT ========== */}
       <div className="container" id="brands">
         <h2 className="section-title">Thương hiệu nổi bật</h2>
@@ -107,25 +126,6 @@ const BikeGrid = () => {
                 </div>
                 <div className="brand-name">{b.name}</div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* ========== CÁC LOẠI XE THÔNG DỤNG (sản phẩm) ========== */}
-      <div className="container" id="bikes">
-        <h2 className="section-title">Các loại xe thông dụng</h2>
-
-        {loading ? (
-          <div style={{ textAlign: "center" }}>Đang tải...</div>
-        ) : (
-          <div className="bikes-grid">
-            {products.map((p) => (
-              <ProductCard
-                key={p.id}
-                product={p}
-                formatPrice={formatPrice}
-              />
             ))}
           </div>
         )}
