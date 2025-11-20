@@ -157,7 +157,8 @@ export default function AddProductModal() {
 
       if (isEditMode) {
         const payload = {
-          pId: editData.pId,
+          pId: editData._id || editData.pId,
+
           pName: name,
           pDescription: desc,
           pStatus: status,
@@ -166,11 +167,14 @@ export default function AddProductModal() {
           pPrice: price,
           pOffer: offer,
           pBiketype: type,
-          pImages: existingImages,
+          pImages: Array.isArray(existingImages)
+            ? existingImages.join(",")
+            : existingImages || "",
           pEditImages: image ? [image] : [],
         };
 
-        await editProduct(payload);
+        const res = await editProduct(payload);
+        console.log("✅ editProduct res:", res);
       } else {
         await createProduct({
           name,
@@ -190,7 +194,7 @@ export default function AddProductModal() {
     } catch (err) {
       console.error("❌ Lỗi lưu sản phẩm:", err);
       alert("Đã có lỗi xảy ra khi lưu sản phẩm.");
-      } finally {
+    } finally {
       setLoading(false);
     }
   };
