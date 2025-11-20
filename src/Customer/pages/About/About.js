@@ -14,8 +14,8 @@ export default function BikeShopAbout() {
       {/* Hero Section */}
       <section className="hero-about">
         <div className="container hero__inner">
-          <h1 className="hero__title">🚴 BikeShop Vietnam</h1>
-          <p className="hero__subtitle">Đồng Hành Cùng Đam Mê Của Bạn</p>
+          <h1 className="hero__title">🚴 HUY VIET NAM BikeShop </h1>
+          <p className="hero__subtitle">Đồng hành cùng đam mê của bạn</p>
           <p className="hero__desc">
             Chúng tôi không chỉ bán xe đạp, chúng tôi mang đến phong cách sống năng động, khỏe mạnh
             và thân thiện với môi trường cho hàng nghìn khách hàng trên toàn quốc.

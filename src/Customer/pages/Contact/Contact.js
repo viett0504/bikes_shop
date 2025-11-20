@@ -8,42 +8,32 @@ export default function Contact() {
     {
       id: 1,
       avatar: '👨‍💼',
-      name: 'Nguyễn Văn An',
+      name: 'Nguyễn Gia Huy',
       position: 'Giám Đốc Kinh Doanh',
       description:
         'Chuyên gia với hơn 10 năm kinh nghiệm trong ngành xe đạp. Tư vấn về các dòng xe cao cấp và xe đua chuyên nghiệp.',
       phone: '0912 345 678',
-      email: 'an.nguyen@bikeshop.vn',
+      email: 'huy.nguyen@bikeshop.vn',
     },
     {
       id: 2,
-      avatar: '👩‍💼',
-      name: 'Trần Thị Bích',
+      avatar: '👨‍💼',
+      name: 'Nguyễn Hoàng Việt',
       position: 'Trưởng Phòng Tư Vấn',
       description:
         'Chuyên tư vấn xe đạp địa hình, xe đạp thành phố và phụ kiện. Nhiệt tình hỗ trợ khách hàng chọn lựa sản phẩm phù hợp.',
       phone: '0987 654 321',
-      email: 'bich.tran@bikeshop.vn',
+      email: 'SieuTriTue.VietHoang@bikeshop.vn',
     },
     {
       id: 3,
       avatar: '👨‍🔧',
-      name: 'Lê Minh Đức',
+      name: 'Văn Tiến Nam',
       position: 'Kỹ Thuật Viên Trưởng',
       description:
         'Chuyên gia bảo dưỡng và sửa chữa xe đạp. Tư vấn kỹ thuật, nâng cấp và tùy chỉnh xe theo nhu cầu khách hàng.',
       phone: '0901 234 567',
-      email: 'duc.le@bikeshop.vn',
-    },
-    {
-      id: 4,
-      avatar: '👩‍💻',
-      name: 'Phạm Thu Hà',
-      position: 'Chuyên Viên CSKH',
-      description:
-        'Giải đáp thắc mắc, xử lý đơn hàng và chăm sóc khách hàng. Luôn sẵn sàng lắng nghe và hỗ trợ bạn 24/7.',
-      phone: '0935 876 543',
-      email: 'ha.pham@bikeshop.vn',
+      email: 'NghinNamVanVo@bikeshop.vn',
     },
   ];
 
@@ -52,7 +42,7 @@ export default function Contact() {
       <div className="contact-container">
         {/* Header */}
         <div className="contact-header">
-          <h1>🚴 Liên Hệ Với Chúng Tôi</h1>
+          <h1>LIÊN HỆ VỚI CHÚNG TÔI</h1>
           <p>Đội ngũ chuyên nghiệp sẵn sàng tư vấn và hỗ trợ bạn</p>
         </div>
 
@@ -68,9 +58,9 @@ export default function Contact() {
           <h2>Thông Tin Cửa Hàng</h2>
           <div className="info-grid">
             <TeamCard icon={MapPin} title="Địa Chỉ">
-              <p>123 Đường Nguyễn Huệ</p>
-              <p>Quận 1, TP. Hồ Chí Minh</p>
-              <p>Việt Nam</p>
+              <p>427 Phạm Văn Đồng</p>
+              <p>Cổ Nhuế, Bắc Từ Liêm</p>
+              <p>Hà Nội</p>
             </TeamCard>
 
             <TeamCard icon={Clock} title="Giờ Mở Cửa">
