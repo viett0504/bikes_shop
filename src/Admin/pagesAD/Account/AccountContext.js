@@ -5,6 +5,7 @@ export const accountState = {
     modal: false,name: "", email: "",
     position: "", password: "", phoneNumber: "",
   },
+  searching: "",
 };
 
 export const accountReducer = (state, action) => {
@@ -53,6 +54,8 @@ export const accountReducer = (state, action) => {
         ...state,
         loading: action.payload,
       };
+    case "setSearchText":                 // 👈 thêm
+    return { ...state, searching: action.payload };
 
     default:
       return state;

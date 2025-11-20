@@ -333,183 +333,209 @@ export default function AddProductModal() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* Hàng 1: Tên + mô tả */}
-          <div className="ad-form-row">
-            <div className="ad-form-group">
-              <label>Tên sản phẩm</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="VD: Xe đạp thể thao"
-              />
-            </div>
+  {/* Lưới form 2 cột, dùng class trong admin.css */}
+  <div className="ad-form-grid">
+    {/* Tên sản phẩm – full 2 cột */}
+    <div className="ad-form-group ad-form-group-full">
+      <label>Tên sản phẩm</label>
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="VD: Xe đạp thể thao"
+      />
+    </div>
 
-            <div className="ad-form-group">
-              <label>Mô tả</label>
-              <textarea
-                rows={3}
-                value={desc}
-                onChange={(e) => setDesc(e.target.value)}
-                placeholder="Mô tả ngắn gọn về sản phẩm"
-              />
-            </div>
-          </div>
+    {/* Mô tả – full 2 cột */}
+    <div className="ad-form-group ad-form-group-full">
+      <label>Mô tả</label>
+      <textarea
+        rows={3}
+        value={desc}
+        onChange={(e) => setDesc(e.target.value)}
+        placeholder="Mô tả ngắn gọn về sản phẩm"
+      />
+    </div>
 
-          {/* Hàng 2: tồn kho + thương hiệu + trạng thái + ảnh */}
-          <div className="ad-form-row">
-            <div className="ad-form-group ad-form-group-sm">
-              <label>Tồn kho</label>
-              <input
-                type="number"
-                min={0}
-                value={stock}
-                onChange={(e) => setStock(e.target.value)}
-              />
-            </div>
+    {/* Tồn kho */}
+    <div className="ad-form-group">
+      <label>Tồn kho</label>
+      <input
+        type="number"
+        min={0}
+        value={stock}
+        onChange={(e) => setStock(e.target.value)}
+      />
+    </div>
 
-            <div className="ad-form-group ad-form-group-sm">
-              <label>Thương hiệu</label>
-              <select
-                value={brand}
-                onChange={(e) => setBrand(e.target.value)}
-              >
-                <option value="">-- Chọn thương hiệu --</option>
-                {categories.map((c) => (
-                  <option key={c._id} value={c._id}>
-                    {c.cName}
-                  </option>
-                ))}
-              </select>
-            </div>
+    {/* Thương hiệu */}
+    <div className="ad-form-group">
+      <label>Thương hiệu</label>
+      <select
+        value={brand}
+        onChange={(e) => setBrand(e.target.value)}
+      >
+        <option value="">-- Chọn thương hiệu --</option>
+        {categories.map((c) => (
+          <option key={c._id} value={c._id}>
+            {c.cName}
+          </option>
+        ))}
+      </select>
+    </div>
 
-            <div className="ad-form-group ad-form-group-sm">
-              <label>Trạng thái</label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </div>
+    {/* Loại xe */}
+    <div className="ad-form-group">
+      <label>Loại xe</label>
+      <select
+        value={type}
+        onChange={(e) => setType(e.target.value)}
+      >
+        <option value="">-- Chọn loại xe --</option>
+        {bikeTypes.map((t) => (
+          <option key={t._id} value={t._id}>
+            {t.tName}
+          </option>
+        ))}
+      </select>
+    </div>
 
-            <div className="ad-form-group">
-              <label>Ảnh</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setImage(file);
-                    // 🔥 tạo URL xem trước
-                    const url = URL.createObjectURL(file);
-                    setImagePreview(url);
-                  } else {
-                    setImage(null);
-                    setImagePreview("");
-                  }
-                }}
-              />
+    {/* Trạng thái */}
+    <div className="ad-form-group">
+      <label>Trạng thái</label>
+      <select
+        value={status}
+        onChange={(e) => setStatus(e.target.value)}
+      >
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+      </select>
+    </div>
 
-              {/* 🔥 khu vực xem trước ảnh */}
-              {imagePreview && (
-                <div style={{ marginTop: 8 }}>
-                  <img
-                    src={imagePreview}
-                    alt="Xem trước ảnh sản phẩm"
-                    style={{
-                      maxWidth: "120px",
-                      maxHeight: "120px",
-                      borderRadius: "8px",
-                      objectFit: "cover",
-                      border: "1px solid #333",
-                    }}
-                  />
-                </div>
-              )}
-            </div>
+    {/* Giá tiền */}
+    <div className="ad-form-group">
+      <label>Giá tiền (₫)</label>
+      <input
+        type="number"
+        min={0}
+        value={price}
+        onChange={(e) =>
+          setPrice(e.target.value ? Number(e.target.value) : 0)
+        }
+        placeholder="VD: 5.500.000"
+      />
+    </div>
 
-          </div>
+    {/* Ưu đãi */}
+    <div className="ad-form-group">
+      <label>Ưu đãi (%)</label>
+      <input
+        type="number"
+        min={0}
+        max={100}
+        value={offer}
+        onChange={(e) =>
+          setOffer(e.target.value ? Number(e.target.value) : 0)
+        }
+        placeholder="VD: 10"
+      />
+    </div>
 
-          {/* Hàng 3: Loại xe + Giá + Ưu đãi */}
-          <div
-            className="ad-form-row"
-            style={{ justifyContent: "center", gap: "40px" }}
-          >
-            <div
-              className="ad-form-group ad-form-group-sm"
-              style={{ maxWidth: "220px" }}
-            >
-              <label>Loại xe</label>
-              <select
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-              >
-                <option value="">-- Chọn loại xe --</option>
-                {bikeTypes.map((t) => (
-                  <option key={t._id} value={t._id}>
-                    {t.tName}
-                  </option>
-                ))}
-              </select>
-            </div>
 
-            <div
-              className="ad-form-group ad-form-group-sm"
-              style={{ maxWidth: "220px" }}
-            >
-              <label>Giá tiền (₫)</label>
-              <input
-                type="number"
-                min={0}
-                value={price}
-                onChange={(e) =>
-                  setPrice(e.target.value ? Number(e.target.value) : 0)
-                }
-                placeholder="VD: 5500000"
-              />
-            </div>
+    {/* Ảnh sản phẩm – 1 hàng riêng, chia 2 bên */}
+    <div className="ad-form-group ad-form-group-full">
+      <label>Ảnh sản phẩm</label>
 
-            <div
-              className="ad-form-group ad-form-group-sm"
-              style={{ maxWidth: "220px" }}
-            >
-              <label>Ưu đãi (%)</label>
-              <input
-                type="number"
-                min={0}
-                max={100}
-                value={offer}
-                onChange={(e) =>
-                  setOffer(e.target.value ? Number(e.target.value) : 0)
-                }
-                placeholder="VD: 10"
-              />
-            </div>
-          </div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "24px",
+          flexWrap: "nowrap",
+        }}
+      >
+        {/* Cột chọn file */}
+        <div style={{ flex: 1 }}>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                setImage(file);
+                const url = URL.createObjectURL(file);
+                setImagePreview(url);
+              } else {
+                setImage(null);
+                setImagePreview("");
+              }
+            }}
+            style={{
+              padding: "10px",
+              background: "var(--panel)",
+              border: "1px solid var(--border)",
+              borderRadius: 8,
+              width: "100%",
+            }}
+          />
+        </div>
 
-          {/* Nút */}
-          <div className="ad-form-actions">
-            <button
-              type="button"
-              className="ad-btn"
-              style={{ marginRight: 8 }}
-              onClick={close}
-              disabled={loading}
-            >
-              Hủy
-            </button>
-            <button
-              type="submit"
-              className="ad-btn success"
-              disabled={loading}
-            >
-              {loading ? "Đang lưu..." : "Lưu"}
-            </button>
-          </div>
-        </form>
+        {/* Cột preview ảnh */}
+        <div
+          style={{
+            width: 160,
+            height: 160,
+            border: "1px solid var(--border)",
+            borderRadius: 12,
+            background: "var(--panel)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+          }}
+        >
+          {imagePreview ? (
+            <img
+              src={imagePreview}
+              alt="preview"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          ) : (
+            <span style={{ fontSize: 12, color: "var(--muted)" }}>
+              Chưa chọn ảnh
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  {/* Nút */}
+  <div className="ad-form-actions">
+    <button
+      type="button"
+      className="ad-btn"
+      style={{ marginRight: 8 }}
+      onClick={close}
+      disabled={loading}
+    >
+      Hủy
+    </button>
+    <button
+      type="submit"
+      className="ad-btn success"
+      disabled={loading}
+    >
+      {loading ? "Đang lưu..." : "Lưu"}
+    </button>
+  </div>
+</form>
+
       </div>
     </div>
   );
