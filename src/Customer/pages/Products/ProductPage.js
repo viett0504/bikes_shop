@@ -111,7 +111,7 @@ const ProductPage = () => {
   }, [filteredProducts, sortBy]);
 
   // ====== PAGINATION ======
-  const pageSize = 21;
+  const pageSize = 18;
   const totalPages = Math.ceil(sortedProducts.length / pageSize) || 1;
 
   useEffect(() => {
