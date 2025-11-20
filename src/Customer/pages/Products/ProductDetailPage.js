@@ -1,4 +1,4 @@
-// src/pages/Products/ProductDetailPage.js
+// src/Customer/pages/Products/ProductDetailPage.js
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import {
@@ -13,20 +13,28 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { getSingleProduct } from '../../components/Product/fetchApi';
+import { isCustomerLoggedIn } from '../../../utils/authCustomer';
 import './ProductDetailPage.css';
 
 const formatPrice = (price) =>
-  new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price || 0);
+  new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+  }).format(price || 0);
 
 export default function ProductDetailPage() {
   const { id } = useParams();
+
+  // ----- state -----
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState('black');
   const [selectedSize, setSelectedSize] = useState('M');
   const [quantity, setQuantity] = useState(1);
-
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // ----- check login -----
+  const isLoggedIn = isCustomerLoggedIn();
 
   const getImageSrc = (img) => {
     if (!img) return 'https://placehold.co/800x600?text=No+Image';
@@ -47,18 +55,26 @@ export default function ProductDetailPage() {
     return img;
   };
 
-
+  // ----- fetch product -----
   useEffect(() => {
     const fetchDetail = async () => {
-      setLoading(true);
-      const p = await getSingleProduct(id);
-      setProduct(p);
-      setLoading(false);
+      try {
+        setLoading(true);
+        const p = await getSingleProduct(id);
+        setProduct(p);
+      } catch (err) {
+        console.error('Error fetching product detail:', err);
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    if (id) fetchDetail();
-  }, [id]);
+    if (!id || !isLoggedIn) return;
+    fetchDetail();
+  }, [id, isLoggedIn]);
 
+  // ----- images -----
   const images = useMemo(() => {
     if (!product || !product.pImages || !product.pImages.length) {
       return ['https://placehold.co/800x600?text=No+Image'];
@@ -66,19 +82,64 @@ export default function ProductDetailPage() {
     return product.pImages.map((img) => getImageSrc(img));
   }, [product]);
 
+  // ----- calc rating & price -----
   const reviews = product?.pRatingsReviews || [];
   const totalRating = reviews.reduce(
     (sum, r) => sum + Number(r.rating || 0),
     0
   );
-  const avgRating = reviews.length ? (totalRating / reviews.length).toFixed(1) : null;
+  const avgRating = reviews.length
+    ? (totalRating / reviews.length).toFixed(1)
+    : null;
 
   const price = product?.pPrice || 0;
   const offer = Number(product?.pOffer || 0);
-  const finalPrice = offer ? Math.round(price * (100 - offer) / 100) : price;
-
+  const finalPrice = offer ? Math.round((price * (100 - offer)) / 100) : price;
   const inStock = (product?.pQuantity || 0) > 0;
 
+  const colors = [
+    { name: 'black', label: 'Đen', code: '#000000' },
+    { name: 'red', label: 'Đỏ', code: '#DC2626' },
+    { name: 'blue', label: 'Xanh', code: '#2563EB' },
+  ];
+  const sizes = ['S', 'M', 'L', 'XL'];
+
+  const nextImage = () =>
+    setSelectedImage((prev) => (prev + 1) % images.length);
+  const prevImage = () =>
+    setSelectedImage((prev) => (prev - 1 + images.length) % images.length);
+
+  const handleAddToCartDetail = () => {
+    if (!isLoggedIn) {
+      alert('Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng.');
+      return;
+    }
+
+    // TODO: logic thêm giỏ hàng thật
+    console.log('Thêm vào giỏ từ detail:', {
+      productId: product._id,
+      quantity,
+      selectedColor,
+      selectedSize,
+    });
+  };
+
+  // ================== RETURN ==================
+
+  // 1) Chưa đăng nhập 
+  if (!isLoggedIn) {
+    return (
+      <div className="product-page">
+        <main className="main-container">
+          <div style={{ textAlign: 'center', marginTop: '4rem' }}>
+            <h2>Bạn cần đăng nhập để xem chi tiết sản phẩm.</h2>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // 2) Đang tải
   if (loading) {
     return (
       <div className="product-page">
@@ -89,6 +150,7 @@ export default function ProductDetailPage() {
     );
   }
 
+  // 3) Không tìm thấy
   if (!product) {
     return (
       <div className="product-page">
@@ -99,25 +161,12 @@ export default function ProductDetailPage() {
     );
   }
 
-  const colors = [
-    { name: 'black', label: 'Đen', code: '#000000' },
-    { name: 'red', label: 'Đỏ', code: '#DC2626' },
-    { name: 'blue', label: 'Xanh', code: '#2563EB' },
-  ];
-
-  const sizes = ['S', 'M', 'L', 'XL'];
-
-  const nextImage = () =>
-    setSelectedImage((prev) => (prev + 1) % images.length);
-  const prevImage = () =>
-    setSelectedImage((prev) => (prev - 1 + images.length) % images.length);
-
+  // 4) Đã login + có sản phẩm → render chi tiết
   return (
     <div className="product-page">
-      {/* Main */}
       <main className="main-container">
         <div className="product-grid">
-          {/* Image gallery */}
+          {/* Gallery */}
           <div className="gallery">
             <div className="gallery-main">
               <img
@@ -141,14 +190,15 @@ export default function ProductDetailPage() {
                 <button
                   key={idx}
                   onClick={() => setSelectedImage(idx)}
-                  className={`thumb ${selectedImage === idx ? 'active' : ''}`}
+                  className={`thumb ${
+                    selectedImage === idx ? 'active' : ''
+                  }`}
                 >
                   <img src={img} alt={`Thumbnail ${idx + 1}`} />
                 </button>
               ))}
             </div>
 
-            {/* Features */}
             <div className="features">
               <div className="feature-item">
                 <Truck size={32} />
@@ -213,16 +263,17 @@ export default function ProductDetailPage() {
               ) : null}
             </div>
 
-            <p className="product-desc">
-              {product.pDescription}
-            </p>
+            <p className="product-desc">{product.pDescription}</p>
 
             {/* Color */}
             <div className="option-section">
               <label>
                 Màu sắc:{' '}
                 <span>
-                  {colors.find((c) => c.name === selectedColor)?.label}
+                  {
+                    colors.find((c) => c.name === selectedColor)
+                      ?.label
+                  }
                 </span>
               </label>
               <div className="color-options">
@@ -273,9 +324,7 @@ export default function ProductDetailPage() {
                 </button>
                 <span>{quantity}</span>
                 <button
-                  onClick={() =>
-                    setQuantity((q) => q + 1)
-                  }
+                  onClick={() => setQuantity((q) => q + 1)}
                   disabled={!inStock}
                 >
                   +
@@ -286,9 +335,12 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            {/* Action */}
+            {/* Actions */}
             <div className="actions">
-              <button className="add-cart">
+              <button
+                className="add-cart"
+                onClick={handleAddToCartDetail}
+              >
                 <ShoppingCart size={20} /> Thêm vào giỏ hàng
               </button>
               <button className="share">
@@ -298,7 +350,7 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
-        {/* Specifications – hiển thị các info trong DB */}
+        {/* Specs */}
         <div className="specs">
           <h2>Thông số sản phẩm</h2>
           <div className="specs-grid">
