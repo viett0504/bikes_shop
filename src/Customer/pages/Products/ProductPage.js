@@ -2,69 +2,126 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Filter } from 'lucide-react';
 import ProductCard from '../../components/Product/ProductCard';
+import { getAllProduct } from '../../components/Product/fetchApi';
 import './ProductPage.css';
 
 const ProductPage = () => {
-  const [selectedCategory, setSelectedCategory] = useState('Tất cả');
-  const [selectedBrand, setSelectedBrand] = useState('Tất cả');
+  const [selectedCategory, setSelectedCategory] = useState('Tất cả'); // Loại xe
+  const [selectedBrand, setSelectedBrand] = useState('Tất cả');       // Thương hiệu
   const [priceRange, setPriceRange] = useState([0, 50000000]);
   const [sortBy, setSortBy] = useState('featured');
   const [currentPage, setCurrentPage] = useState(1);
 
-  // ===================== FAKE DATA 105 sản phẩm =====================
-  const products = useMemo(() => {
-    const base = [...Array(21)].map((_, i) => ({
-      id: i + 1,
-      name: `Xe mẫu ${i + 1}`,
-      category: ['road', 'mountain', 'city'][i % 3],
-      brand: ['Giant', 'Trek', 'Specialized', 'Cannondale'][i % 4],
-      price: 8000000 + (i % 10) * 2000000,
-      rating: 4.2 + (i % 3) * 0.2,
-      reviews: 40 + (i % 15) * 3,
-      image: 'https://images.unsplash.com/photo-1518655048521-f130df041f66?w=500',
-    }));
+  const [products, setProducts] = useState([]);   // data thật từ BE
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-    const all = [];
-    for (let i = 0; i < 5; i++) {
-      base.forEach((item) => {
-        all.push({ ...item, id: all.length + 1 });
-      });
+  // Helper convert ảnh IPFS / local giống bên admin
+  const getImageSrc = (img) => {
+    if (!img) return 'https://placehold.co/400x400?text=No+Image';
+
+    // Link http(s)
+    if (img.startsWith('http')) {
+      const idx = img.indexOf('filebase.io/ipfs/');
+      if (idx !== -1) {
+        const cid = img.substring(idx + 'filebase.io/ipfs/'.length);
+        return `https://ipfs.filebase.io/ipfs/${cid}`;
+      }
+      return img;
     }
 
-    return all; // 105 sản phẩm
+    // BE chỉ lưu CID (Qmxxxx)
+    if (img.startsWith('Qm')) {
+      return `https://ipfs.filebase.io/ipfs/${img}`;
+    }
+
+    return img;
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        const list = await getAllProduct();
+        setProducts(list);
+      } catch (err) {
+        setError('Không tải được danh sách sản phẩm');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  // ===================== FILTER =====================
-  const filteredProducts = products.filter((p) => {
-    if (selectedCategory !== 'Tất cả' && p.category !== selectedCategory) return false;
-    if (selectedBrand !== 'Tất cả' && p.brand !== selectedBrand) return false;
-    if (p.price < priceRange[0] || p.price > priceRange[1]) return false;
-    return true;
-  });
+  // ====== Tạo danh sách filter ======
+  const categoryOptions = useMemo(() => {
+    const set = new Set();
+    products.forEach((p) => {
+      const tName = p.pBiketype?.tName;
+      if (tName) set.add(tName);
+    });
+    return ['Tất cả', ...Array.from(set)];
+  }, [products]);
 
-  // ===================== SORT =====================
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch (sortBy) {
-      case 'price-low': return a.price - b.price;
-      case 'price-high': return b.price - a.price;
-      case 'rating': return b.rating - a.rating;
-      default: return 0;
-    }
-  });
+  const brandOptions = useMemo(() => {
+    const set = new Set();
+    products.forEach((p) => {
+      const cName = p.pCategory?.cName;
+      if (cName) set.add(cName);
+    });
+    return ['Tất cả', ...Array.from(set)];
+  }, [products]);
 
-  // ===================== PAGINATION =====================
+  // ====== FILTER ======
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      const cat = p.pBiketype?.tName || 'Khác';
+      const brand = p.pCategory?.cName || 'Khác';
+      const price = p.pPrice || 0;
+
+      if (selectedCategory !== 'Tất cả' && cat !== selectedCategory) return false;
+      if (selectedBrand !== 'Tất cả' && brand !== selectedBrand) return false;
+      if (price < priceRange[0] || price > priceRange[1]) return false;
+      return true;
+    });
+  }, [products, selectedCategory, selectedBrand, priceRange]);
+
+  // ====== SORT ======
+  const sortedProducts = useMemo(() => {
+    const arr = [...filteredProducts];
+    return arr.sort((a, b) => {
+      const priceA = a.pPrice || 0;
+      const priceB = b.pPrice || 0;
+      const ratingA = a.pRatingsReviews?.length ? a.pRatingsReviews.length : 0;
+      const ratingB = b.pRatingsReviews?.length ? b.pRatingsReviews.length : 0;
+
+      switch (sortBy) {
+        case 'price-low':
+          return priceA - priceB;
+        case 'price-high':
+          return priceB - priceA;
+        case 'rating':
+          return ratingB - ratingA;
+        default:
+          return 0;
+      }
+    });
+  }, [filteredProducts, sortBy]);
+
+  // ====== PAGINATION ======
   const pageSize = 21;
   const totalPages = Math.ceil(sortedProducts.length / pageSize) || 1;
 
-  // Fix lỗi setState trong render
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(1);
-  }, [totalPages]);
+  }, [totalPages, currentPage]);
 
   const startIndex = (currentPage - 1) * pageSize;
   const paginatedProducts = sortedProducts.slice(startIndex, startIndex + pageSize);
 
-  // Tạo range phân trang dạng chuyên nghiệp
+  // Range trang như cũ
   const pageRange = useMemo(() => {
     const pages = [];
     if (totalPages <= 7) {
@@ -99,85 +156,157 @@ const ProductPage = () => {
   }, [currentPage, totalPages]);
 
   const formatPrice = (price) =>
-    new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
+    new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price || 0);
+
+  // Map BE -> object cho ProductCard
+  const mapToCardProduct = (p) => {
+    const price = p.pPrice || 0;
+    const offer = Number(p.pOffer || 0);
+    const finalPrice = offer ? Math.round(price * (100 - offer) / 100) : price;
+
+    const reviews = p.pRatingsReviews || [];
+    const totalRating = reviews.reduce(
+      (sum, r) => sum + Number(r.rating || 0),
+      0
+    );
+    const avgRating = reviews.length ? (totalRating / reviews.length).toFixed(1) : 4.5;
+
+    return {
+      id: p._id,
+      name: p.pName,
+      brand: p.pCategory?.cName || "Không rõ",
+      price: finalPrice,
+      rating: avgRating,
+      reviews: reviews.length,
+      image: getImageSrc(p.pImages?.[0]),
+    };
+  };
 
   return (
     <div className="product-page-container">
       <div className="product-content-wrapper">
-        
         {/* ========== SIDEBAR ========== */}
         <div className="filter-box">
           <h2 className="filter-title">
             <Filter className="icon" /> Bộ Lọc
           </h2>
 
-          {/* Category */}
+          {/* Loại xe */}
           <div className="filter-section">
             <h3>Loại xe</h3>
-            {['Tất cả', 'road', 'mountain', 'city'].map((cat) => (
+            {categoryOptions.map((cat) => (
               <label key={cat}>
-                <input type="radio" checked={selectedCategory === cat} onChange={() => { setSelectedCategory(cat); setCurrentPage(1); }} />
+                <input
+                  type="radio"
+                  checked={selectedCategory === cat}
+                  onChange={() => {
+                    setSelectedCategory(cat);
+                    setCurrentPage(1);
+                  }}
+                />
                 {cat}
               </label>
             ))}
           </div>
 
-          {/* Brand */}
+          {/* Thương hiệu */}
           <div className="filter-section">
             <h3>Thương hiệu</h3>
-            {['Tất cả', 'Giant', 'Trek', 'Specialized', 'Cannondale'].map((b) => (
+            {brandOptions.map((b) => (
               <label key={b}>
-                <input type="radio" checked={selectedBrand === b} onChange={() => { setSelectedBrand(b); setCurrentPage(1); }} />
+                <input
+                  type="radio"
+                  checked={selectedBrand === b}
+                  onChange={() => {
+                    setSelectedBrand(b);
+                    setCurrentPage(1);
+                  }}
+                />
                 {b}
               </label>
             ))}
           </div>
-
         </div>
 
         {/* ========== MAIN CONTENT ========== */}
         <main className="main-section">
-
-          {/* ===== Toolbar chuyên nghiệp ===== */}
           <div className="toolbar">
             <div className="sort-section">
-              <span>Hiển thị {paginatedProducts.length}/{filteredProducts.length} sản phẩm</span>
-              <select value={sortBy} onChange={(e) => { setSortBy(e.target.value); setCurrentPage(1); }}>
+              <span>
+                {loading
+                  ? "Đang tải sản phẩm..."
+                  : `Hiển thị ${paginatedProducts.length}/${filteredProducts.length} sản phẩm`}
+              </span>
+              <select
+                value={sortBy}
+                onChange={(e) => {
+                  setSortBy(e.target.value);
+                  setCurrentPage(1);
+                }}
+              >
                 <option value="featured">Nổi bật</option>
                 <option value="price-low">Giá thấp → cao</option>
                 <option value="price-high">Giá cao → thấp</option>
                 <option value="rating">Đánh giá cao nhất</option>
               </select>
             </div>
-
           </div>
+
+          {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
 
           {/* GRID */}
           <div className="product-grid">
+            {!loading && paginatedProducts.length === 0 && (
+              <div className="no-result">Không có sản phẩm nào phù hợp.</div>
+            )}
+
             {paginatedProducts.map((p) => (
-              <ProductCard key={p.id} product={p} formatPrice={formatPrice} />
+              <ProductCard
+                key={p._id}
+                product={mapToCardProduct(p)}
+                formatPrice={formatPrice}
+              />
             ))}
           </div>
 
-          {/* ===== Pagination dưới: bản đẹp ===== */}
+          {/* Pagination */}
           {totalPages > 1 && (
             <div className="pagination">
-              <button className="page-nav" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>«</button>
+              <button
+                className="page-nav"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                «
+              </button>
 
               {pageRange.map((pg, idx) =>
                 pg === "..." ? (
-                  <span key={idx} className="page-ellipsis">…</span>
+                  <span key={idx} className="page-ellipsis">
+                    …
+                  </span>
                 ) : (
-                  <button key={pg} className={`page-btn ${pg === currentPage ? "active" : ""}`} onClick={() => setCurrentPage(pg)}>
+                  <button
+                    key={pg}
+                    className={`page-btn ${pg === currentPage ? "active" : ""}`}
+                    onClick={() => setCurrentPage(pg)}
+                  >
                     {pg}
                   </button>
                 )
               )}
 
-              <button className="page-nav" onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>»</button>
+              <button
+                className="page-nav"
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
+                disabled={currentPage === totalPages}
+              >
+                »
+              </button>
             </div>
           )}
-
         </main>
       </div>
     </div>
