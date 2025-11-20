@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 
+const API_BASE = process.env.REACT_APP_API_URL
+
 export default function LoginPage() {
   const navigate = useNavigate();
 
@@ -22,13 +24,21 @@ export default function LoginPage() {
 
     try {
       setLoading(true);
-      const res = await fetch("/api/signin", {
+      const res = await fetch(`${API_BASE}/api/signin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
+
+      // Nếu server trả 404/500... thì đọc text cho đỡ lỗi JSON
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("Server trả lỗi:", res.status, text);
+        setMsg({ error: `Lỗi server: ${res.status}` });
+        return;
+      }
 
       const data = await res.json();
 
@@ -38,19 +48,13 @@ export default function LoginPage() {
       }
 
       if (data.token && data.user) {
-        // Lưu token + user
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
-        if (keepLogin) {
-          // nếu muốn giữ đăng nhập lâu hơn có thể dùng localStorage/sessionStorage… tuỳ bạn
-        }
 
-        // Điều hướng theo role
+        // data.user được backend trả ra từ jwt: {_id, role} :contentReference[oaicite:3]{index=3}
         if (data.user.role === 0) {
-          // Khách hàng
           navigate("/");
         } else {
-          // Nhân viên / Admin
           navigate("/admin");
         }
       } else {

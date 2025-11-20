@@ -21,8 +21,20 @@ const Header = () => {
     }
   });
 
-  // Tên hiển thị + role (0 = Khách hàng, 1/2 = Nhân viên/Admin)
-  const username = currentUser?.name || null;
+  // Lấy token để biết có đăng nhập hay chưa
+  const token = typeof window !== "undefined"
+    ? localStorage.getItem("token")
+    : null;
+
+  // Đã đăng nhập nếu có cả token + user
+  const isLoggedIn = !!token && !!currentUser;
+
+  // Tên hiển thị ưu tiên: name -> email -> fallback
+  const username =
+    currentUser?.name ||
+    currentUser?.email?.split("@")[0] ||
+    "Người dùng";
+
   const userRole = currentUser?.role ?? null;
 
   const isActive = (path) => location.pathname === path;
@@ -187,7 +199,7 @@ const Header = () => {
 
         {/* ==== USER ACTIONS ==== */}
         <div className="user-actions">
-          {!username ? (
+          {!isLoggedIn ? (
             <Link to="/login" className="login-btn">
               Đăng nhập
             </Link>
@@ -214,11 +226,10 @@ const Header = () => {
                     Thông tin tài khoản
                   </Link>
 
-                  {/* Chỉ Nhân viên / Admin mới thấy Trang admin */}
                   {userRole !== 0 && userRole != null && (
                     <Link
                       to="/admin/dashboard"
-                    className="user-dropdown-item"
+                      className="user-dropdown-item"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
                       Trang admin
