@@ -1,8 +1,9 @@
-// ./Customer/components/Product/ProductCard.js
+// src/Customer/components/Product/ProductCard.js
 import React from 'react';
 import { Heart, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import './ProductCard.css';
+import { isCustomerLoggedIn } from '../../../utils/authCustomer';
 
 const ProductCard = ({ product, formatPrice }) => {
   const {
@@ -15,10 +16,45 @@ const ProductCard = ({ product, formatPrice }) => {
     reviews = 0,
   } = product;
 
+  const handleOpenDetail = (e) => {
+    if (!isCustomerLoggedIn()) {
+      e.preventDefault();
+      alert('Bạn cần đăng nhập để xem chi tiết sản phẩm.');
+    }
+  };
+
+  const handleAddToCart = (e) => {
+    e.stopPropagation(); 
+    e.preventDefault(); 
+
+    if (!isCustomerLoggedIn()) {
+      alert('Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng.');
+      return;
+    }
+
+    // TODO: logic thêm giỏ thật sự
+    console.log('Thêm vào giỏ:', name);
+  };
+
+  const handleWishlist = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    if (!isCustomerLoggedIn()) {
+      alert('Bạn cần đăng nhập để dùng wishlist.');
+      return;
+    }
+
+    console.log('Đã thêm vào wishlist:', name);
+  };
+
   return (
     <div className="product-card group">
-      {/* Link mang theo id để DetailPage đọc */}
-      <Link to={`/productDetail/${id}`} className="block">
+      <Link
+        to={`/productDetail/${id}`}
+        className="block"
+        onClick={handleOpenDetail}
+      >
         <div className="product-image-container">
           <img
             src={image}
@@ -41,10 +77,7 @@ const ProductCard = ({ product, formatPrice }) => {
             <span className="product-price">{formatPrice(price)}</span>
             <button
               className="add-cart-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                console.log('Thêm vào giỏ:', name);
-              }}
+              onClick={handleAddToCart}
             >
               Thêm vào giỏ
             </button>
@@ -52,10 +85,7 @@ const ProductCard = ({ product, formatPrice }) => {
 
           <button
             className="wishlist-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              console.log('Đã thêm vào wishlist:', name);
-            }}
+            onClick={handleWishlist}
           >
             <Heart className="w-5 h-5 text-gray-600 hover:text-red-500" />
           </button>
