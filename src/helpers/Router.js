@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Outlet, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet, useLocation, Navigate } from "react-router-dom";
 
 // ---------- CUSTOMER ----------
 import Header from "../Customer/components/Header/Header";
@@ -46,6 +46,34 @@ function CustomerShell() {
   );
 }
 
+function AdminProtectedRoute() {
+  const location = useLocation();
+
+  let storedUser = null;
+  try {
+    const str = localStorage.getItem("user");
+    storedUser = str ? JSON.parse(str) : null;
+  } catch (e) {
+    storedUser = null;
+  }
+
+  const token = localStorage.getItem("token");
+  const role = storedUser?.role ?? null;
+
+  // Chưa đăng nhập → đá về /login
+  if (!token || !storedUser) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // Khách hàng (role = 0) → không cho vào admin, đá về trang chủ
+  if (role === 0) {
+    return <Navigate to="/" replace />;
+  }
+
+  // Nhân viên / Admin → cho vào layout admin
+  return <AdminLayout />;
+}
+
 
 export default function AppRouter() {
   return (
@@ -61,12 +89,12 @@ export default function AppRouter() {
           <Route path="/productDetail" element={<ProductDetailPage />} />
         </Route>
 
-                {/* -------- Login -------- */}
+        {/* -------- Login -------- */}
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
 
         {/* -------- ADMIN -------- */}
-        <Route path="/admin/*" element={<AdminLayout />}>
+        <Route path="/admin/*" element={<AdminProtectedRoute />}>
           <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="orders" element={<Orders />} />
@@ -76,6 +104,7 @@ export default function AppRouter() {
           <Route path="banners" element={<Banner />} /> 
           <Route path="bikeTypes" element={<BikeTypes />} /> 
         </Route>
+
 
         {/* 404 */}
         <Route path="*" element={<div style={{ padding: 16 }}>404 – Not found</div>} />

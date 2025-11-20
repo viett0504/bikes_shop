@@ -1,5 +1,5 @@
 // src/Client/components/Header/Header.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaShoppingCart, FaUserCircle } from "react-icons/fa";
 import logo from "../../../assets/img/logo.png";
@@ -10,9 +10,20 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // const user = JSON.parse(localStorage.getItem("user"));
-  // const username = user?.username || null;
-  const username = "Việt";
+  // Lấy user từ localStorage (đã lưu sau khi đăng nhập)
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem("user");
+      return stored ? JSON.parse(stored) : null;
+    } catch (e) {
+      console.error("Lỗi parse user từ localStorage", e);
+      return null;
+    }
+  });
+
+  // Tên hiển thị + role (0 = Khách hàng, 1/2 = Nhân viên/Admin)
+  const username = currentUser?.name || null;
+  const userRole = currentUser?.role ?? null;
 
   const isActive = (path) => location.pathname === path;
   const isProductActive = () => location.pathname.startsWith("/product");
@@ -149,9 +160,14 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    // Xóa thông tin user (tuỳ bạn lưu gì)
+    // Xóa token + user
+    localStorage.removeItem("token");
     localStorage.removeItem("user");
+
+    // Cập nhật state để UI đổi lại thành "Đăng nhập"
+    setCurrentUser(null);
     setIsUserMenuOpen(false);
+
     navigate("/login");
   };
 
@@ -198,13 +214,16 @@ const Header = () => {
                     Thông tin tài khoản
                   </Link>
 
-                  <Link
-                    to="/admin/dashboard"
+                  {/* Chỉ Nhân viên / Admin mới thấy Trang admin */}
+                  {userRole !== 0 && userRole != null && (
+                    <Link
+                      to="/admin/dashboard"
                     className="user-dropdown-item"
-                    onClick={() => setIsUserMenuOpen(false)}
-                  >
-                    Trang admin
-                  </Link>
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      Trang admin
+                    </Link>
+                  )}
 
                   <button
                     type="button"
