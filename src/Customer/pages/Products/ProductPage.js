@@ -1,4 +1,4 @@
-// src/pages/ProductPage.jsx
+// src/pages/Products/ProductPage.js
 import React, { useState, useMemo, useEffect } from 'react';
 import { Filter } from 'lucide-react';
 import ProductCard from '../../components/Product/ProductCard';

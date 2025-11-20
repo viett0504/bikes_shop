@@ -1,3 +1,4 @@
+// src/pages/Products/ProductDetailPage.js
 import React, { useState } from 'react';
 import { ShoppingCart, Heart, Share2, Star, ChevronLeft, ChevronRight, Truck, Shield, RotateCcw } from 'lucide-react';
 import './ProductDetailPage.css';
