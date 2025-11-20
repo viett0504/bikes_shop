@@ -165,26 +165,23 @@ export default function ProductExcelImport({
             "❌ Không có sản phẩm nào được import. Vui lòng kiểm tra lại file Excel (Tên, Thương hiệu, Loại xe...)."
           );
         } else {
-          alert(
-            `✅ Đã nhập thành công ${successCount} sản phẩm từ Excel.` +
-              (failCount
-                ? ` (${failCount} sản phẩm bị bỏ qua do lỗi.)`
-                : "")
-          );
+            alert(
+                `✅ Đã nhập thành công ${successCount} sản phẩm từ Excel.` +
+                (failCount
+                    ? ` (${failCount} sản phẩm bị bỏ qua do lỗi.)`
+                    : "")
+            );
 
-          const list = await getAllProduct();
-          onAfterImport?.(list?.Products || list?.products || []);
-          setExcelFile(null);
+            const list = await getAllProduct();
+            onAfterImport?.(list?.Products || list?.products || []);
+            setExcelFile(null);
+            }
+        } catch (err) {
+            console.error("❌ Lỗi import Excel:", err);
+            alert("❌ Có lỗi xảy ra khi đọc file Excel hoặc tạo sản phẩm.");
+        } finally {
+            setLoading(false);
         }
-
-        alert(`✅ Đã nhập thành công ${rows.length} sản phẩm từ Excel.`);
-        setExcelFile(null);
-      } catch (err) {
-        console.error("❌ Lỗi import Excel:", err);
-        alert("❌ Có lỗi xảy ra khi đọc file Excel hoặc tạo sản phẩm.");
-      } finally {
-        setLoading(false);
-      }
     };
 
     reader.readAsBinaryString(excelFile);
