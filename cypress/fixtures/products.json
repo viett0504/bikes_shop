@@ -1,0 +1,32 @@
+[
+  {
+    "_id": "1",
+    "pName": "Xe A",
+    "pCategory": { "cName": "Giant" },
+    "pBiketype": { "tName": "Road" },
+    "pPrice": 8000000,
+    "pOffer": 0,
+    "pRatingsReviews": [{ "rating": 4 }],
+    "pImages": ["https://example.com/a.jpg"]
+  },
+  {
+    "_id": "2",
+    "pName": "Xe B",
+    "pCategory": { "cName": "Trek" },
+    "pBiketype": { "tName": "Mountain" },
+    "pPrice": 12000000,
+    "pOffer": 0,
+    "pRatingsReviews": [{ "rating": 5 }],
+    "pImages": ["https://example.com/b.jpg"]
+  },
+  {
+    "_id": "3",
+    "pName": "Xe C",
+    "pCategory": { "cName": "Giant" },
+    "pBiketype": { "tName": "City" },
+    "pPrice": 10000000,
+    "pOffer": 0,
+    "pRatingsReviews": [],
+    "pImages": ["https://example.com/c.jpg"]
+  }
+]
