@@ -1,6 +1,7 @@
-footer {
+/* src/Customer/components/Footer/Footer.css */
+.site-footer {
   background: #333;
-  color: white;
+  color: #fff;
   text-align: center;
   padding: 2rem;
 }

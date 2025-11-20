@@ -10,7 +10,7 @@ export default function ProductMenu() {
       style={{
         display: "flex",
         alignItems: "center",
-        gap: "16px",
+        gap: "20rem",
         margin: "16px 0",
       }}
     >

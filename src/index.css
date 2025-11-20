@@ -11,5 +11,17 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-.customer-scope { background:#fff; color:#222; }
-.customer-scope .container { max-width:1200px; }
+
+/* layout toàn bộ phần customer */
+.customer-scope {
+  background: #fff;
+  color: #222;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* phần nội dung chính để đẩy footer xuống dưới */
+.customer-main {
+  flex: 1;
+}

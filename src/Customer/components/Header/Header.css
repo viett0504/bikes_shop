@@ -210,6 +210,13 @@ header {
   padding: 18px 18px;
   border-radius: 0 0 0 12px;
 }
+.mega-menu .column:first-child {
+  width: 230px;
+  background: #111827;
+  color: #f9fafb;
+  padding: 18px 18px;
+  border-radius: 0 0 0 12px;
+}
 
 .mega-menu .column:first-child h4 {
   font-size: 13px;
@@ -220,46 +227,43 @@ header {
   margin: 0 0 10px;
 }
 
+/* List chung cho LOẠI XE + THƯƠNG HIỆU */
 .mega-menu .column:first-child ul {
   list-style: none;
   margin: 0;
   padding: 0;
-
-  /* ép cho danh mục HIỂN THỊ DỌC */
   display: flex;
   flex-direction: column;
   gap: 4px;
   align-items: stretch;
 }
 
-
-.mega-menu .column:first-child li {
+.mega-menu .column:first-child ul li {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 10px;
+  padding: 12px 18px;
   border-radius: 4px;
   font-size: 13px;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.mega-menu .column:first-child li span {
+.mega-menu .column:first-child ul li span {
   pointer-events: none;
 }
 
-.mega-menu .column:first-child li a {
-  color: inherit !important;
-  text-decoration: none;
-  flex: 1;
-}
-
-/* active / hover giống sidebar trong ảnh */
-.mega-menu .column:first-child li:hover,
-.mega-menu .column:first-child li.active {
+/* hover + active dùng chung */
+.mega-menu .column:first-child ul li:hover{
   background: #f9fafb;
   color: #111827;
 }
+
+/* khoảng cách giữa LOẠI XE và THƯƠNG HIỆU */
+.mega-menu .column .side-group + .side-group {
+  margin-top: 16px;
+}
+
 
 /* ===== CỘT PHẢI: HÀNG CARD XE ===== */
 .mega-menu .column:last-child {
@@ -415,4 +419,9 @@ header {
 .user-dropdown-logout {
   border-top: 1px solid rgba(55,65,81,0.9);
   margin-top: 4px;
+}
+
+/* Group bên trái trong mega menu (Loại xe + Thương hiệu) */
+.mega-menu .column .side-group + .side-group {
+  margin-top: 16px;   /* khoảng cách giữa LOẠI XE và THƯƠNG HIỆU */
 }

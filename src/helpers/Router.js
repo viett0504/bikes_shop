@@ -22,6 +22,7 @@ import Account from "../Admin/pagesAD/Account";
 import Banner from "../Admin/pagesAD/Banner";
 import BikeTypes from "../Admin/pagesAD/BikeType";
 import Footer from "../Customer/components/Footer/Footer";
+import ShoppingCart from "../Customer/pages/Cart/Cart";
 
 function CustomerShell() {
   const { pathname } = useLocation();
@@ -87,6 +88,7 @@ export default function AppRouter() {
           <Route path="/about" element={<About />} />
           <Route path="/product" element={<ProductPage />} />
           <Route path="/productDetail" element={<ProductDetailPage />} />
+          <Route path="/cart" element={<ShoppingCart />} />
         </Route>
 
         {/* -------- Login -------- */}

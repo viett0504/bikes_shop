@@ -1,7 +1,6 @@
 /* Layout */
 .login-root {
   min-height: 100vh;
-  height: 100%;
   background-color: #f5f5f5;
   padding: 24px;
   display: flex;
@@ -11,7 +10,7 @@
 
 .login-card {
   width: 1100px;                /* ✅ cố định chiều rộng */
-  height: 700px;               /* ✅ cố định chiều cao */
+  max-height: 1000px;               /* ✅ cố định chiều cao */
   width: 100%;
   background: #fff;
   border-radius: 12px;
@@ -54,7 +53,7 @@
   font-size: 32px;
   font-weight: 700;
   color: #111827;
-  margin-bottom: 8px;
+  margin-bottom: 3rem;
 }
 .top-links {
   margin-bottom: 12px;

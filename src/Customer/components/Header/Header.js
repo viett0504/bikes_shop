@@ -1,5 +1,5 @@
 // src/Client/components/Header/Header.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaShoppingCart, FaUserCircle } from "react-icons/fa";
 import logo from "../../../assets/img/logo.png";
@@ -10,7 +10,6 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Lấy user từ localStorage (đã lưu sau khi đăng nhập)
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const stored = localStorage.getItem("user");
@@ -21,15 +20,10 @@ const Header = () => {
     }
   });
 
-  // Lấy token để biết có đăng nhập hay chưa
-  const token = typeof window !== "undefined"
-    ? localStorage.getItem("token")
-    : null;
-
-  // Đã đăng nhập nếu có cả token + user
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const isLoggedIn = !!token && !!currentUser;
 
-  // Tên hiển thị ưu tiên: name -> email -> fallback
   const username =
     currentUser?.name ||
     currentUser?.email?.split("@")[0] ||
@@ -40,7 +34,15 @@ const Header = () => {
   const isActive = (path) => location.pathname === path;
   const isProductActive = () => location.pathname.startsWith("/product");
 
-  // ===== DATA MENU BIKES (giống style ảnh) =====
+  // ===== LOẠI XE =====
+  const bikeTypes = [
+    { key: "road", label: "XE ĐƯỜNG TRƯỜNG" },
+    { key: "mountain", label: "XE ĐỊA HÌNH" },
+    { key: "city", label: "XE THÀNH PHỐ" },
+    { key: "kids", label: "XE TRẺ EM" },
+  ];
+
+  // ===== NHÓM THƯƠNG HIỆU =====
   const productGroups = [
     {
       key: "electric",
@@ -49,7 +51,8 @@ const Header = () => {
         {
           key: "e-mountain",
           name: "E-MOUNTAIN BIKE",
-          description: "Explore further, ride stronger with electric MTBs.",
+          description:
+            "Explore further, ride stronger with electric MTBs.",
           to: "/products/e-mountain",
           image:
             "https://images.unsplash.com/photo-1593091860788-9369658f47cd?auto=format&fit=crop&w=1200&q=80",
@@ -65,7 +68,8 @@ const Header = () => {
         {
           key: "e-gravel",
           name: "E-GRAVEL",
-          description: "Electric gravel bikes for speed and versatility.",
+          description:
+            "Electric gravel bikes for speed and versatility.",
           to: "/products/e-gravel",
           image:
             "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1200&q=80",
@@ -73,7 +77,8 @@ const Header = () => {
         {
           key: "e-road",
           name: "E-ROAD",
-          description: "Electric road bikes built for power and precision.",
+          description:
+            "Electric road bikes built for power and precision.",
           to: "/products/e-road",
           image:
             "https://images.unsplash.com/photo-1518655048521-f130df041f66?auto=format&fit=crop&w=1200&q=80",
@@ -123,7 +128,8 @@ const Header = () => {
         {
           key: "race",
           name: "RACE BIKE",
-          description: "Ultra-lightweight bikes built for pure speed.",
+          description:
+            "Ultra-lightweight bikes built for pure speed.",
           to: "/products/race",
           image:
             "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?auto=format&fit=crop&w=1200&q=80",
@@ -137,7 +143,8 @@ const Header = () => {
         {
           key: "city-bike",
           name: "CITY BIKE",
-          description: "Comfortable bikes for everyday city riding.",
+          description:
+            "Comfortable bikes for everyday city riding.",
           to: "/products/city",
           image:
             "https://images.unsplash.com/photo-1529424301806-4be0bb154e3b?auto=format&fit=crop&w=1200&q=80",
@@ -160,11 +167,14 @@ const Header = () => {
     },
   ];
 
-  const [activeGroupKey, setActiveGroupKey] = useState(productGroups[0].key);
-  const activeGroup =
-    productGroups.find((g) => g.key === activeGroupKey) || productGroups[0];
+  // 👉 Nhóm thương hiệu đang được hover (để hiển thị ảnh bên phải)
+  // null = không hiển thị gì (trạng thái reset)
+  const [activeGroupKey, setActiveGroupKey] = useState(null);
+  const activeGroup = activeGroupKey
+    ? productGroups.find((g) => g.key === activeGroupKey)
+    : null;
 
-  // ===== DROPDOWN USER =====
+  // dropdown user
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const handleToggleUserMenu = () => {
@@ -172,14 +182,10 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    // Xóa token + user
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-
-    // Cập nhật state để UI đổi lại thành "Đăng nhập"
     setCurrentUser(null);
     setIsUserMenuOpen(false);
-
     navigate("/login");
   };
 
@@ -187,17 +193,14 @@ const Header = () => {
     <header>
       {/* ===== TOP BAR ===== */}
       <div className="top-bar">
-        {/* Logo */}
         <div className="logo">
           <img src={logo} alt="logo" />
         </div>
 
-        {/* Search */}
         <div className="search-bar">
           <input type="text" placeholder="Tìm kiếm sản phẩm..." />
         </div>
 
-        {/* ==== USER ACTIONS ==== */}
         <div className="user-actions">
           {!isLoggedIn ? (
             <Link to="/login" className="login-btn">
@@ -248,7 +251,6 @@ const Header = () => {
             </div>
           )}
 
-          {/* Giỏ hàng */}
           <Link to="/cart" className="cart-icon">
             <FaShoppingCart />
             <span className="cart-count">0</span>
@@ -265,12 +267,15 @@ const Header = () => {
             </Link>
           </li>
           <li>
-            <Link to="/about" className={isActive("/about") ? "active" : ""}>
+            <Link
+              to="/about"
+              className={isActive("/about") ? "active" : ""}
+            >
               Về chúng tôi
             </Link>
           </li>
 
-          {/* ===== DROPDOWN SẢN PHẨM GIỐNG ẢNH ===== */}
+          {/* ===== MENU SẢN PHẨM ===== */}
           <li
             className={`dropdown center ${
               isProductActive() ? "active" : ""
@@ -280,44 +285,71 @@ const Header = () => {
               Sản phẩm
             </Link>
 
-            <div className="mega-menu">
-              {/* Cột trái: sidebar category */}
+            <div
+              className="mega-menu"
+              onMouseLeave={() => {
+                // 👉 Bỏ chuột ra khỏi dropdown => reset, không hiển thị ảnh nữa
+                setActiveGroupKey(null);
+              }}
+            >
+              {/* CỘT TRÁI: LOẠI XE + THƯƠNG HIỆU */}
               <div className="column">
-                <h4>Danh mục</h4>
-                <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-                  {productGroups.map((g) => (
-                    <li
-                      key={g.key}
-                      onMouseEnter={() => setActiveGroupKey(g.key)}
-                      className={
-                        g.key === activeGroup.key ? "active" : ""
-                      }
-                    >
-                      <span>{g.label}</span>
-                      <span>{">"}</span>
-                    </li>
-                  ))}
-                </ul>
+                {/* LOẠI XE */}
+                <div className="side-group">
+                  <h4>LOẠI XE</h4>
+                  <ul>
+                    {bikeTypes.map((t) => (
+                      <li key={t.key}>
+                        <span>{t.label}</span>
+                        <span>{">"}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* THƯƠNG HIỆU */}
+                <div className="side-group">
+                  <h4>THƯƠNG HIỆU</h4>
+                  <ul>
+                    {productGroups.map((g) => (
+                      <li
+                        key={g.key}
+                        onMouseEnter={() => setActiveGroupKey(g.key)}
+                      >
+                        <span>{g.label}</span>
+                        <span>{">"}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
 
-              {/* Cột phải: hàng card xe */}
+              {/* CỘT PHẢI: ẢNH SẢN PHẨM */}
               <div className="column">
                 <div className="product-row">
-                  {activeGroup.items.map((item) => (
-                    <Link
-                      key={item.key}
-                      to={item.to}
-                      className="product-card"
-                    >
-                      <img src={item.image} alt={item.name} />
-                      <div className="product-card-title">
-                        {item.name}
-                      </div>
-                      <div className="product-card-desc">
-                        {item.description}
-                      </div>
-                    </Link>
-                  ))}
+                  {activeGroup ? (
+                    activeGroup.items.map((item) => (
+                      <Link
+                        key={item.key}
+                        to={item.to}
+                        className="product-card"
+                      >
+                        <img src={item.image} alt={item.name} />
+                        <div className="product-card-title">
+                          {item.name}
+                        </div>
+                        <div className="product-card-desc">
+                          {item.description}
+                        </div>
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="placeholder-text">
+                      <p>
+                        Di chuột để xem sản phẩm nổi bật.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
