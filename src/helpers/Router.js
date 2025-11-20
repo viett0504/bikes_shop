@@ -87,7 +87,7 @@ export default function AppRouter() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route path="/product" element={<ProductPage />} />
-          <Route path="/productDetail" element={<ProductDetailPage />} />
+          <Route path="/productDetail/:id" element={<ProductDetailPage />} />
           <Route path="/cart" element={<ShoppingCart />} />
         </Route>
 
