@@ -1,58 +1,28 @@
 // src/components/ShoppingCart.jsx
 import React, { useState } from 'react';
-import { Trash2, Plus, Minus, ShoppingBag, Tag, ArrowRight } from 'lucide-react';
+import {
+  Trash2,
+  Plus,
+  Minus,
+  ShoppingBag,
+  Tag,
+  ArrowRight,
+} from 'lucide-react';
 import './Cart.css';
+import axios from 'axios';
+import { useCart } from '../../../utils/cart';
+
+import { getCustomerInfo, isCustomerLoggedIn } from '../../../utils/authCustomer';
+
+const apiURL = process.env.REACT_APP_API_URL;
 
 const ShoppingCart = () => {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: 'Áo Thun Premium',
-      price: 299000,
-      quantity: 2,
-      image:
-        'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200&h=200&fit=crop',
-      color: 'Trắng',
-      size: 'L',
-    },
-    {
-      id: 2,
-      name: 'Quần Jeans Slim Fit',
-      price: 599000,
-      quantity: 1,
-      image:
-        'https://images.unsplash.com/photo-1542272604-787c3835535d?w=200&h=200&fit=crop',
-      color: 'Xanh đậm',
-      size: 'M',
-    },
-    {
-      id: 3,
-      name: 'Giày Sneaker Urban',
-      price: 899000,
-      quantity: 1,
-      image:
-        'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=200&h=200&fit=crop',
-      color: 'Đen',
-      size: '42',
-    },
-  ]);
-
+  const { items, updateQuantity, removeItem, clearCart, subtotal } = useCart();
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
-
-  const updateQuantity = (id, change) => {
-    setCartItems((items) =>
-      items.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + change) }
-          : item,
-      ),
-    );
-  };
-
-  const removeItem = (id) => {
-    setCartItems((items) => items.filter((item) => item.id !== id));
-  };
+  const [address, setAddress] = useState('');
+  const [phone, setPhone] = useState('');
+  const [loadingCheckout, setLoadingCheckout] = useState(false);
 
   const applyCoupon = () => {
     if (couponCode.toUpperCase() === 'SAVE20') {
@@ -61,22 +31,75 @@ const ShoppingCart = () => {
       setAppliedCoupon({ code: 'WELCOME10', discount: 0.1 });
     } else {
       alert('Mã giảm giá không hợp lệ!');
+      setAppliedCoupon(null);
     }
   };
 
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  );
   const discount = appliedCoupon ? subtotal * appliedCoupon.discount : 0;
   const shipping = subtotal > 500000 ? 0 : 30000;
   const total = subtotal - discount + shipping;
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN', {
+  const formatPrice = (price) =>
+    new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND',
-    }).format(price);
+    }).format(price || 0);
+
+  const handleCheckout = async () => {
+    if (!isCustomerLoggedIn()) {
+      alert('Bạn cần đăng nhập để thanh toán.');
+      return;
+    }
+
+    if (!items.length) {
+      alert('Giỏ hàng đang trống.');
+      return;
+    }
+
+    if (!address || !phone) {
+      alert('Vui lòng nhập đầy đủ địa chỉ và số điện thoại.');
+      return;
+    }
+
+    const user = getCustomerInfo();
+    if (!user?._id) {
+      alert('Không tìm thấy thông tin người dùng.');
+      return;
+    }
+
+    const payload = {
+      allProduct: items.map((item) => ({
+        id: item.productId,
+        // chú ý schema dùng từ "quantitiy" bị sai chính tả
+        quantitiy: item.quantity,
+      })),
+      user: user._id,
+      amount: total,
+      transactionId: `COD-${Date.now()}`, // tạm thời
+      address,
+      phone,
+    };
+
+    try {
+      setLoadingCheckout(true);
+      const res = await axios.post(
+        `${apiURL}/api/order/create-order`,
+        payload
+      );
+
+      if (res.data?.success) {
+        alert('Đặt hàng thành công!');
+        clearCart();
+      } else {
+        console.error('create-order response:', res.data);
+        alert(res.data?.message || res.data?.error || 'Đặt hàng thất bại');
+      }
+    } catch (err) {
+      console.error('create-order error:', err?.response?.data || err);
+      alert('Có lỗi xảy ra khi tạo đơn hàng.');
+    } finally {
+      setLoadingCheckout(false);
+    }
   };
 
   return (
@@ -89,15 +112,15 @@ const ShoppingCart = () => {
             Giỏ Hàng Của Bạn
           </h1>
           <p className="shopping-cart-subtitle">
-            Bạn có {cartItems.length} sản phẩm trong giỏ hàng
+            Bạn có {items.length} sản phẩm trong giỏ hàng
           </p>
         </div>
 
         <div className="shopping-cart-grid">
           {/* Cart Items */}
           <div className="shopping-cart-items">
-            {cartItems.map((item) => (
-              <div key={item.id} className="cart-item-card">
+            {items.map((item, index) => (
+              <div key={`${item.productId}-${index}`} className="cart-item-card">
                 <div className="cart-item-inner">
                   {/* Product Image */}
                   <div className="cart-item-image-wrapper">
@@ -114,12 +137,23 @@ const ShoppingCart = () => {
                       <div>
                         <h3 className="cart-item-name">{item.name}</h3>
                         <div className="cart-item-variants">
-                          <span>Màu: {item.color}</span>
-                          <span>Size: {item.size}</span>
+                          {item.brand && <span>Thương hiệu: {item.brand}</span>}
+                          {item.selectedColor && (
+                            <span>Màu: {item.selectedColor}</span>
+                          )}
+                          {item.selectedSize && (
+                            <span>Size: {item.selectedSize}</span>
+                          )}
                         </div>
                       </div>
                       <button
-                        onClick={() => removeItem(item.id)}
+                        onClick={() =>
+                          removeItem(
+                            item.productId,
+                            item.selectedColor,
+                            item.selectedSize
+                          )
+                        }
                         className="cart-item-remove-btn"
                       >
                         <Trash2 size={20} />
@@ -130,14 +164,30 @@ const ShoppingCart = () => {
                       {/* Quantity Controls */}
                       <div className="cart-item-quantity-wrapper">
                         <button
-                          onClick={() => updateQuantity(item.id, -1)}
+                          onClick={() =>
+                            updateQuantity(
+                              item.productId,
+                              item.selectedColor,
+                              item.selectedSize,
+                              -1
+                            )
+                          }
                           className="quantity-btn"
                         >
                           <Minus size={16} />
                         </button>
-                        <span className="quantity-value">{item.quantity}</span>
+                        <span className="quantity-value">
+                          {item.quantity}
+                        </span>
                         <button
-                          onClick={() => updateQuantity(item.id, 1)}
+                          onClick={() =>
+                            updateQuantity(
+                              item.productId,
+                              item.selectedColor,
+                              item.selectedSize,
+                              1
+                            )
+                          }
                           className="quantity-btn"
                         >
                           <Plus size={16} />
@@ -159,7 +209,7 @@ const ShoppingCart = () => {
               </div>
             ))}
 
-            {cartItems.length === 0 && (
+            {items.length === 0 && (
               <p className="empty-cart-text">Giỏ hàng của bạn đang trống.</p>
             )}
           </div>
@@ -168,6 +218,29 @@ const ShoppingCart = () => {
           <div className="shopping-cart-summary-wrapper">
             <div className="shopping-cart-summary">
               <h2 className="summary-title">Tổng Đơn Hàng</h2>
+
+              {/* Địa chỉ / Phone */}
+              <div className="summary-section">
+                <label className="summary-label">Địa chỉ giao hàng</label>
+                <input
+                  type="text"
+                  className="summary-coupon-input"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Nhập địa chỉ"
+                />
+              </div>
+
+              <div className="summary-section">
+                <label className="summary-label">Số điện thoại</label>
+                <input
+                  type="text"
+                  className="summary-coupon-input"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Nhập số điện thoại"
+                />
+              </div>
 
               {/* Coupon */}
               <div className="summary-section">
@@ -199,7 +272,7 @@ const ShoppingCart = () => {
                 </p>
               </div>
 
-              {/* Price Breakdown */}
+              {/* Breakdown */}
               <div className="summary-breakdown">
                 <div className="summary-row">
                   <span>Tạm tính</span>
@@ -237,24 +310,14 @@ const ShoppingCart = () => {
               </div>
 
               {/* Checkout Button */}
-              <button className="summary-checkout-btn">
-                Thanh Toán
+              <button
+                className="summary-checkout-btn"
+                onClick={handleCheckout}
+                disabled={loadingCheckout || items.length === 0}
+              >
+                {loadingCheckout ? 'Đang xử lý...' : 'Thanh Toán'}
                 <ArrowRight size={20} />
               </button>
-
-              {/* Payment Methods */}
-              <div className="summary-payment">
-                <p className="summary-payment-text">
-                  Chúng tôi chấp nhận:
-                </p>
-                <div className="summary-payment-icons">
-                  {['💳', '🏦', '📱', '💰'].map((emoji, i) => (
-                    <div key={i} className="payment-icon">
-                      {emoji}
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
           {/* end summary */}

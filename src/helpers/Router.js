@@ -16,13 +16,15 @@ import AdminLayout from "../Admin/componentsAD/AdminLayout";
 import Dashboard from "../Admin/pagesAD/Dashboard/Dashboard";
 import Orders from "../Admin/pagesAD/Orders";
 import Products from "../Admin/pagesAD/Products";
-import Categories from "../Admin/pagesAD/Categories";   // <-- THÊM DÒNG NÀY
+import Categories from "../Admin/pagesAD/Categories";   
 import AccountPage from "../Customer/pages/Account/AccountPage";
 import Account from "../Admin/pagesAD/Account";
 import Banner from "../Admin/pagesAD/Banner";
 import BikeTypes from "../Admin/pagesAD/BikeType";
 import Footer from "../Customer/components/Footer/Footer";
 import ShoppingCart from "../Customer/pages/Cart/Cart";
+import { CartProvider } from "../utils/cart";
+
 
 function CustomerShell() {
   const { pathname } = useLocation();
@@ -78,6 +80,7 @@ function AdminProtectedRoute() {
 
 export default function AppRouter() {
   return (
+    <CartProvider>
     <BrowserRouter>
       <Routes>
         {/* -------- CUSTOMER -------- */}
@@ -112,5 +115,6 @@ export default function AppRouter() {
         <Route path="*" element={<div style={{ padding: 16 }}>404 – Not found</div>} />
       </Routes>
     </BrowserRouter>
+    </CartProvider>
   );
 }
