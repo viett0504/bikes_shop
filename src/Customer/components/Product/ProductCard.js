@@ -4,6 +4,8 @@ import { Heart, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import './ProductCard.css';
 import { isCustomerLoggedIn } from '../../../utils/authCustomer';
+import { useCart } from '../../../utils/cart';
+
 
 const ProductCard = ({ product, formatPrice }) => {
   const {
@@ -15,6 +17,8 @@ const ProductCard = ({ product, formatPrice }) => {
     rating = 4.5,
     reviews = 0,
   } = product;
+
+  const { addToCart } = useCart();
 
   const handleOpenDetail = (e) => {
     if (!isCustomerLoggedIn()) {
@@ -32,8 +36,8 @@ const ProductCard = ({ product, formatPrice }) => {
       return;
     }
 
-    // TODO: logic thêm giỏ thật sự
-    console.log('Thêm vào giỏ:', name);
+    addToCart(product, 1);
+    alert('Đã thêm sản phẩm vào giỏ hàng!');
   };
 
   const handleWishlist = (e) => {

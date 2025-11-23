@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { getSingleProduct } from '../../components/Product/fetchApi';
 import { isCustomerLoggedIn } from '../../../utils/authCustomer';
+import { useCart } from '../../../utils/cart';
+
 import './ProductDetailPage.css';
 
 const formatPrice = (price) =>
@@ -32,6 +34,8 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const { addToCart } = useCart();
 
   // ----- check login -----
   const isLoggedIn = isCustomerLoggedIn();
@@ -115,13 +119,22 @@ export default function ProductDetailPage() {
       return;
     }
 
-    // TODO: logic thêm giỏ hàng thật
-    console.log('Thêm vào giỏ từ detail:', {
-      productId: product._id,
-      quantity,
+    if (!product) return;
+
+    const cardProduct = {
+      id: product._id,
+      name: product.pName,
+      brand: product.pCategory?.cName || 'Không rõ',
+      price: finalPrice,
+      image: images[0],
+    };
+
+    addToCart(cardProduct, quantity, {
       selectedColor,
       selectedSize,
     });
+
+    alert('Đã thêm sản phẩm vào giỏ hàng!');
   };
 
   // ================== RETURN ==================
