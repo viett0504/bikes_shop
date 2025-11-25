@@ -48,3 +48,35 @@ export const getAllCategories = async () => {
     return [];
   }
 };
+
+export const getProductsByBikeType = async (typeId, limit = 3) => {
+  if (!typeId) return [];
+  try {
+    const res = await axios.post(`${apiURL}/api/product/product-by-type`, {
+      typeId,
+    });
+    const all = res.data?.Products || [];
+    // trả về tối đa 3 sản phẩm
+    return all.slice(0, limit);
+  } catch (err) {
+    console.error("❌ getProductsByBikeType error:", err?.response?.data || err);
+    return [];
+  }
+};
+
+export const getProductsByCategory = async (catId, limit = 3) => {
+  if (!catId) return [];
+  try {
+    const res = await axios.post(`${apiURL}/api/product/product-by-category`, {
+      catId,
+    });
+    const all = res.data?.Products || [];
+    return all.slice(0, limit);
+  } catch (err) {
+    console.error(
+      "❌ getProductsByCategory error:",
+      err?.response?.data || err
+    );
+    return [];
+  }
+};

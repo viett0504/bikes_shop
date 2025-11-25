@@ -1,8 +1,21 @@
 // src/Client/components/Header/Header.jsx
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaShoppingCart, FaUserCircle } from "react-icons/fa";
 import logo from "../../../assets/img/logo.png";
+
+import ImgWait1 from "../../../assets/img/ImgWait_1.jpg";
+import ImgWait2 from "../../../assets/img/ImgWait_2.jpg";
+import ImgWait3 from "../../../assets/img/ImgWait_3.jpg";
+import ImgWait4 from "../../../assets/img/ImgWait_4.jpg";
+
+
+import {
+  getAllBikeTypes,
+  getAllCategories,
+  getProductsByBikeType,
+  getProductsByCategory,
+} from '../Product/fetchApi'
 
 import "./Header.css";
 
@@ -25,157 +38,118 @@ const Header = () => {
   const isLoggedIn = !!token && !!currentUser;
 
   const username =
-    currentUser?.name ||
-    currentUser?.email?.split("@")[0] ||
-    "Người dùng";
+    currentUser?.name || currentUser?.email?.split("@")[0] || "Người dùng";
 
   const userRole = currentUser?.role ?? null;
 
   const isActive = (path) => location.pathname === path;
   const isProductActive = () => location.pathname.startsWith("/product");
 
-  // ===== LOẠI XE =====
-  const bikeTypes = [
-    { key: "road", label: "XE ĐƯỜNG TRƯỜNG" },
-    { key: "mountain", label: "XE ĐỊA HÌNH" },
-    { key: "city", label: "XE THÀNH PHỐ" },
-    { key: "kids", label: "XE TRẺ EM" },
-  ];
+  // ===== STATE từ BE =====
+  const [bikeTypes, setBikeTypes] = useState([]);
+  const [brands, setBrands] = useState([]);
 
-  // ===== NHÓM THƯƠNG HIỆU =====
-  const productGroups = [
-    {
-      key: "electric",
-      label: "ELECTRIC",
-      items: [
-        {
-          key: "e-mountain",
-          name: "E-MOUNTAIN BIKE",
-          description:
-            "Explore further, ride stronger with electric MTBs.",
-          to: "/products/e-mountain",
-          image:
-            "https://images.unsplash.com/photo-1593091860788-9369658f47cd?auto=format&fit=crop&w=1200&q=80",
-        },
-        {
-          key: "e-commuter",
-          name: "E-COMMUTER",
-          description: "Electric urban bikes for everyday commuting.",
-          to: "/products/e-commuter",
-          image:
-            "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80",
-        },
-        {
-          key: "e-gravel",
-          name: "E-GRAVEL",
-          description:
-            "Electric gravel bikes for speed and versatility.",
-          to: "/products/e-gravel",
-          image:
-            "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1200&q=80",
-        },
-        {
-          key: "e-road",
-          name: "E-ROAD",
-          description:
-            "Electric road bikes built for power and precision.",
-          to: "/products/e-road",
-          image:
-            "https://images.unsplash.com/photo-1518655048521-f130df041f66?auto=format&fit=crop&w=1200&q=80",
-        },
-      ],
-    },
-    {
-      key: "mountain",
-      label: "MOUNTAIN",
-      items: [
-        {
-          key: "trail",
-          name: "TRAIL BIKE",
-          description: "Versatile trail bikes for mixed terrain.",
-          to: "/products/trail",
-          image:
-            "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=1200&q=80",
-        },
-        {
-          key: "enduro",
-          name: "ENDURO BIKE",
-          description: "Long-travel bikes for aggressive descents.",
-          to: "/products/enduro",
-          image:
-            "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?auto=format&fit=crop&w=1200&q=80",
-        },
-      ],
-    },
-    {
-      key: "gravel",
-      label: "GRAVEL",
-      items: [
-        {
-          key: "all-road",
-          name: "ALL-ROAD",
-          description: "Fast on tarmac, confident on gravel.",
-          to: "/products/all-road",
-          image:
-            "https://images.unsplash.com/photo-1541622783521-4c1c67c90ff2?auto=format&fit=crop&w=1200&q=80",
-        },
-      ],
-    },
-    {
-      key: "road",
-      label: "ROAD",
-      items: [
-        {
-          key: "race",
-          name: "RACE BIKE",
-          description:
-            "Ultra-lightweight bikes built for pure speed.",
-          to: "/products/race",
-          image:
-            "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?auto=format&fit=crop&w=1200&q=80",
-        },
-      ],
-    },
-    {
-      key: "city",
-      label: "CITY & HYBRID",
-      items: [
-        {
-          key: "city-bike",
-          name: "CITY BIKE",
-          description:
-            "Comfortable bikes for everyday city riding.",
-          to: "/products/city",
-          image:
-            "https://images.unsplash.com/photo-1529424301806-4be0bb154e3b?auto=format&fit=crop&w=1200&q=80",
-        },
-      ],
-    },
-    {
-      key: "kids",
-      label: "KIDS",
-      items: [
-        {
-          key: "kids",
-          name: "KIDS BIKES",
-          description: "Safe and colorful bikes for young riders.",
-          to: "/products/kids",
-          image:
-            "https://images.unsplash.com/photo-1529424301806-4be0bb154e3b?auto=format&fit=crop&w=1200&q=80",
-        },
-      ],
-    },
-  ];
-
-  // 👉 Nhóm thương hiệu đang được hover (để hiển thị ảnh bên phải)
-  // null = không hiển thị gì (trạng thái reset)
-  const [activeGroupKey, setActiveGroupKey] = useState(null);
-  const activeGroup = activeGroupKey
-    ? productGroups.find((g) => g.key === activeGroupKey)
-    : null;
+  // context đang hover trong mega menu
+  const [activeContext, setActiveContext] = useState(null); // {mode: 'type'|'brand', id, name}
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [loadingFeatured, setLoadingFeatured] = useState(false);
 
   // dropdown user
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  // --- helper đổi ảnh IPFS/Filebase ---
+  const getImageSrc = (img) => {
+    if (!img) return "https://placehold.co/400x300?text=No+Image";
+
+    if (img.startsWith("http")) {
+      const idx = img.indexOf("filebase.io/ipfs/");
+      if (idx !== -1) {
+        const cid = img.substring(idx + "filebase.io/ipfs/".length);
+        return `https://ipfs.filebase.io/ipfs/${cid}`;
+      }
+      return img;
+    }
+
+    if (img.startsWith("Qm")) {
+      return `https://ipfs.filebase.io/ipfs/${img}`;
+    }
+
+    return img;
+  };
+
+  // ====== load Loại xe & Thương hiệu ======
+  useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        const [types, cats] = await Promise.all([
+          getAllBikeTypes(),
+          getAllCategories(),
+        ]);
+        setBikeTypes(types || []);
+        setBrands(cats || []);
+      } catch (err) {
+        console.error("Lỗi load bikeTypes / categories cho Header:", err);
+      }
+    };
+    fetchFilters();
+  }, []);
+
+  // Lọc chỉ những loại/brand Active
+  const activeBikeTypes = useMemo(
+    () => bikeTypes.filter((t) => t.tStatus === "Active"),
+    [bikeTypes]
+  );
+  const activeBrands = useMemo(
+    () => brands.filter((c) => c.cStatus === "Active"),
+    [brands]
+  );
+
+  // ====== khi hover 1 item bên trái → load 3 sản phẩm nổi bật ======
+  useEffect(() => {
+    const loadFeatured = async () => {
+      if (!activeContext || !activeContext.id) {
+        setFeaturedProducts([]);
+        return;
+      }
+
+      try {
+        setLoadingFeatured(true);
+        let data = [];
+
+        if (activeContext.mode === "type") {
+          data = await getProductsByBikeType(activeContext.id, 3);
+        } else if (activeContext.mode === "brand") {
+          data = await getProductsByCategory(activeContext.id, 3);
+        }
+
+        const mapped = (data || []).map((p) => {
+          const price = p.pPrice || 0;
+          const offer = Number(p.pOffer || 0);
+          const finalPrice = offer
+            ? Math.round((price * (100 - offer)) / 100)
+            : price;
+
+          return {
+            id: p._id,
+            name: p.pName,
+            brand: p.pCategory?.cName || "Không rõ",
+            description: p.pDescription?.slice(0, 80) + "...",
+            image: getImageSrc(p.pImages?.[0]),
+            price: finalPrice,
+          };
+        });
+
+        setFeaturedProducts(mapped);
+      } catch (err) {
+        console.error("Lỗi load featuredProducts:", err);
+        setFeaturedProducts([]);
+      } finally {
+        setLoadingFeatured(false);
+      }
+    };
+
+    loadFeatured();
+  }, [activeContext]);
 
   const handleToggleUserMenu = () => {
     setIsUserMenuOpen((prev) => !prev);
@@ -267,19 +241,14 @@ const Header = () => {
             </Link>
           </li>
           <li>
-            <Link
-              to="/about"
-              className={isActive("/about") ? "active" : ""}
-            >
+            <Link to="/about" className={isActive("/about") ? "active" : ""}>
               Về chúng tôi
             </Link>
           </li>
 
           {/* ===== MENU SẢN PHẨM ===== */}
           <li
-            className={`dropdown center ${
-              isProductActive() ? "active" : ""
-            }`}
+            className={`dropdown center ${isProductActive() ? "active" : ""}`}
           >
             <Link to="/product" className="drop-btn">
               Sản phẩm
@@ -288,8 +257,8 @@ const Header = () => {
             <div
               className="mega-menu"
               onMouseLeave={() => {
-                // 👉 Bỏ chuột ra khỏi dropdown => reset, không hiển thị ảnh nữa
-                setActiveGroupKey(null);
+                setActiveContext(null);
+                setFeaturedProducts([]);
               }}
             >
               {/* CỘT TRÁI: LOẠI XE + THƯƠNG HIỆU */}
@@ -298,12 +267,26 @@ const Header = () => {
                 <div className="side-group">
                   <h4>LOẠI XE</h4>
                   <ul>
-                    {bikeTypes.map((t) => (
-                      <li key={t.key}>
-                        <span>{t.label}</span>
+                    {activeBikeTypes.map((t) => (
+                      <li
+                        key={t._id}
+                        onMouseEnter={() =>
+                          setActiveContext({
+                            mode: "type",
+                            id: t._id,
+                            name: t.tName,
+                          })
+                        }
+                      >
+                        <span>{t.tName}</span>
                         <span>{">"}</span>
                       </li>
                     ))}
+                    {activeBikeTypes.length === 0 && (
+                      <li>
+                        <span>Chưa có loại xe Active</span>
+                      </li>
+                    )}
                   </ul>
                 </div>
 
@@ -311,45 +294,71 @@ const Header = () => {
                 <div className="side-group">
                   <h4>THƯƠNG HIỆU</h4>
                   <ul>
-                    {productGroups.map((g) => (
+                    {activeBrands.map((c) => (
                       <li
-                        key={g.key}
-                        onMouseEnter={() => setActiveGroupKey(g.key)}
+                        key={c._id}
+                        onMouseEnter={() =>
+                          setActiveContext({
+                            mode: "brand",
+                            id: c._id,
+                            name: c.cName,
+                          })
+                        }
                       >
-                        <span>{g.label}</span>
+                        <span>{c.cName}</span>
                         <span>{">"}</span>
                       </li>
                     ))}
+                    {activeBrands.length === 0 && (
+                      <li>
+                        <span>Chưa có thương hiệu Active</span>
+                      </li>
+                    )}
                   </ul>
                 </div>
               </div>
 
-              {/* CỘT PHẢI: ẢNH SẢN PHẨM */}
+              {/* CỘT PHẢI: 3 SẢN PHẨM NỔI BẬT */}
               <div className="column">
+
                 <div className="product-row">
-                  {activeGroup ? (
-                    activeGroup.items.map((item) => (
+                  {loadingFeatured && (
+                    <div className="placeholder-text">
+                      <p>Đang tải sản phẩm...</p>
+                    </div>
+                  )}
+
+                  {!loadingFeatured && featuredProducts.length === 0 && (
+                    <div className="wait-grid">
+                      <div className="wait-item">
+                        <img src={ImgWait1} alt="Hình chờ sản phẩm 1" />
+                      </div>
+                      <div className="wait-item">
+                        <img src={ImgWait2} alt="Hình chờ sản phẩm 2" />
+                      </div>
+                      <div className="wait-item">
+                        <img src={ImgWait3} alt="Hình chờ sản phẩm 3" />
+                      </div>
+                      <div className="wait-item">
+                        <img src={ImgWait4} alt="Hình chờ sản phẩm 4" />
+                      </div>
+                    </div>
+                  )}
+
+                  {!loadingFeatured &&
+                    featuredProducts.map((item) => (
                       <Link
-                        key={item.key}
-                        to={item.to}
+                        key={item.id}
+                        to={`/productDetail/${item.id}`}
                         className="product-card"
                       >
                         <img src={item.image} alt={item.name} />
-                        <div className="product-card-title">
-                          {item.name}
-                        </div>
+                        <div className="product-card-title">{item.name}</div>
                         <div className="product-card-desc">
                           {item.description}
                         </div>
                       </Link>
-                    ))
-                  ) : (
-                    <div className="placeholder-text">
-                      <p>
-                        Di chuột để xem sản phẩm nổi bật.
-                      </p>
-                    </div>
-                  )}
+                    ))}
                 </div>
               </div>
             </div>
