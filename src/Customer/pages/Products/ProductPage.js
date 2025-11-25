@@ -3,14 +3,19 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Filter } from 'lucide-react';
 import ProductCard from '../../components/Product/ProductCard';
 import { getAllProduct } from '../../components/Product/fetchApi';
+import { getAllBikeTypes, getAllCategories } from '../../components/Product/fetchApi';
+
 import './ProductPage.css';
 
 const ProductPage = () => {
-  const [selectedCategory, setSelectedCategory] = useState('Tất cả'); // Loại xe
-  const [selectedBrand, setSelectedBrand] = useState('Tất cả');       // Thương hiệu
+  const [selectedCategory, setSelectedCategory] = useState('Tất cả'); 
+  const [selectedBrand, setSelectedBrand] = useState('Tất cả');       
   const [priceRange, setPriceRange] = useState([0, 50000000]);
   const [sortBy, setSortBy] = useState('featured');
   const [currentPage, setCurrentPage] = useState(1);
+  const [bikeTypes, setBikeTypes] = useState([]);
+  const [brands, setBrands] = useState([]);
+
 
   const [products, setProducts] = useState([]);   // data thật từ BE
   const [loading, setLoading] = useState(false);
@@ -43,10 +48,18 @@ const ProductPage = () => {
       try {
         setLoading(true);
         setError('');
-        const list = await getAllProduct();
-        setProducts(list);
+
+        const [listProducts, listTypes, listCategories] = await Promise.all([
+          getAllProduct(),
+          getAllBikeTypes(),
+          getAllCategories(),
+        ]);
+
+        setProducts(listProducts);
+        setBikeTypes(listTypes);
+        setBrands(listCategories);
       } catch (err) {
-        setError('Không tải được danh sách sản phẩm');
+        setError('Không tải được dữ liệu sản phẩm / bộ lọc');
       } finally {
         setLoading(false);
       }
@@ -57,22 +70,17 @@ const ProductPage = () => {
 
   // ====== Tạo danh sách filter ======
   const categoryOptions = useMemo(() => {
-    const set = new Set();
-    products.forEach((p) => {
-      const tName = p.pBiketype?.tName;
-      if (tName) set.add(tName);
-    });
-    return ['Tất cả', ...Array.from(set)];
-  }, [products]);
+    const activeTypes = bikeTypes.filter(t => t.tStatus === 'Active');
+    const names = activeTypes.map(t => t.tName);
+    return ['Tất cả', ...names];
+  }, [bikeTypes]);
 
+  // Thương hiệu 
   const brandOptions = useMemo(() => {
-    const set = new Set();
-    products.forEach((p) => {
-      const cName = p.pCategory?.cName;
-      if (cName) set.add(cName);
-    });
-    return ['Tất cả', ...Array.from(set)];
-  }, [products]);
+    const activeCats = brands.filter(c => c.cStatus === 'Active');
+    const names = activeCats.map(c => c.cName);
+    return ['Tất cả', ...names];
+  }, [brands]);
 
   // ====== FILTER ======
   const filteredProducts = useMemo(() => {

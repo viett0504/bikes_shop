@@ -280,7 +280,7 @@ header {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #6b7280 !important;
-  margin: 0 0 12px;
+  margin: 0 0 6px;
 }
 
 /* container chứ các card – nằm ngang giống ảnh */
@@ -304,6 +304,16 @@ header {
   object-fit: contain;
   margin-bottom: 8px;
 }
+
+.mega-menu .product-card {
+  min-width: 200px;
+  background: #fff;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 8px;
+  transition: 0.2s ease;
+}
+
 
 .mega-menu .product-card-title {
   font-size: 13px;
@@ -425,3 +435,30 @@ header {
 .mega-menu .column .side-group + .side-group {
   margin-top: 16px;   /* khoảng cách giữa LOẠI XE và THƯƠNG HIỆU */
 }
+
+/* Lưới ảnh chờ sản phẩm */
+.wait-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;               /* cách giữa ảnh 5–10px đẹp */
+  width: 100%;
+  max-width: 720px;        /* ảnh rộng hơn */
+  margin: 5px auto;        /* CÁCH VIỀN 5px */
+  padding: 5px 0;          /* bỏ thừa trắng trên & dưới */
+}
+
+.wait-grid .wait-item {
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  border: 2px solid #ddd;   /* border rõ nét */
+}
+
+.wait-grid .wait-item img {
+  width: 100%;
+  height: 200px;            /* 📌 to hơn */
+  object-fit: cover;
+  display: block;
+}
+
+

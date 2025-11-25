@@ -23,6 +23,13 @@ export const accountReducer = (state, action) => {
       };
 
     case "editAccountModalOpen":
+      let positionLabel = "Khách hàng";
+      if (action.account.userRole === 1) {
+        positionLabel = "Nhân viên";
+      } else if (action.account.userRole === 2) {
+        positionLabel = "Admin"; 
+      }
+
       return {
         ...state,
         editAccountModal: {
@@ -30,11 +37,11 @@ export const accountReducer = (state, action) => {
           aId: action.account._id,
           name: action.account.name,
           email: action.account.email || "",
-          position:
-            action.account.userRole === 1 ? "Admin" : "Khách hàng", // tuỳ bạn map
+          position: positionLabel,
           phoneNumber: action.account.phoneNumber || "",
         },
       };
+
 
     case "editAccountModalClose":
       return {
