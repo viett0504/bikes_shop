@@ -75,7 +75,7 @@ const ProductPage = () => {
     return ['Tất cả', ...names];
   }, [bikeTypes]);
 
-  // Thương hiệu )
+  // Thương hiệu 
   const brandOptions = useMemo(() => {
     const activeCats = brands.filter(c => c.cStatus === 'Active');
     const names = activeCats.map(c => c.cName);
