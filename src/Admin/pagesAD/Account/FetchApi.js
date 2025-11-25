@@ -6,12 +6,24 @@ const mapPositionToRole = (position) => {
   if (!position) return 0;
   const p = position.toLowerCase().trim();
 
-  if (p.includes("quản lý") || p.includes("quan ly")) return 2;
-  if (p.includes("nhân viên") || p.includes("nhan vien")) return 1;
+  // 2 = Quản lý / Admin
+  if (
+    p.includes("quản lý") ||
+    p.includes("quan ly") ||
+    p.includes("admin")
+  ) {
+    return 2;
+  }
 
-  // mặc định: khách hàng
+  // 1 = Nhân viên
+  if (p.includes("nhân viên") || p.includes("nhan vien")) {
+    return 1;
+  }
+
+  // 0 = Khách hàng
   return 0;
 };
+
 
 // Lấy danh sách user
 export const getAllUsers = async () => {
