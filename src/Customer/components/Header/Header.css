@@ -287,7 +287,7 @@ header {
 .mega-menu .product-row {
   display: flex;
   gap: 24px;
-  overflow-x: auto;
+  overflow-x: hidden !important;
   padding-bottom: 6px;
 }
 

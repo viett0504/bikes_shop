@@ -40,12 +40,16 @@ export const CartProvider = ({ children }) => {
   }, [items]);
 
   const addToCart = (product, quantity = 1, options = {}) => {
+    // Chuẩn hoá, tránh undefined vs null
+    const selectedColor = options.selectedColor ?? null;
+    const selectedSize = options.selectedSize ?? null;
+
     setItems((prev) => {
       const idx = prev.findIndex(
         (item) =>
           item.productId === product.id &&
-          item.selectedColor === options.selectedColor &&
-          item.selectedSize === options.selectedSize
+          item.selectedColor === selectedColor &&
+          item.selectedSize === selectedSize
       );
 
       if (idx !== -1) {
@@ -66,12 +70,13 @@ export const CartProvider = ({ children }) => {
           image: product.image,
           brand: product.brand,
           quantity,
-          selectedColor: options.selectedColor || null,
-          selectedSize: options.selectedSize || null,
+          selectedColor,
+          selectedSize,
         },
       ];
     });
   };
+
 
   const updateQuantity = (productId, selectedColor, selectedSize, change) => {
     setItems((prev) =>

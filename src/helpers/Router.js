@@ -25,6 +25,7 @@ import Footer from "../Customer/components/Footer/Footer";
 import ShoppingCart from "../Customer/pages/Cart/Cart";
 import { CartProvider } from "../utils/cart";
 
+import "../App.css";
 
 function CustomerShell() {
   const { pathname } = useLocation();
@@ -41,7 +42,9 @@ function CustomerShell() {
       {shouldShowHeader && <Header />}
 
       {/* Nội dung */}
-      <Outlet />
+      <main className="customer-main">
+        <Outlet />
+      </main>
 
       {/* Footer */}
       {shouldShowFooter && <Footer />}
