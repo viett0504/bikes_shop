@@ -28,3 +28,23 @@ export const getSingleProduct = async (id) => {
     return null;
   }
 };
+
+export const getAllBikeTypes = async () => {
+  try {
+    const res = await axios.get(`${apiURL}/api/bike-type/all-type`);
+    return res.data?.BikeTypes || [];
+  } catch (err) {
+    console.error("❌ getAllBikeTypes error:", err?.response?.data || err);
+    return [];
+  }
+};
+
+export const getAllCategories = async () => {
+  try {
+    const res = await axios.get(`${apiURL}/api/category/all-category`);
+    return res.data?.Categories || [];
+  } catch (err) {
+    console.error("❌ getAllCategories error:", err?.response?.data || err);
+    return [];
+  }
+};
