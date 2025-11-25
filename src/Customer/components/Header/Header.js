@@ -3,12 +3,14 @@ import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaShoppingCart, FaUserCircle } from "react-icons/fa";
 import logo from "../../../assets/img/logo.png";
-
+import { useCart } from "../../../utils/cart";
 import "./Header.css";
+
 
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { cartCount } = useCart();
 
   const [currentUser, setCurrentUser] = useState(() => {
     try {
@@ -252,9 +254,15 @@ const Header = () => {
           )}
 
           <Link to="/cart" className="cart-icon">
-            <FaShoppingCart />
-            <span className="cart-count">0</span>
+            <FaShoppingCart/>
+
+            {cartCount > 0 && (
+              <span className="cart-count">
+                {cartCount}
+              </span>
+            )}
           </Link>
+
         </div>
       </div>
 

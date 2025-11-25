@@ -7,6 +7,17 @@ const CART_KEY = 'bike_cart';
 export const CartProvider = ({ children }) => {
   const [items, setItems] = useState([]);
 
+  const subtotal = items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
+    // 👉 TÍNH TỔNG SỐ LƯỢNG SẢN PHẨM TRONG GIỎ
+  const cartCount = items.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
+
   // Load từ localStorage
   useEffect(() => {
     try {
@@ -95,14 +106,10 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => setItems([]);
 
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-
+   
   return (
     <CartContext.Provider
-      value={{ items, addToCart, updateQuantity, removeItem, clearCart, subtotal }}
+      value={{ items, addToCart, updateQuantity, removeItem, clearCart, subtotal, cartCount }}
     >
       {children}
     </CartContext.Provider>

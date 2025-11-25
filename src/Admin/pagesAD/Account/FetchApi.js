@@ -1,25 +1,27 @@
-// src/Admin/pagesAD/Accounts/FetchApi.js
 import axios from "axios";
 const apiURL = process.env.REACT_APP_API_URL;
 
 const mapPositionToRole = (position) => {
   if (!position) return 0;
   const p = position.toLowerCase().trim();
-
   if (p.includes("quản lý") || p.includes("quan ly")) return 2;
   if (p.includes("nhân viên") || p.includes("nhan vien")) return 1;
-
-  // mặc định: khách hàng
   return 0;
 };
 
-// Lấy danh sách user
+const getToken = () => localStorage.getItem("token");
+
+// Lấy danh sách user (admin)
 export const getAllUsers = async () => {
   try {
-    const res = await axios.get(`${apiURL}/api/user/all-user`);
+    const res = await axios.get(`${apiURL}/api/user/all-user`, {
+      headers: {
+        token: `Bearer ${getToken()}`,
+      },
+    });
     return res.data;
   } catch (err) {
-    console.error("Lỗi getAllUsers:", err);
+    console.error("Lỗi getAllUsers:", err?.response?.data || err.message || err);
     return { error: "Không lấy được danh sách user" };
   }
 };
@@ -27,10 +29,18 @@ export const getAllUsers = async () => {
 // Lấy 1 user
 export const getSingleUser = async (uId) => {
   try {
-    const res = await axios.post(`${apiURL}/api/user/signle-user`, { uId });
+    const res = await axios.post(
+      `${apiURL}/api/user/signle-user`,
+      { uId },
+      {
+        headers: {
+          token: `Bearer ${getToken()}`,
+        },
+      }
+    );
     return res.data;
   } catch (err) {
-    console.error("Lỗi getSingleUser:", err);
+    console.error("Lỗi getSingleUser:", err?.response?.data || err.message || err);
     return { error: "Không lấy được thông tin người dùng" };
   }
 };
@@ -51,13 +61,13 @@ export const addUser = async ({
     form.append("password", password);
     form.append("phoneNumber", phoneNumber || "");
     form.append("userRole", mapPositionToRole(position));
-
-    if (imageFile) {
-      form.append("userImage", imageFile);
-    }
+    if (imageFile) form.append("userImage", imageFile);
 
     const res = await axios.post(`${apiURL}/api/user/add-user`, form, {
-      headers: { "Content-Type": "multipart/form-data" },
+      headers: {
+        "Content-Type": "multipart/form-data",
+        token: `Bearer ${getToken()}`,
+      },
     });
     return res.data;
   } catch (err) {
@@ -83,17 +93,18 @@ export const editUser = async ({
     form.append("email", email);
     form.append("phoneNumber", phoneNumber || "");
     form.append("userRole", mapPositionToRole(position));
-
     if (password && password.trim()) {
       form.append("newPassword", password.trim());
     }
-
     if (imageFile) {
       form.append("userImage", imageFile);
     }
 
     const res = await axios.post(`${apiURL}/api/user/edit-user`, form, {
-      headers: { "Content-Type": "multipart/form-data" },
+      headers: {
+        "Content-Type": "multipart/form-data",
+        token: `Bearer ${getToken()}`,
+      },
     });
     return res.data;
   } catch (err) {
@@ -102,28 +113,40 @@ export const editUser = async ({
   }
 };
 
-// Đổi mật khẩu 
-export const changePassword = async ({ uId, oldPassword, newPassword }) => {
-  try {
-    const res = await axios.post(`${apiURL}/api/user/change-password`, {
-      uId,
-      oldPassword,
-      newPassword,
-    });
-    return res.data;
-  } catch (err) {
-    console.error("Lỗi changePassword:", err);
-    return { error: "Không đổi được mật khẩu" };
-  }
-};
-
 // Xóa user
 export const deleteUser = async (uId) => {
   try {
-    const res = await axios.post(`${apiURL}/api/user/delete-user`, { uId });
+    const res = await axios.post(
+      `${apiURL}/api/user/delete-user`,
+      { uId },
+      {
+        headers: {
+          token: `Bearer ${getToken()}`,
+        },
+      }
+    );
     return res.data;
   } catch (err) {
     console.error("Lỗi deleteUser:", err?.response?.data || err.message || err);
     return { error: "Không xóa được user" };
+  }
+};
+
+// Đổi mật khẩu 
+export const changePassword = async ({ uId, oldPassword, newPassword }) => {
+  try {
+    const res = await axios.post(
+      `${apiURL}/api/user/change-password`,
+      { uId, oldPassword, newPassword },
+      {
+        headers: {
+          token: `Bearer ${getToken()}`,
+        },
+      }
+    );
+    return res.data;
+  } catch (err) {
+    console.error("Lỗi changePassword:", err?.response?.data || err.message || err);
+    return { error: "Không đổi được mật khẩu" };
   }
 };
