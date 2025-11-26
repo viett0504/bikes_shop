@@ -16,13 +16,13 @@ const TeamCard = ({ member, icon: Icon, title, children }) => {
       {member ? (
         <>
           <div className="team-card-avatar">
-            {member.avatar}
+            <img src={member.avatar} alt={member.name} />
           </div>
-          
+
           <h3 className="team-card-name">{member.name}</h3>
           <p className="team-card-position">{member.position}</p>
           <p className="team-card-desc">{member.description}</p>
-          
+
           <div className="team-card-contact">
             <div className="contact-item">
               <Phone className="icon" />
