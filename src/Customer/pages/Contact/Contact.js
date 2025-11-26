@@ -7,7 +7,7 @@ export default function Contact() {
   const teamMembers = [
     {
       id: 1,
-      avatar: '👨‍💼',
+      avatar: 'https://ipfs.filebase.io/ipfs/QmY3cm5i5FAMsMMAnQMVdhSQz2koeDBu9Yg1dJzV3c9eAt',
       name: 'Nguyễn Gia Huy',
       position: 'Giám Đốc Kinh Doanh',
       description:
@@ -17,7 +17,7 @@ export default function Contact() {
     },
     {
       id: 2,
-      avatar: '👨‍💼',
+      avatar: 'https://ipfs.filebase.io/ipfs/QmfEbpaP3WbN8GZofxHe3FWGVSsQ2miuzJHizTWT2Q9cUG',
       name: 'Nguyễn Hoàng Việt',
       position: 'Trưởng Phòng Tư Vấn',
       description:
@@ -27,7 +27,7 @@ export default function Contact() {
     },
     {
       id: 3,
-      avatar: '👨‍🔧',
+      avatar: 'https://ipfs.filebase.io/ipfs/QmQfuu5Chj6qVTfyf3ZfmuV7H1ih7sPkECv8qYKCeTgW89',
       name: 'Văn Tiến Nam',
       position: 'Kỹ Thuật Viên Trưởng',
       description:
