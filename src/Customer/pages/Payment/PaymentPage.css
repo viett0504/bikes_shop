@@ -1,0 +1,87 @@
+.payment-page {
+  min-height: 80vh;
+  position: relative;
+  top: 8rem;
+  padding: 4rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+}
+
+.payment-card {
+  width: 420px;
+  background: #fff;
+  padding: 2.5rem;
+  border-radius: 18px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+.payment-title {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.payment-subtitle {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.qr-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.qr-image {
+  width: 230px;
+  height: 230px;
+  border-radius: 12px;
+  border: 6px solid #f3f4f6;
+}
+
+.payment-info {
+  text-align: left;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  color: #444;
+}
+
+.payment-info p {
+  margin: 6px 0;
+}
+
+.payment-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.btn-home,
+.btn-orders {
+  flex: 1;
+  padding: 10px 14px;
+  text-decoration: none;
+  color: white;
+  background: #6366f1;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.btn-orders {
+  background: #10b981;
+}
+
+.btn-home:hover {
+  opacity: 0.85;
+}
+
+.btn-orders:hover {
+  opacity: 0.85;
+}

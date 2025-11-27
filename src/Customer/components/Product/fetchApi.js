@@ -4,16 +4,26 @@ import axios from "axios";
 const apiURL = process.env.REACT_APP_API_URL;
 
 // Lấy tất cả sản phẩm cho trang shop
-export const getAllProduct = async () => {
+
+export const getAllProduct = async (searchTerm = "") => {
   try {
-    const res = await axios.get(`${apiURL}/api/product/all-product`);
-    // BE đang trả về { Products: [...] }
+    const params = {};
+
+    if (searchTerm && searchTerm.trim()) {
+      params.search = searchTerm.trim();
+    }
+
+    const res = await axios.get(`${apiURL}/api/product/all-product`, {
+      params,
+    });
+
     return res.data?.Products || [];
   } catch (err) {
     console.error("❌ getAllProduct (Customer) error:", err?.response?.data || err);
     return [];
   }
 };
+
 
 // Lấy chi tiết 1 sản phẩm
 export const getSingleProduct = async (id) => {

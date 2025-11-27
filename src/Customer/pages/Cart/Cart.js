@@ -11,6 +11,8 @@ import {
 import './Cart.css';
 import axios from 'axios';
 import { useCart } from '../../../utils/cart';
+import { useNavigate } from "react-router-dom";
+
 
 import { getCustomerInfo, isCustomerLoggedIn } from '../../../utils/authCustomer';
 
@@ -23,6 +25,8 @@ const ShoppingCart = () => {
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
   const [loadingCheckout, setLoadingCheckout] = useState(false);
+  const navigate = useNavigate();
+
 
   const applyCoupon = () => {
     if (couponCode.toUpperCase() === 'SAVE20') {
@@ -90,6 +94,12 @@ const ShoppingCart = () => {
       if (res.data?.success) {
         alert('Đặt hàng thành công!');
         clearCart();
+        navigate("/payment", {
+          state: {
+            orderId: res.data.order?._id,
+            total: formatPrice(total),
+        }
+  });
       } else {
         console.error('create-order response:', res.data);
         alert(res.data?.message || res.data?.error || 'Đặt hàng thất bại');

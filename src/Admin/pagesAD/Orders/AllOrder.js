@@ -76,7 +76,7 @@ export default function AllOrder() {
                     <tr key={o._id}>
                       <td className="text-left">#{o._id}</td>
                       <td className="text-left">
-                        {o.customer?.name || "—"}
+                        {o.user?.name || "—"}
                       </td>
                       <td className="text-left">
                         {o.createdAt
@@ -87,7 +87,7 @@ export default function AllOrder() {
                         {o.payStatus || "—"}
                       </td>
                       <td className="text-right">
-                        {(o.total || 0).toLocaleString("vi-VN")} đ
+                        {(o.amount || 0).toLocaleString("vi-VN")} đ
                       </td>
                       <td className="text-left">
                         {o.payMethod || "—"}

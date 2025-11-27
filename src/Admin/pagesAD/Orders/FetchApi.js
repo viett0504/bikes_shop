@@ -24,3 +24,17 @@ export const cancelOrder = async (oId) => {
     return res.data; // { success | error }
   } catch (e) { console.log(e); }
 };
+
+// Lấy đơn hàng theo user
+export const getOrdersByUser = async (uId) => {
+  try {
+    const res = await axios.post(`${apiURL}/api/order/order-by-user`, {
+      uId,
+    });
+    // Backend trả { Order: [...] }
+    return res.data?.Order || [];
+  } catch (err) {
+    console.error("getOrdersByUser error:", err?.response?.data || err);
+    return [];
+  }
+};

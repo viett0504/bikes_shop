@@ -1,5 +1,5 @@
 // src/Client/components/Header/Header.jsx
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaShoppingCart, FaUserCircle } from "react-icons/fa";
 import logo from "../../../assets/img/logo.png";
@@ -10,21 +10,28 @@ import ImgWait2 from "../../../assets/img/ImgWait_2.jpg";
 import ImgWait3 from "../../../assets/img/ImgWait_3.jpg";
 import ImgWait4 from "../../../assets/img/ImgWait_4.jpg";
 
-
 import {
+  getAllProduct,
   getAllBikeTypes,
   getAllCategories,
   getProductsByBikeType,
   getProductsByCategory,
-} from '../Product/fetchApi'
+} from '../Product/fetchApi';
 
 import "./Header.css";
-
 
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { cartCount } = useCart();
+
+  // ===== SEARCH STATE (FE) =====
+  const [searchTerm, setSearchTerm] = useState("");
+  const [allProducts, setAllProducts] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const searchRef = useRef(null);
 
   const [currentUser, setCurrentUser] = useState(() => {
     try {
@@ -79,6 +86,24 @@ const Header = () => {
 
     return img;
   };
+
+  const formatPrice = (price) => {
+    if (price === null || price === undefined) return "";
+    return Number(price).toLocaleString("vi-VN") + " ₫";
+  };
+
+  // ====== load tất cả sản phẩm cho search FE ======
+  useEffect(() => {
+    const loadAllProducts = async () => {
+      try {
+        const list = await getAllProduct();
+        setAllProducts(list || []);
+      } catch (err) {
+        console.error("Lỗi load allProduct cho search:", err);
+      }
+    };
+    loadAllProducts();
+  }, []);
 
   // ====== load Loại xe & Thương hiệu ======
   useEffect(() => {
@@ -154,6 +179,33 @@ const Header = () => {
     loadFeatured();
   }, [activeContext]);
 
+  // ====== FILTER SEARCH RESULT FE ======
+  useEffect(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) {
+      setSearchResults([]);
+      return;
+    }
+
+    const matched = allProducts.filter((p) =>
+      (p.pName || "").toLowerCase().includes(term)
+    );
+
+    setSearchResults(matched);
+  }, [searchTerm, allProducts]);
+
+  // ====== CLICK OUTSIDE ĐỂ ĐÓNG DROPDOWN ======
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleToggleUserMenu = () => {
     setIsUserMenuOpen((prev) => !prev);
   };
@@ -166,6 +218,29 @@ const Header = () => {
     navigate("/login");
   };
 
+  // ====== SUBMIT TÌM KIẾM (FE ONLY) ======
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    const query = searchTerm.trim();
+    if (!query) return;
+
+    navigate(`/product?search=${encodeURIComponent(query)}`);
+    setShowDropdown(false);
+  };
+
+  const handleSelectProduct = (id) => {
+    setShowDropdown(false);
+    setSearchTerm("");
+    navigate(`/productDetail/${id}`);
+  };
+
+  const handleViewAllResults = () => {
+    const query = searchTerm.trim();
+    if (!query) return;
+    setShowDropdown(false);
+    navigate(`/product?search=${encodeURIComponent(query)}`);
+  };
+
   return (
     <header>
       {/* ===== TOP BAR ===== */}
@@ -174,8 +249,76 @@ const Header = () => {
           <img src={logo} alt="logo" />
         </div>
 
-        <div className="search-bar">
-          <input type="text" placeholder="Tìm kiếm sản phẩm..." />
+        <div className="search-bar" ref={searchRef}>
+          <form onSubmit={handleSearchSubmit}>
+            <input
+              type="text"
+              placeholder="Tìm kiếm sản phẩm..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setShowDropdown(true);
+              }}
+              onFocus={() => {
+                if (searchTerm.trim()) setShowDropdown(true);
+              }}
+            />
+          </form>
+
+          {/* DROPDOWN GỢI Ý SẢN PHẨM */}
+          {showDropdown && searchTerm.trim() && (
+            <div className="search-dropdown">
+              {searchResults.length === 0 ? (
+                <div className="search-dropdown-empty">
+                  Không tìm thấy sản phẩm phù hợp
+                </div>
+              ) : (
+                <>
+                  <div className="search-dropdown-header">
+                    Sản phẩm gợi ý
+                  </div>
+                  <ul className="search-dropdown-list">
+                    {searchResults.slice(0, 8).map((p) => (
+                      <li
+                        key={p._id}
+                        className="search-dropdown-item"
+                        onClick={() => handleSelectProduct(p._id)}
+                      >
+                        <div className="search-dropdown-thumb">
+                          <img
+                            src={getImageSrc(p.pImages?.[0])}
+                            alt={p.pName}
+                          />
+                        </div>
+                        <div className="search-dropdown-info">
+                          <div className="search-dropdown-name">
+                            {p.pName}
+                          </div>
+                          <div className="search-dropdown-meta">
+                            <span className="search-dropdown-price">
+                              {formatPrice(p.pPrice)}
+                            </span>
+                            {p.pCategory?.cName && (
+                              <span className="search-dropdown-category">
+                                {p.pCategory.cName}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    type="button"
+                    className="search-dropdown-view-all"
+                    onClick={handleViewAllResults}
+                  >
+                    Xem tất cả kết quả cho “{searchTerm.trim()}”
+                  </button>
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="user-actions">
@@ -229,7 +372,7 @@ const Header = () => {
           )}
 
           <Link to="/cart" className="cart-icon">
-            <FaShoppingCart/>
+            <FaShoppingCart />
 
             {cartCount > 0 && (
               <span className="cart-count">
@@ -237,7 +380,6 @@ const Header = () => {
               </span>
             )}
           </Link>
-
         </div>
       </div>
 
@@ -329,7 +471,6 @@ const Header = () => {
 
               {/* CỘT PHẢI: 3 SẢN PHẨM NỔI BẬT */}
               <div className="column">
-
                 <div className="product-row">
                   {loadingFeatured && (
                     <div className="placeholder-text">
