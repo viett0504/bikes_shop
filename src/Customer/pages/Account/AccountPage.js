@@ -5,6 +5,7 @@ import "./AccountPage.css";
 
 import { editUser, } from "../../../Admin/pagesAD/Account/FetchApi";
 import { getOrdersByUser, updateOrderStatus } from "../../../Admin/pagesAD/Orders/FetchApi"; 
+import { getAvatarSrc } from "./fetchApi";
 
 export default function AccountPage() {
   const [user, setUser] = useState(null);
@@ -19,6 +20,68 @@ export default function AccountPage() {
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
 
+  const isPaidOrder = (order) => {
+    if (!order) return false;
+
+    // ✅ Backend trả về payStatus: "Chưa thanh toán" | "Đã thanh toán"
+    const rawPayStatus = order.payStatus;
+
+    const payRaw =
+      rawPayStatus ??
+      order.paymentStatus ??
+      order.isPaid ??
+      order.paid ??
+      order.payment ??
+      order.thanhtoan;
+
+    const payStr =
+      typeof payRaw === "string" ? payRaw.toLowerCase().trim() : "";
+
+    const isPaid =
+      payRaw === true ||
+      payRaw === 1 ||
+      payRaw === "1" ||
+      payStr === "đã thanh toán" ||
+      payStr === "da thanh toan" ||
+      payStr.includes("đã thanh toán") ||
+      payStr.includes("da thanh toan");
+
+    const statusText = (
+      order.status ||
+      order.statusOrder ||
+      order.orderStatus ||
+      ""
+    )
+      .toLowerCase()
+      .trim();
+
+    const isCancelled =
+      statusText.includes("hủy") ||
+      statusText.includes("huy") ||
+      statusText.includes("cancel");
+
+    return isPaid && !isCancelled;
+  };
+
+// Lấy tổng tiền 1 đơn 
+const getOrderTotal = (order) => {
+  if (!order) return 0;
+  const candidates = [
+    order.totalPrice,
+    order.totalAmount,
+    order.amount,
+    order.finalAmount,
+    order.total,
+    order.tongTien,
+  ];
+  for (const v of candidates) {
+    const num = Number(v);
+    if (!Number.isNaN(num)) return num;
+  }
+  return 0;
+};
+
+
   // ===== ĐƠN HÀNG CỦA USER =====
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
@@ -31,15 +94,13 @@ export default function AccountPage() {
     }).format(price || 0);
 
   // Tổng số đơn + tổng tiền đã chi
-  const totalOrders = orders.length;
-  const totalSpent = orders
-  .filter(
-    (o) =>
-      o.status !== "Đơn hàng đã bị hủy" &&
-      o.status !== "Chưa xử lý" &&
-      o.payStatus === "Đã thanh toán"
-  )
-  .reduce((sum, o) => sum + (o.amount || 0), 0);
+  const totalOrders = orders?.length || 0;
+
+  const totalSpent = (orders || []).reduce(
+    (sum, order) => (isPaidOrder(order) ? sum + getOrderTotal(order) : sum),
+    0
+  );
+
 
   // Lấy user từ localStorage + fetch đơn hàng
   useEffect(() => {
@@ -92,10 +153,12 @@ export default function AccountPage() {
     user.name?.split(" ")?.slice(-1)[0]?.substring(0, 2).toUpperCase() ||
     user.email?.substring(0, 2).toUpperCase();
 
+  const roleNum = user.userRole ?? user.role ?? 0;
+
   const tier =
-    user.role === 2
+    roleNum === 2
       ? "Quản lý"
-      : user.role === 1
+      : roleNum === 1
       ? "Nhân viên"
       : "Khách hàng";
 
@@ -137,17 +200,20 @@ export default function AccountPage() {
       return;
     }
 
+    const roleNum = user.userRole ?? user.role ?? 0;
+    const positionLabel =
+      roleNum === 2
+        ? "Quản lý"
+        : roleNum === 1
+        ? "Nhân viên"
+        : "Khách hàng";
+
     const payload = {
       uId: user._id,
       name: form.name.trim() || user.name,
       email: user.email,
       phoneNumber: form.phoneNumber.trim(),
-      position:
-        user.role === 2
-          ? "Quản lý"
-          : user.role === 1
-          ? "Nhân viên"
-          : "Khách hàng",
+      position: positionLabel,
       password: "",
       imageFile: avatarFile || null,
     };
@@ -242,13 +308,15 @@ export default function AccountPage() {
           <section className="account-card profile-card">
             <div className="profile-main">
               <div className="profile-avatar">
-                {avatarPreview ? (
-                  <img src={avatarPreview} alt={user.name} />
+                {avatarPreview || user.userImage || user.image ? (
+                  <img
+                    src={getAvatarSrc(avatarPreview || user.userImage || user.image)}
+                    alt={user.name}
+                  />
                 ) : (
                   <span>{avatarText}</span>
                 )}
 
-                {/* nút đổi avatar */}
                 <label className="avatar-edit-btn">
                   <input
                     type="file"
@@ -259,6 +327,7 @@ export default function AccountPage() {
                   <Camera size={14} />
                 </label>
               </div>
+
 
               <div className="profile-info">
                 <div className="profile-name-row">
@@ -332,7 +401,7 @@ export default function AccountPage() {
               </div>
               <div className="profile-stat">
                 <span className="stat-label">Đã chi tiêu</span>
-                <span className="stat-value">{formatPrice(totalSpent)}</span>
+                <span className="stat-value">{totalSpent.toLocaleString("vi-VN")} ₫</span>
               </div>
               <div className="profile-stat">
                 <span className="stat-label">Hạng thành viên</span>

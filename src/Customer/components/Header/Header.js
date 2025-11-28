@@ -50,7 +50,7 @@ const Header = () => {
   const username =
     currentUser?.name || currentUser?.email?.split("@")[0] || "Người dùng";
 
-  const userRole = currentUser?.role ?? null;
+  const userRole = currentUser?.userRole ?? currentUser?.role ?? null;
 
   const isActive = (path) => location.pathname === path;
   const isProductActive = () => location.pathname.startsWith("/product");
