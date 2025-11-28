@@ -36,7 +36,7 @@ export default function BikeShopAbout() {
       {/* Story Section */}
       <section className="container section">
         <div className="section__header">
-          <h2 className="section__title">Câu Chuyện Của Chúng Tôi</h2>
+          <h2 className="section__title">Câu chuyện của chúng tôi</h2>
           <div className="divider" />
           <p className="section__lead">
             BikeShop Vietnam được thành lập vào năm 2015 với sứ mệnh đơn giản nhưng mạnh mẽ:
@@ -50,43 +50,43 @@ export default function BikeShopAbout() {
         <div className="grid-3">
           <FeatureCard
             icon={Award}
-            title="Chất Lượng Đảm Bảo"
+            title="Chất lượng đảm bảo"
             description="100% xe đạp chính hãng từ các thương hiệu uy tín hàng đầu thế giới. Bảo hành chính hãng, đổi trả trong 30 ngày."
           />
           <FeatureCard
             icon={Users}
-            title="Đội Ngũ Chuyên Nghiệp"
+            title="Đội ngũ chuyên nghiệp"
             description="Đội ngũ tư vấn viên và kỹ thuật viên giàu kinh nghiệm, nhiệt tình hỗ trợ bạn chọn xe và bảo dưỡng định kỳ."
           />
           <FeatureCard
             icon={TrendingUp}
-            title="Giá Cả Cạnh Tranh"
+            title="Giá cả cạnh tranh"
             description="Cam kết giá tốt nhất thị trường. Nhiều chương trình khuyến mãi hấp dẫn và hỗ trợ trả góp 0% lãi suất."
           />
         </div>
 
         {/* Values Section */}
         <div className="section--spaced">
-          <h2 className="section__title center">Giá Trị Cốt Lõi</h2>
+          <h2 className="section__title center">Giá trị cốt lõi</h2>
           <div className="grid-4">
             <ValueCard
               icon={Heart}
-              title="Đam Mê"
+              title="Đam mê"
               description="Chúng tôi yêu xe đạp và muốn chia sẻ niềm đam mê này với mọi người"
             />
             <ValueCard
               icon={Target}
-              title="Tận Tâm"
+              title="Tận tâm"
               description="Luôn đặt khách hàng làm trung tâm trong mọi quyết định của chúng tôi"
             />
             <ValueCard
               icon={Zap}
-              title="Sáng Tạo"
+              title="Sáng tạo"
               description="Không ngừng cải tiến để mang đến trải nghiệm tốt nhất"
             />
             <ValueCard
               icon={Shield}
-              title="Uy Tín"
+              title="Uy tín"
               description="Xây dựng niềm tin qua chất lượng sản phẩm và dịch vụ"
             />
           </div>
@@ -94,36 +94,36 @@ export default function BikeShopAbout() {
 
         {/* Timeline */}
         <div className="section--spaced">
-          <h2 className="section__title center">Hành Trình Phát Triển</h2>
+          <h2 className="section__title center">Hành trình phát triển</h2>
           <div className="timeline">
             <div className="timeline__line" />
             <TimelineItem
               year="2015"
-              title="Khởi Đầu"
+              title="Khởi đầu"
               description="Mở cửa hàng đầu tiên tại TP.HCM với 50 mẫu xe đạp"
               side="left"
             />
             <TimelineItem
               year="2017"
-              title="Mở Rộng"
+              title="Mở rộng"
               description="Phát triển hệ thống 5 cửa hàng, đạt 10,000 khách hàng"
               side="right"
             />
             <TimelineItem
               year="2019"
-              title="Đột Phá"
+              title="Đột phá"
               description="Ra mắt website và ứng dụng di động, bán hàng toàn quốc"
               side="left"
             />
             <TimelineItem
               year="2022"
-              title="Hợp Tác"
+              title="Hợp tác"
               description="Trở thành đối tác chính thức của Giant, Trek, Specialized"
               side="right"
             />
             <TimelineItem
               year="2025"
-              title="Hiện Tại"
+              title="Hiện tại"
               description="15 cửa hàng trên toàn quốc, phục vụ hơn 50,000 khách hàng"
               side="left"
             />
@@ -133,14 +133,14 @@ export default function BikeShopAbout() {
         {/* Commitment Section */}
         <div className="commit">
           <Star className="commit__icon" />
-          <h2 className="commit__title">Cam Kết Của Chúng Tôi</h2>
+          <h2 className="commit__title">Cam kết của chúng tôi</h2>
           <p className="commit__desc">
             BikeShop Vietnam cam kết mang đến cho bạn những sản phẩm chất lượng cao nhất,
             dịch vụ tận tâm nhất và trải nghiệm mua sắm tuyệt vời nhất. Chúng tôi không chỉ
             bán xe đạp, chúng tôi xây dựng một cộng đồng yêu thích phong cách sống khỏe mạnh
             và bảo vệ môi trường.
           </p>
-          <button className="btn-primary">Khám Phá Sản Phẩm</button>
+          <button className="btn-primary">Khám phá sản phẩm</button>
         </div>
       </section>
     </div>

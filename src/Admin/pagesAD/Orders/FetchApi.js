@@ -10,12 +10,19 @@ export const getAllOrders = async () => {
 };
 
 // Cập nhật trạng thái đơn
-export const updateOrderStatus = async ({ oId, status }) => {
+export const updateOrderStatus = async ({ oId, status, cancelBy }) => {
   try {
-    const res = await axios.post(`${apiURL}/api/order/update-order`, { oId, status });
-    return res.data; // { success | error }
-  } catch (e) { console.log(e); }
+    const res = await axios.post(`${apiURL}/api/order/update-order`, {
+      oId,
+      status,
+      cancelBy,  
+    });
+    return res.data;
+  } catch (e) {
+    console.log(e);
+  }
 };
+
 
 // Hủy / xóa đơn
 export const cancelOrder = async (oId) => {
@@ -36,5 +43,17 @@ export const getOrdersByUser = async (uId) => {
   } catch (err) {
     console.error("getOrdersByUser error:", err?.response?.data || err);
     return [];
+  }
+};
+
+export const updatePaymentStatus = async ({ oId, payStatus }) => {
+  try {
+    const res = await axios.post(`${apiURL}/api/order/update-payment`, {
+      oId,
+      payStatus,
+    });
+    return res.data;
+  } catch (e) {
+    console.log(e);
   }
 };
