@@ -2,7 +2,7 @@
 import React, { Fragment, useContext, useEffect, useState } from "react";
 import moment from "moment";
 import { orderContext } from "./index";
-import { getAllOrders, updateOrderStatus, cancelOrder } from "./FetchApi";
+import { getAllOrders, updateOrderStatus, cancelOrder, updatePaymentStatus } from "./FetchApi";
 
 export default function AllOrder() {
   const { data, dispatch } = useContext(orderContext);
@@ -30,13 +30,31 @@ export default function AllOrder() {
   };
 
   const onCancel = async (oId) => {
-    const r = await updateOrderStatus({ oId, status: "Đơn hàng đã bị hủy" });
+    const r = await updateOrderStatus({
+      oId,
+      status: "Đơn hàng đã bị hủy",
+      cancelBy: "admin",
+    });
+    if (r?.success) fetchData();
+  };
+
+  const onUndoCancel = async (oId) => {
+    const r = await updateOrderStatus({
+      oId,
+      status: "Chưa xử lý",
+      cancelBy: null,
+    });
     if (r?.success) fetchData();
   };
 
   const onDelete = async (oId) => {
     if (!window.confirm("Bạn chắc chắn muốn XÓA hẳn đơn hàng này?")) return;
     const r = await cancelOrder(oId);  
+    if (r?.success) fetchData();
+  };
+
+  const onUpdatePayment = async (oId, payStatus) => {
+    const r = await updatePaymentStatus({ oId, payStatus });
     if (r?.success) fetchData();
   };
 
@@ -102,54 +120,120 @@ export default function AllOrder() {
                         {o.status || "—"}
                       </td>
                       <td className="text-center">
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: 8,
-                            justifyContent: "center",
-                            flexWrap: "wrap",
-                          }}
-                        >
-                          <button
-                            className="ad-btn success"
-                            onClick={() => onUpdateStatus(o._id, "Xác nhận")}
-                          >
-                            Xác nhận
-                          </button>
+                        {(() => {
+                          const isCanceled = o.status === "Đơn hàng đã bị hủy";
+                          const canceledByUser = isCanceled && o.cancelBy === "user";
+                          const canceledByAdmin = isCanceled && o.cancelBy === "admin";
 
-                          <button
-                            className="ad-btn left"
-                            onClick={() => onUpdateStatus(o._id, "Giao hàng")}
-                          >
-                            Giao hàng
-                          </button>
+                          // 1) Đơn KHÁCH HÀNG hủy (AccountPage) → chỉ cho XÓA
+                          if (canceledByUser) {
+                            return (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  gap: 8,
+                                  justifyContent: "center",
+                                  flexWrap: "wrap",
+                                }}
+                              >
+                                <button
+                                  className="ad-btn danger"
+                                  style={{ backgroundColor: "#111", borderColor: "#111" }}
+                                  onClick={() => onDelete(o._id)}
+                                >
+                                  Xóa
+                                </button>
+                              </div>
+                            );
+                          }
 
-                          {/* (tuỳ chọn) HOÀN TẤT → "Đã giao" */}
-                          {/* 
-                          <button
-                            className="ad-btn success"
-                            onClick={() => onUpdateStatus(o._id, "Đã giao")}
-                          >
-                            Hoàn tất
-                          </button> 
-                          */}
+                          // 2) Đơn ADMIN hủy (AllOrder) → Hoàn tác + Xóa
+                          if (canceledByAdmin) {
+                            return (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  gap: 8,
+                                  justifyContent: "center",
+                                  flexWrap: "wrap",
+                                }}
+                              >
+                                <button
+                                  className="ad-btn success"
+                                  onClick={() => onUndoCancel(o._id)}
+                                >
+                                  Hoàn tác
+                                </button>
 
-                          <button
-                            className="ad-btn danger"
-                            onClick={() => onCancel(o._id)}
-                          >
-                            Hủy
-                          </button>
+                                <button
+                                  className="ad-btn danger"
+                                  style={{ backgroundColor: "#111", borderColor: "#111" }}
+                                  onClick={() => onDelete(o._id)}
+                                >
+                                  Xóa
+                                </button>
+                              </div>
+                            );
+                          }
 
-                          <button
-                            className="ad-btn danger"
-                            style={{ backgroundColor: "#111", borderColor: "#111" }}
-                            onClick={() => onDelete(o._id)}
-                          >
-                            Xóa
-                          </button>
-                        </div>
+                          // 3) Các trạng thái khác → đầy đủ nút như cũ
+                          return (
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: 8,
+                                justifyContent: "center",
+                                flexWrap: "wrap",
+                              }}
+                            >
+                              <button
+                                className="ad-btn success"
+                                onClick={() => onUpdateStatus(o._id, "Xác nhận")}
+                              >
+                                Xác nhận
+                              </button>
+
+                              <button
+                                className="ad-btn left"
+                                onClick={() => onUpdateStatus(o._id, "Giao hàng")}
+                              >
+                                Giao hàng
+                              </button>
+
+                              <button
+                                className="ad-btn danger"
+                                onClick={() => onCancel(o._id)}
+                              >
+                                Hủy
+                              </button>
+
+                              <button
+                                className="ad-btn danger"
+                                style={{ backgroundColor: "#111", borderColor: "#111" }}
+                                onClick={() => onDelete(o._id)}
+                              >
+                                Xóa
+                              </button>
+
+                              {/* Nút cập nhật thanh toán */}
+                              <button
+                                className="ad-btn success"
+                                onClick={() => onUpdatePayment(o._id, "Đã thanh toán")}
+                              >
+                                Đã thanh toán
+                              </button>
+
+                              <button
+                                className="ad-btn left"
+                                onClick={() => onUpdatePayment(o._id, "Chưa thanh toán")}
+                              >
+                                Chưa thanh toán
+                              </button>
+                            </div>
+                          );
+                        })()}
                       </td>
+
                     </tr>
                   ))
                 ) : (

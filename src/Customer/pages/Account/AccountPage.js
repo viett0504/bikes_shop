@@ -32,7 +32,14 @@ export default function AccountPage() {
 
   // Tổng số đơn + tổng tiền đã chi
   const totalOrders = orders.length;
-  const totalSpent = orders.reduce((sum, o) => sum + (o.amount || 0), 0);
+  const totalSpent = orders
+  .filter(
+    (o) =>
+      o.status !== "Đơn hàng đã bị hủy" &&
+      o.status !== "Chưa xử lý" &&
+      o.payStatus === "Đã thanh toán"
+  )
+  .reduce((sum, o) => sum + (o.amount || 0), 0);
 
   // Lấy user từ localStorage + fetch đơn hàng
   useEffect(() => {
@@ -202,6 +209,7 @@ export default function AccountPage() {
     const res = await updateOrderStatus({
       oId: orderId,
       status: "Đơn hàng đã bị hủy",
+      cancelBy: "user",
     });
 
     if (res?.success) {
