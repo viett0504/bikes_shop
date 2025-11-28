@@ -3,11 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Edit2, ShoppingBag, ArrowRight, Camera } from "lucide-react";
 import "./AccountPage.css";
 
-// API admin (đã có sẵn)
 import { editUser, } from "../../../Admin/pagesAD/Account/FetchApi";
-
-// API lấy đơn hàng theo user (vừa tạo ở trên)
-import { getOrdersByUser } from "../../../Admin/pagesAD/Orders/FetchApi"; // nhớ chỉnh lại path cho đúng
+import { getOrdersByUser } from "../../../Admin/pagesAD/Orders/FetchApi"; 
 
 export default function AccountPage() {
   const [user, setUser] = useState(null);

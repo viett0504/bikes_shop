@@ -38,7 +38,7 @@ export default function Sidebar() {
 
       <div className="ad-sidebar-bottom-actions">
         <Link className="ad-link return-btn" to="/">
-          ← Quay lại Trang Sản phẩm
+          ← Quay lại Trang sản phẩm
         </Link>
       </div>
     </aside>
