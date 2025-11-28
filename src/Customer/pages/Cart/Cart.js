@@ -1,4 +1,4 @@
-// src/components/ShoppingCart.jsx
+// src/components/Cart.js
 import React, { useState } from 'react';
 import {
   Trash2,
@@ -74,15 +74,17 @@ const ShoppingCart = () => {
     const payload = {
       allProduct: items.map((item) => ({
         id: item.productId,
-        // chú ý schema dùng từ "quantitiy" bị sai chính tả
         quantitiy: item.quantity,
       })),
       user: user._id,
       amount: total,
-      transactionId: `COD-${Date.now()}`, // tạm thời
+      transactionId: `COD-${Date.now()}`,
       address,
       phone,
+      payStatus: "Chưa thanh toán",             
+      payMethod: "Thanh toán khi nhận hàng",   
     };
+
 
     try {
       setLoadingCheckout(true);

@@ -4,7 +4,7 @@ import { Edit2, ShoppingBag, ArrowRight, Camera } from "lucide-react";
 import "./AccountPage.css";
 
 import { editUser, } from "../../../Admin/pagesAD/Account/FetchApi";
-import { getOrdersByUser } from "../../../Admin/pagesAD/Orders/FetchApi"; 
+import { getOrdersByUser, updateOrderStatus } from "../../../Admin/pagesAD/Orders/FetchApi"; 
 
 export default function AccountPage() {
   const [user, setUser] = useState(null);
@@ -187,6 +187,36 @@ export default function AccountPage() {
     }
   };
 
+  const handleCancelOrder = async (orderId, currentStatus) => {
+    if (
+      currentStatus === "Giao hàng" ||
+      currentStatus === "Đã giao" ||
+      currentStatus === "Đơn hàng đã bị hủy"
+    ) {
+      alert("Đơn này đã được xử lý, không thể hủy.");
+      return;
+    }
+
+    if (!window.confirm("Bạn chắc chắn muốn hủy đơn hàng này?")) return;
+
+    const res = await updateOrderStatus({
+      oId: orderId,
+      status: "Đơn hàng đã bị hủy",
+    });
+
+    if (res?.success) {
+      setOrders((prev) =>
+        prev.map((o) =>
+          o._id === orderId ? { ...o, status: "Đơn hàng đã bị hủy" } : o
+        )
+      );
+      alert("Hủy đơn hàng thành công.");
+    } else {
+      alert(res?.message || res?.error || "Hủy đơn thất bại.");
+    }
+  };
+
+
   return (
     <div className="account-page">
       <div className="account-container">
@@ -345,12 +375,30 @@ export default function AccountPage() {
                     </div>
                     <div className="order-row-meta">
                       <span className="order-status">
-                        {o.status || "Not processed"}
+                        {o.status || "Chưa xử lý"}
                       </span>
+
+                      {/* ✅ hiển thị trạng thái thanh toán */}
+                      <span style={{ fontSize: "0.8rem", color: "#6b7280" }}>
+                        {o.payStatus || "Chưa thanh toán"}
+                      </span>
+
                       <span className="order-amount">
                         {formatPrice(o.amount)}
                       </span>
+
+                      {(o.status === "Chưa xử lý" || o.status === "Xác nhận") && (
+                        <button
+                          className="btn-secondary"
+                          style={{ marginTop: 4 }}
+                          type="button"
+                          onClick={() => handleCancelOrder(o._id, o.status)}
+                        >
+                          Hủy đơn
+                        </button>
+                      )}
                     </div>
+
                   </div>
                 ))}
               </div>
