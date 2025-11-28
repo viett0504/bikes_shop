@@ -1,8 +1,7 @@
 .product-page {
-  min-height: 100vh;
   background: linear-gradient(to bottom right, #f8fafc, #f1f5f9);
-  position: relative;
-  top: 8rem;
+    margin-top: 8rem;
+
 }
 
 /* MAIN */

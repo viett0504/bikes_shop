@@ -27,6 +27,7 @@ import { CartProvider } from "../utils/cart";
 
 import "../App.css";
 import PaymentPage from "../Customer/pages/Payment/PaymentPage";
+import ChangePassword from "../Customer/pages/Account/ChangePassword";
 
 function CustomerShell() {
   const { pathname } = useLocation();
@@ -97,6 +98,7 @@ export default function AppRouter() {
           <Route path="/productDetail/:id" element={<ProductDetailPage />} />
           <Route path="/cart" element={<ShoppingCart />} />
           <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/account/change-password" element={<ChangePassword />} />
 
         </Route>
 

@@ -1,7 +1,6 @@
 .payment-page {
-  min-height: 80vh;
-  position: relative;
-  top: 8rem;
+  margin-top: 8rem;
+
   padding: 4rem 1rem;
   display: flex;
   justify-content: center;

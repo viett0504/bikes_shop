@@ -359,6 +359,14 @@ const Header = () => {
                     </Link>
                   )}
 
+                  <Link
+                    to="/account/change-password"
+                    className="user-dropdown-item"
+                    onClick={() => setIsUserMenuOpen(false)}
+                  >
+                    Đổi mật khẩu
+                  </Link>
+
                   <button
                     type="button"
                     className="user-dropdown-item user-dropdown-logout"
