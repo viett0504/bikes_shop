@@ -1,4 +1,4 @@
-// src/Admin/pagesAD/Orders/AllOrder.js (ví dụ đường dẫn)
+// src/Admin/pagesAD/Orders/AllOrder.js 
 import React, { Fragment, useContext, useEffect, useState } from "react";
 import moment from "moment";
 import { orderContext } from "./index";
@@ -30,9 +30,16 @@ export default function AllOrder() {
   };
 
   const onCancel = async (oId) => {
-    const r = await cancelOrder(oId);
+    const r = await updateOrderStatus({ oId, status: "Đơn hàng đã bị hủy" });
     if (r?.success) fetchData();
   };
+
+  const onDelete = async (oId) => {
+    if (!window.confirm("Bạn chắc chắn muốn XÓA hẳn đơn hàng này?")) return;
+    const r = await cancelOrder(oId);  
+    if (r?.success) fetchData();
+  };
+
 
   if (loading) {
     return (
@@ -46,10 +53,9 @@ export default function AllOrder() {
     <Fragment>
       <div className="ad-card">
         <div className="ad-body">
-          {/* ✅ wrapper giống ProductTable: có scroll dọc + ngang */}
           <div
             style={{
-              maxHeight: 600,      // khoảng 5–6 dòng, thừa sẽ xuất hiện thanh trượt
+              maxHeight: 600,     
               overflowY: "auto",
               overflowX: "auto",
             }}
@@ -101,29 +107,46 @@ export default function AllOrder() {
                             display: "flex",
                             gap: 8,
                             justifyContent: "center",
+                            flexWrap: "wrap",
                           }}
                         >
                           <button
                             className="ad-btn success"
-                            onClick={() =>
-                              onUpdateStatus(o._id, "confirmed")
-                            }
+                            onClick={() => onUpdateStatus(o._id, "Xác nhận")}
                           >
                             Xác nhận
                           </button>
+
                           <button
                             className="ad-btn left"
-                            onClick={() =>
-                              onUpdateStatus(o._id, "shipped")
-                            }
+                            onClick={() => onUpdateStatus(o._id, "Giao hàng")}
                           >
                             Giao hàng
                           </button>
+
+                          {/* (tuỳ chọn) HOÀN TẤT → "Đã giao" */}
+                          {/* 
+                          <button
+                            className="ad-btn success"
+                            onClick={() => onUpdateStatus(o._id, "Đã giao")}
+                          >
+                            Hoàn tất
+                          </button> 
+                          */}
+
                           <button
                             className="ad-btn danger"
                             onClick={() => onCancel(o._id)}
                           >
                             Hủy
+                          </button>
+
+                          <button
+                            className="ad-btn danger"
+                            style={{ backgroundColor: "#111", borderColor: "#111" }}
+                            onClick={() => onDelete(o._id)}
+                          >
+                            Xóa
                           </button>
                         </div>
                       </td>

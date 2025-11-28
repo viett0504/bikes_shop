@@ -11,11 +11,9 @@ const readRawAuth = () => {
     if (!raw) continue;
 
     try {
-      // TH1: lưu dạng JSON
       const parsed = JSON.parse(raw);
       return { key, data: parsed };
     } catch (e) {
-      // TH2: chỉ lưu token (string) -> vẫn trả về cho biết là có login
       return { key, data: { token: raw } };
     }
   }
@@ -30,20 +28,11 @@ export const getCurrentUser = () => {
 
   const { data } = auth;
 
-  /*
-    Các dạng có thể gặp:
-    1. { token, user: { _id, name, email, userRole, ... } }
-    2. { _id, name, email, userRole, ... }
-    3. { name, email, role, ... }
-  */
-
   let user = null;
 
   if (data.user) {
-    // TH: backend trả { token, user: {...} }
     user = data.user;
   } else {
-    // TH: lưu thẳng object user vào localStorage
     user = data;
   }
 
@@ -52,7 +41,6 @@ export const getCurrentUser = () => {
   const name = user.name || "Không tên";
   const email = user.email || "";
 
-  // lấy role từ nhiều field khác nhau
   const rawRole = user.role ?? user.userRole ?? user.roleId ?? 0;
   const role = Number(rawRole) || 0; // 0: Khách, 1: Nhân viên, 2: Admin
 
