@@ -10,6 +10,7 @@ import Contact from "../Customer/pages/Contact/Contact";
 import About from "../Customer/pages/About/About";
 import RegisterPage from "../Customer/pages/Register/RegisterPage";
 import LoginPage from "../Customer/pages/Login/Login";
+import ForgotPasswordPage from "../Customer/pages/Login/ForgotPassword";
 
 // ---------- ADMIN ----------
 import AdminLayout from "../Admin/componentsAD/AdminLayout";
@@ -105,6 +106,7 @@ export default function AppRouter() {
         {/* -------- Login -------- */}
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot" element={<ForgotPasswordPage />} />
 
         {/* -------- ADMIN -------- */}
         <Route path="/admin/*" element={<AdminProtectedRoute />}>
