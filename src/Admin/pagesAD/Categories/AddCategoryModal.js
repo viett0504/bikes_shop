@@ -4,13 +4,15 @@ import { CategoryContext } from "./index";
 import { createCategory, editCategory, getAllCategory } from "./FetchApi";
 import * as XLSX from "xlsx";
 import { FiUpload } from "react-icons/fi";
+import { useNotification } from "../../../Customer/components/Noti/notification";
 
 const AddCategoryModal = () => {
   const { data, dispatch } = useContext(CategoryContext);
   const { addCategoryModal, editCategoryModal } = data;
   // editCategoryModal: { modal, cId, des, status, cName }
 
-  // ✅ mode giống AddProductModal
+  const { showNotification } = useNotification();
+
   const isEditMode = !!editCategoryModal?.modal && !addCategoryModal;
   const isOpen = addCategoryModal || isEditMode;
 
@@ -36,7 +38,19 @@ const AddCategoryModal = () => {
     resetForm();
   };
 
-  // Fill form khi ấn Sửa / reset khi Thêm mới
+  // log category action
+  const logCategoryAction = async (action, extra = {}) => {
+    try {
+      await fetch("/logs/activity/admin/category", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, ...extra }),
+      });
+    } catch (err) {
+      console.error("Log category error:", err);
+    }
+  };
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -57,7 +71,9 @@ const AddCategoryModal = () => {
     e.preventDefault();
 
     if (!cName.trim()) {
-      alert("Tên danh mục không được để trống");
+      showNotification("Tên danh mục không được để trống", "warning", {
+        title: "Thiếu thông tin",
+      });
       return;
     }
 
@@ -72,13 +88,20 @@ const AddCategoryModal = () => {
         });
 
         if (res?.success) {
-          alert("Cập nhật danh mục thành công!");
+          showNotification("Cập nhật danh mục thành công!", "success", {
+            title: "Thao tác thành công",
+          });
+
+          await logCategoryAction("ADMIN_EDIT_CATEGORY", {
+            id: editCategoryModal.cId,
+            name: cName,
+            status: cStatus,
+          });
         } else {
-          alert(res?.error || res?.message || "Có lỗi xảy ra!");
+          const msg = res?.error || res?.message || "Có lỗi xảy ra!";
+          showNotification(msg, "error", { title: "Cập nhật thất bại" });
         }
-      }
-      else {
-        // ➕ THÊM DANH MỤC
+      } else {
         const res = await createCategory({
           cName,
           cDescription,
@@ -87,13 +110,20 @@ const AddCategoryModal = () => {
         });
 
         if (res?.success) {
-          alert("Thêm danh mục thành công!");
+          showNotification("Thêm danh mục thành công!", "success", {
+            title: "Thao tác thành công",
+          });
+
+          await logCategoryAction("ADMIN_ADD_CATEGORY", {
+            name: cName,
+            status: cStatus,
+          });
         } else {
-          alert(res?.message || "Có lỗi xảy ra!");
+          const msg = res?.message || "Có lỗi xảy ra!";
+          showNotification(msg, "error", { title: "Thêm danh mục thất bại" });
         }
       }
 
-      // 🔁 Load lại list cho AllCategory, không dùng reload()
       const list = await getAllCategory();
       dispatch({
         type: "fetchCategoryAndChangeState",
@@ -103,13 +133,15 @@ const AddCategoryModal = () => {
       close();
     } catch (err) {
       console.error(err);
-      alert("Lỗi server khi xử lý danh mục");
+      showNotification("Lỗi server khi xử lý danh mục", "error", {
+        title: "Lỗi server",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // ================== IMPORT EXCEL (chung form, chủ yếu dùng khi Thêm) ==================
+  // ================== IMPORT EXCEL ==================
   const handleExcelImport = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -121,7 +153,9 @@ const AddCategoryModal = () => {
       const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
       if (!rows.length) {
-        alert("File Excel không có dữ liệu!");
+        showNotification("File Excel không có dữ liệu!", "warning", {
+          title: "Không có dữ liệu",
+        });
         return;
       }
 
@@ -136,10 +170,7 @@ const AddCategoryModal = () => {
       );
 
       setCDescription(
-        first["Mô tả"] ||
-          first["Description"] ||
-          first["Ghi chú"] ||
-          ""
+        first["Mô tả"] || first["Description"] || first["Ghi chú"] || ""
       );
 
       const rawStatus =
@@ -154,7 +185,11 @@ const AddCategoryModal = () => {
       console.log("Import category Excel:", first);
     } catch (err) {
       console.error(err);
-      alert("Không đọc được file Excel. Vui lòng kiểm tra lại.");
+      showNotification(
+        "Không đọc được file Excel. Vui lòng kiểm tra lại.",
+        "error",
+        { title: "Lỗi import" }
+      );
     } finally {
       e.target.value = "";
     }
@@ -163,7 +198,6 @@ const AddCategoryModal = () => {
   return (
     <div className="ad-card ad-form-card">
       <div className="ad-body">
-        {/* ===== HEADER giống AddProduct ===== */}
         <div className="ad-form-header">
           <h3 className="ad-form-title">
             {isEditMode ? "Sửa danh mục" : "Thêm danh mục"}
@@ -188,9 +222,7 @@ const AddCategoryModal = () => {
           </div>
         </div>
 
-        {/* ===== FORM giống style AddProductModal ===== */}
         <form onSubmit={handleSubmit}>
-          {/* Hàng 1: Tên + Mô tả */}
           <div className="ad-form-row">
             <div className="ad-form-group">
               <label>Tên danh mục</label>
@@ -198,7 +230,6 @@ const AddCategoryModal = () => {
                 value={cName}
                 onChange={(e) => setCName(e.target.value)}
                 placeholder="Ví dụ: Xe đạp địa hình"
-                // Nếu bạn muốn cấm đổi tên khi sửa thì thêm disabled={isEditMode}
               />
             </div>
 
@@ -213,7 +244,6 @@ const AddCategoryModal = () => {
             </div>
           </div>
 
-          {/* Hàng 2: Trạng thái + Ảnh */}
           <div className="ad-form-row">
             <div className="ad-form-group ad-form-group-sm">
               <label>Trạng thái</label>
@@ -226,7 +256,6 @@ const AddCategoryModal = () => {
               </select>
             </div>
 
-            {/* Ảnh – bạn có thể ẩn khi edit nếu BE chưa hỗ trợ sửa ảnh */}
             <div className="ad-form-group ad-form-group-sm">
               <label>Ảnh danh mục</label>
               <input
@@ -236,7 +265,6 @@ const AddCategoryModal = () => {
             </div>
           </div>
 
-          {/* NÚT – 2 nút trong 1 form giống AddProduct */}
           <div className="ad-form-actions">
             <button
               type="button"

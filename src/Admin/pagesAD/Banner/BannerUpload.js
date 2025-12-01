@@ -2,18 +2,30 @@
 import React, { useContext, useState } from "react";
 import { BannerContext } from "./index";
 import { uploadBanner, getBanners } from "./FetchApi";
+import { useNotification } from "../../../Customer/components/Noti/notification";
 
 const BannerUpload = () => {
   const { dispatch } = useContext(BannerContext);
+  const { showNotification } = useNotification();
 
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
   const [uploading, setUploading] = useState(false);
+
+  const logBannerAction = async (action, extra = {}) => {
+    try {
+      await fetch("/logs/activity/admin/banner", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, ...extra }),
+      });
+    } catch (err) {
+      console.error("Log banner error:", err);
+    }
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    setErrorMsg("");
     if (file) {
       setImageFile(file);
       const url = URL.createObjectURL(file);
@@ -27,36 +39,44 @@ const BannerUpload = () => {
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!imageFile) {
-      setErrorMsg("Vui lòng chọn 1 ảnh banner.");
+      showNotification("Vui lòng chọn 1 ảnh banner.", "warning", {
+        title: "Thiếu file",
+      });
       return;
     }
 
     try {
       setUploading(true);
-      setErrorMsg("");
 
-      // 1. Upload lên BE
       const res = await uploadBanner(imageFile);
       if (res?.error) {
-        setErrorMsg(res.error);
+        showNotification(res.error, "error", { title: "Upload thất bại" });
         return;
       }
 
-      // 2. Lấy lại list mới nhất
       const images = await getBanners();
-
-      // 3. Cập nhật context
       dispatch({
         type: "fetchBannerAndChangeState",
         payload: images,
       });
 
-      // 4. Clear form
+      showNotification("Upload banner thành công!", "success", {
+        title: "Thao tác thành công",
+      });
+
+      await logBannerAction("ADMIN_UPLOAD_BANNER", {
+        fileName: imageFile.name,
+      });
+
       setImageFile(null);
       setPreview("");
     } catch (err) {
-      setErrorMsg("Lỗi upload banner. Kiểm tra lại BE / API.");
       console.log(err);
+      showNotification(
+        "Lỗi upload banner. Kiểm tra lại BE / API.",
+        "error",
+        { title: "Lỗi server" }
+      );
     } finally {
       setUploading(false);
     }
@@ -83,8 +103,6 @@ const BannerUpload = () => {
             <img src={preview} alt="preview banner" />
           </div>
         )}
-
-        {errorMsg && <p className="banner-upload__error">{errorMsg}</p>}
 
         <button
           type="submit"

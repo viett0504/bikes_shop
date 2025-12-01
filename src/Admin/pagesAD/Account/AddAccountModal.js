@@ -4,10 +4,13 @@ import { AccountContext } from "./index";
 import * as XLSX from "xlsx";
 import { FiUpload } from "react-icons/fi";
 import { addUser, editUser } from "./FetchApi";
+import { useNotification } from "../../../Customer/components/Noti/notification";
 
 export default function AddAccountModal() {
   const { data, dispatch } = useContext(AccountContext);
   const { addAccountModal, editAccountModal, accounts = [] } = data;
+
+  const { showNotification } = useNotification();
 
   const isEditMode = !!editAccountModal?.modal && !addAccountModal;
   const isOpen = addAccountModal || isEditMode;
@@ -18,10 +21,10 @@ export default function AddAccountModal() {
   const [password, setPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
 
-  // avatar
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState("");
-  
+
+  const [loading, setLoading] = useState(false);
 
   const resetForm = () => {
     setName("");
@@ -40,6 +43,19 @@ export default function AddAccountModal() {
       dispatch({ type: "addAccountModal", payload: false });
     }
     resetForm();
+  };
+
+  // log account action
+  const logAccountAction = async (action, extra = {}) => {
+    try {
+      await fetch("/logs/activity/admin/account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, ...extra }),
+      });
+    } catch (err) {
+      console.error("Log account error:", err);
+    }
   };
 
   // Fill data khi sửa / reset khi thêm
@@ -72,19 +88,27 @@ export default function AddAccountModal() {
     e.preventDefault();
 
     if (!name.trim()) {
-      alert("Vui lòng nhập tên tài khoản");
+      showNotification("Vui lòng nhập tên tài khoản", "warning", {
+        title: "Thiếu thông tin",
+      });
       return;
     }
     if (!email.trim()) {
-      alert("Vui lòng nhập email");
+      showNotification("Vui lòng nhập email", "warning", {
+        title: "Thiếu thông tin",
+      });
       return;
     }
     if (!isEditMode && !password.trim()) {
-      alert("Vui lòng nhập mật khẩu");
+      showNotification("Vui lòng nhập mật khẩu", "warning", {
+        title: "Thiếu thông tin",
+      });
       return;
     }
 
     try {
+      setLoading(true);
+
       if (isEditMode) {
         const res = await editUser({
           uId: editAccountModal.aId,
@@ -97,12 +121,22 @@ export default function AddAccountModal() {
         });
 
         if (res?.error) {
-          alert(res.error);
+          showNotification(res.error, "error", { title: "Cập nhật thất bại" });
           return;
         }
 
         if (res?.success) {
-          alert(res.success);
+          showNotification("Cập nhật tài khoản thành công!", "success", {
+            title: "Thao tác thành công",
+          });
+
+          await logAccountAction("ADMIN_EDIT_ACCOUNT", {
+            id: res?.user?._id || editAccountModal.aId,
+            name: name.trim(),
+            email: email.trim(),
+            position: position.trim(),
+          });
+
           if (res.user) {
             const newList = accounts.map((u) =>
               u._id === res.user._id ? res.user : u
@@ -124,12 +158,22 @@ export default function AddAccountModal() {
         });
 
         if (res?.error) {
-          alert(res.error);
+          showNotification(res.error, "error", { title: "Thêm tài khoản thất bại" });
           return;
         }
 
         if (res?.success) {
-          alert(res.success);
+          showNotification("Thêm tài khoản thành công!", "success", {
+            title: "Thao tác thành công",
+          });
+
+          await logAccountAction("ADMIN_ADD_ACCOUNT", {
+            id: res?.user?._id,
+            name: name.trim(),
+            email: email.trim(),
+            position: position.trim(),
+          });
+
           if (res.user) {
             dispatch({
               type: "fetchAccountsAndChangeState",
@@ -142,7 +186,11 @@ export default function AddAccountModal() {
       close();
     } catch (err) {
       console.error(err);
-      alert("Có lỗi xảy ra khi lưu tài khoản");
+      showNotification("Có lỗi xảy ra khi lưu tài khoản", "error", {
+        title: "Lỗi server",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -158,7 +206,9 @@ export default function AddAccountModal() {
       const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
       if (!rows.length) {
-        alert("File Excel không có dữ liệu!");
+        showNotification("File Excel không có dữ liệu!", "warning", {
+          title: "Không có dữ liệu",
+        });
         return;
       }
 
@@ -173,7 +223,11 @@ export default function AddAccountModal() {
       console.log("Import Excel:", first);
     } catch (err) {
       console.error(err);
-      alert("Không đọc được file Excel. Vui lòng kiểm tra lại.");
+      showNotification(
+        "Không đọc được file Excel. Vui lòng kiểm tra lại.",
+        "error",
+        { title: "Lỗi import" }
+      );
     } finally {
       e.target.value = "";
     }
@@ -229,22 +283,6 @@ export default function AddAccountModal() {
               />
             </div>
 
-            {/* <div className="ad-form-group">
-              <label>
-                Mật khẩu {isEditMode && "(bỏ trống nếu không đổi)"}
-              </label>
-              <input
-                type="text"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={
-                  isEditMode
-                    ? "Nhập mật khẩu mới (hoặc để trống)"
-                    : "Nhập mật khẩu"
-                }
-              />
-            </div> */}
-
             <div className="ad-form-group">
               <label>Chức vụ</label>
               <select
@@ -269,6 +307,20 @@ export default function AddAccountModal() {
             </div>
 
             <div className="ad-form-group">
+              <label>Mật khẩu {isEditMode && "(bỏ trống nếu không đổi)"}</label>
+              <input
+                type="text"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={
+                  isEditMode
+                    ? "Nhập mật khẩu mới (hoặc để trống)"
+                    : "Nhập mật khẩu"
+                }
+              />
+            </div>
+
+            <div className="ad-form-group">
               <label>Ảnh đại diện (không bắt buộc)</label>
               <input type="file" accept="image/*" onChange={onAvatarChange} />
               {avatarPreview && (
@@ -288,11 +340,26 @@ export default function AddAccountModal() {
           </div>
 
           <div className="ad-form-actions">
-            <button type="button" className="ad-btn" onClick={close}>
+            <button
+              type="button"
+              className="ad-btn"
+              onClick={close}
+              disabled={loading}
+            >
               Hủy
             </button>
-            <button type="submit" className="ad-btn success">
-              {isEditMode ? "Lưu thay đổi" : "Lưu"}
+            <button
+              type="submit"
+              className="ad-btn success"
+              disabled={loading}
+            >
+              {loading
+                ? isEditMode
+                  ? "Đang lưu..."
+                  : "Đang thêm..."
+                : isEditMode
+                ? "Lưu thay đổi"
+                : "Lưu"}
             </button>
           </div>
         </form>

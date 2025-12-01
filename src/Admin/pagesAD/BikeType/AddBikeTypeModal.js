@@ -2,10 +2,12 @@
 import React, { useContext, useState } from "react";
 import { BikeTypeContext } from "./index";
 import { addBikeType, getAllBikeType } from "./FetchApi";
+import { useNotification } from "../../../Customer/components/Noti/notification";
 
 export default function AddBikeTypeModal() {
   const { data, dispatch } = useContext(BikeTypeContext);
   const { addTypeModal } = data;
+  const { showNotification } = useNotification();
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -21,9 +23,29 @@ export default function AddBikeTypeModal() {
     setStatus("Active");
   };
 
+  const logBikeTypeAction = async (action, extra = {}) => {
+    try {
+      await fetch("/logs/activity/admin/bike-type", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action,
+          ...extra,
+        }),
+      });
+    } catch (err) {
+      console.error("Log bike type error:", err);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name.trim()) return alert("Vui lòng nhập tên loại xe");
+    if (!name.trim()) {
+      showNotification("Vui lòng nhập tên loại xe", "warning", {
+        title: "Thiếu thông tin",
+      });
+      return;
+    }
 
     try {
       setLoading(true);
@@ -31,7 +53,13 @@ export default function AddBikeTypeModal() {
       setLoading(false);
 
       if (res?.success) {
-        alert("Thêm loại xe thành công!");
+        showNotification("Thêm loại xe thành công!", "success", {
+          title: "Thao tác thành công",
+        });
+
+        // ghi log
+        logBikeTypeAction("ADMIN_ADD_BIKE_TYPE", { name, status });
+
         // reload list
         const list = await getAllBikeType();
         dispatch({
@@ -40,12 +68,15 @@ export default function AddBikeTypeModal() {
         });
         close();
       } else {
-        alert(res?.error || res?.message || "Có lỗi xảy ra!");
+        const msg = res?.error || res?.message || "Có lỗi xảy ra!";
+        showNotification(msg, "error", { title: "Thêm loại xe thất bại" });
       }
     } catch (err) {
       setLoading(false);
       console.log("Lỗi thêm loại xe:", err);
-      alert("Lỗi server khi thêm loại xe");
+      showNotification("Lỗi server khi thêm loại xe", "error", {
+        title: "Lỗi server",
+      });
     }
   };
 
