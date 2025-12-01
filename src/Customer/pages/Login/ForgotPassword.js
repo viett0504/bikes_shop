@@ -211,8 +211,14 @@ const ForgotPasswordPage = () => {
   // ====== RENDER ======
   const mainButtonLabel = codeSent ? "Nhập mã" : "Lấy mã";
 
+  const handleBackToLogin = () => {
+    navigate("/login");
+    };
+
   return (
     <div className="fp-page">
+        <button className="fp-close-btn" onClick={handleBackToLogin}>✕</button>
+        
       <div className="fp-card">
         {/* Cột trái: info / tips */}
         <div className="fp-left">
