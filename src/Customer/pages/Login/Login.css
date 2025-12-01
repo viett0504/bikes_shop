@@ -5,26 +5,24 @@
   padding: 24px;
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* giống register */
+  align-items: flex-start;
+  overflow-y: auto;         
 }
 
 .login-card {
-  width: 1100px;                /* ✅ cố định chiều rộng */
-  max-height: 1000px;               /* ✅ cố định chiều cao */
-  width: 100%;
+  width: 1100px;
+  height: 1000px;          
   background: #fff;
   border-radius: 12px;
   display: grid;
-  grid-template-columns: 1.2fr 1fr; /* giống register */
+  grid-template-columns: 1.2fr 1fr;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+  overflow: hidden;          /* tránh tràn */
 }
-
-/* Visual */
 .visual {
   position: relative;
   background: #eee;
-  min-height: 620px; /* giống register */
+  min-height: 620px;        
 }
 .visual img {
   position: absolute;

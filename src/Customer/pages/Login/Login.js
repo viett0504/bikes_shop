@@ -1,6 +1,7 @@
 // src/Customer/pages/Login/Login.js
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 import "./Login.css";
 
 const API_BASE = process.env.REACT_APP_API_URL
@@ -142,18 +143,37 @@ export default function LoginPage() {
           </p>
 
           <div className="socials">
-            <button className="social-btn">
+            <GoogleLogin
+              type="icon"          
+              shape="circle"       
+              size="large"         
+              onSuccess={async (credentialResponse) => {
+                const res = await fetch(`${API_BASE}/api/auth/google`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ credential: credentialResponse.credential }),
+                });
+
+                const data = await res.json();
+
+                if (data.token && data.user) {
+                  localStorage.setItem("token", data.token);
+                  localStorage.setItem("user", JSON.stringify(data.user));
+                  navigate("/");
+                } else {
+                  alert("Google login thất bại");
+                }
+              }}
+              onError={() => {
+                alert("Google Login Error");
+              }}
+            />
+            {/* <button className="social-btn">
               <img
-                src="https://www.svgrepo.com/show/475656/google-color.svg"
-                alt="Google"
-              />
-            </button>
-            <button className="social-btn">
-              <img
-                src="https://www.svgrepo.com/show/452210/apple.svg"
+                src="https://www.svgrepo.com/show/503173/apple-logo.svg"
                 alt="Apple"
               />
-            </button>
+            </button> */}
             <button className="social-btn">
               <img
                 src="https://www.svgrepo.com/show/475647/facebook-color.svg"
