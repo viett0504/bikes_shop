@@ -224,7 +224,7 @@ export default function ProductExcelImport({
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Products");
 
-      XLSX.writeFile(workbook, "products.xlsx");
+      XLSX.writeFile(workbook, "Bike_products.xlsx");
     } catch (error) {
       console.error("❌ Lỗi xuất Excel:", error);
       alert("Có lỗi xảy ra khi xuất Excel.");
