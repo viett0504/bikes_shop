@@ -4,8 +4,7 @@ import { FaLock, FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "./ChangePassword.css";
 
-const API_BASE_URL =
-  process.env.REACT_APP_API_URL || "http://localhost:8000"; // chỉnh cho đúng backend của bạn
+import { changePasswordApi } from "./fetchApi";
 
 const ChangePassword = () => {
   const navigate = useNavigate();
@@ -132,33 +131,14 @@ const ChangePassword = () => {
     try {
       setSubmitting(true);
 
-      const res = await fetch(`${API_BASE_URL}/users/change-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // giống các API bảo vệ khác của bạn
-        },
-        body: JSON.stringify({
-          uId: userId,
-          oldPassword: form.currentPassword,
-          newPassword: form.newPassword,
-        }),
+      const data = await changePasswordApi({
+        token,
+        userId,
+        oldPassword: form.currentPassword,
+        newPassword: form.newPassword,
       });
 
-      const data = await res.json();
-
-      if (!res.ok || data.error) {
-        setGlobalError(
-          data.error ||
-            data.message ||
-            "Đổi mật khẩu thất bại, vui lòng thử lại."
-        );
-        return;
-      }
-
-      setGlobalSuccess(
-        data.success || "Đổi mật khẩu thành công."
-      );
+      setGlobalSuccess(data.success || "Đổi mật khẩu thành công.");
       setForm({
         currentPassword: "",
         newPassword: "",
@@ -167,7 +147,9 @@ const ChangePassword = () => {
       setTouched({});
     } catch (err) {
       console.error("Lỗi gọi API đổi mật khẩu:", err);
-      setGlobalError("Có lỗi kết nối server, vui lòng thử lại.");
+      setGlobalError(
+        err.message || "Có lỗi kết nối server, vui lòng thử lại."
+      );
     } finally {
       setSubmitting(false);
     }
