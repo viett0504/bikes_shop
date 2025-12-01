@@ -2,16 +2,17 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
-
 import "./RegisterPage.css";
+import { useNotification } from "../../components/Noti/notification";
 
 const API_BASE = process.env.REACT_APP_API_URL;
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
 
-  const [firstName, setFirstName] = useState("");   // Tên
-  const [lastName, setLastName] = useState("");    // Họ
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
@@ -27,11 +28,10 @@ export default function RegisterPage() {
 
     try {
       setLoading(true);
+
       const res = await fetch(`${API_BASE}/api/signup`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
           email,
@@ -44,22 +44,38 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (data.error) {
-        // error là object nhiều field => gom text lại
         const errorText =
           typeof data.error === "string"
             ? data.error
             : Object.values(data.error).filter(Boolean).join(" | ");
-        setMsg({ error: errorText, success: "" });
+
+        setMsg({ error: errorText });
+
       } else if (data.success) {
-        setMsg({ error: "", success: data.success });
-        // Đợi 1 chút rồi chuyển sang login
-        setTimeout(() => {
-          navigate("/login");
-        }, 1200);
+        setMsg({ success: data.success });
+        showNotification("Đăng ký thành công!", "success", {
+          title: "Thành công",
+        });
+
+        // Ghi log đăng ký
+        fetch(`${API_BASE}/logs/activity/auth/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            name,
+            phoneNumber,
+          }),
+        });
+
+        setTimeout(() => navigate("/login"), 1200);
       }
     } catch (err) {
       console.error(err);
-      setMsg({ error: "Có lỗi mạng, thử lại sau.", success: "" });
+      setMsg({ error: "Có lỗi mạng, thử lại sau." });
+      showNotification("Có lỗi mạng, thử lại sau", "error", {
+        title: "Mất kết nối",
+      });
     } finally {
       setLoading(false);
     }
@@ -68,6 +84,7 @@ export default function RegisterPage() {
   return (
     <div className="register-root">
       <div className="register-card">
+
         {/* Left visual */}
         <div className="visual">
           <div className="brand">BIKES</div>
@@ -79,62 +96,70 @@ export default function RegisterPage() {
 
         {/* Right form */}
         <div className="form">
-          <h1 className="title">Đăng ký</h1>
-          <p className="subtitle">Đăng ký bằng</p>
+
+            {/* nút X để quay lại */}
+            <div className="close-btn" onClick={() => navigate(-1)}>
+              ✕
+            </div>
+
+            <h1 className="title">Đăng ký</h1>
+
+            <p className="subtitle">Đăng ký bằng</p>
 
           {/* Social */}
-          <div className="socials">
-            <GoogleLogin
-              type="icon"
-              shape="circle"
-              size="large"
-              onSuccess={async (credentialResponse) => {
-                try {
-                  const res = await fetch(`${API_BASE}/api/auth/google`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      credential: credentialResponse.credential,
-                    }),
-                  });
+          <div className="socials" style={{ width: "100%" }}>
+            <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
+              <GoogleLogin
+                width="100%"
+                size="large"
+                shape="pill"
+                onSuccess={async (credentialResponse) => {
+                  try {
+                    const res = await fetch(`${API_BASE}/api/auth/google`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        credential: credentialResponse.credential,
+                      }),
+                    });
 
-                  const data = await res.json();
+                    const data = await res.json();
 
-                  if (data.token && data.user) {
-                    localStorage.setItem("token", data.token);
-                    localStorage.setItem("user", JSON.stringify(data.user));
-                    // Đăng ký/đăng nhập xong cho vào trang chủ
-                    navigate("/");
-                  } else {
-                    alert(data.error || "Google login thất bại");
+                    if (data.token && data.user) {
+                      localStorage.setItem("token", data.token);
+                      localStorage.setItem("user", JSON.stringify(data.user));
+                      showNotification("Đăng nhập Google thành công!", "success", {
+                        title: "Thành công",
+                      });
+                      navigate("/");
+                    } else {
+                      showNotification(
+                        data.error || "Google login thất bại",
+                        "error",
+                        { title: "Google Login Error" }
+                      );
+                    }
+                  } catch (err) {
+                    console.error(err);
+                    showNotification("Có lỗi khi đăng nhập Google", "error", {
+                      title: "Google Error",
+                    });
                   }
-                } catch (err) {
-                  console.error(err);
-                  alert("Có lỗi khi đăng nhập Google");
+                }}
+                onError={() =>
+                  showNotification("Đăng nhập Google thất bại", "error", {
+                    title: "Google Login Error",
+                  })
                 }
-              }}
-              onError={() => {
-                alert("Google Login Error");
-              }}
-            />
-            {/* <button className="social-btn">
-              <img
-                src="https://www.svgrepo.com/show/452210/apple.svg"
-                alt="Apple"
               />
-            </button> */}
-            <button className="social-btn">
-              <img
-                src="https://www.svgrepo.com/show/475647/facebook-color.svg"
-                alt="Facebook"
-              />
-            </button>
+            </div>
           </div>
+
 
           <div className="or">HOẶC</div>
 
           <form onSubmit={handleSubmit}>
-            {/* Name */}
+            {/* NAME */}
             <div className="field-group">
               <label className="section-label">Tên của bạn</label>
               <div className="grid-2">
@@ -156,6 +181,7 @@ export default function RegisterPage() {
             {/* Login details */}
             <div className="field-group">
               <label className="section-label">Thông tin đăng nhập</label>
+
               <input
                 className="input"
                 placeholder="Email"
@@ -163,6 +189,7 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
+
               <input
                 className="input"
                 placeholder="Số điện thoại"
@@ -170,6 +197,7 @@ export default function RegisterPage() {
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
               />
+
               <input
                 className="input"
                 placeholder="Mật khẩu"
@@ -177,6 +205,7 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+
               <input
                 className="input"
                 placeholder="Nhập lại mật khẩu"
@@ -190,33 +219,20 @@ export default function RegisterPage() {
               </p>
             </div>
 
-            {/* Thông báo lỗi / thành công */}
+            {/* Thông báo */}
             {msg.error && (
-              <p style={{ color: "red", marginTop: 4, marginBottom: 8 }}>
-                {msg.error}
-              </p>
+              <p style={{ color: "red", marginTop: 4 }}>{msg.error}</p>
             )}
             {msg.success && (
-              <p style={{ color: "green", marginTop: 4, marginBottom: 8 }}>
-                {msg.success}
-              </p>
+              <p style={{ color: "green", marginTop: 4 }}>{msg.success}</p>
             )}
 
             <label className="checkbox">
               <input type="checkbox" />
               <span>
                 Khi đăng ký, bạn đồng ý với{" "}
-                <Link to="#">Điều khoản & Điều kiện</Link>,{" "}
-                <Link to="/privacy">Chính sách bảo mật</Link> và{" "}
-                <Link to="/terms">Điều khoản sử dụng</Link>.
-              </span>
-            </label>
-
-            <label className="checkbox">
-              <input type="checkbox" />
-              <span>
-                Giữ tôi đăng nhập — áp dụng cho tất cả các phương thức bên dưới.{" "}
-                <Link to="#">Xem thêm</Link>
+                <Link to="#">Điều khoản</Link> và{" "}
+                <Link to="/privacy">Chính sách bảo mật</Link>.
               </span>
             </label>
 
@@ -225,7 +241,6 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          {/* 🔥 Đăng nhập */}
           <p className="login-redirect">
             Bạn đã có tài khoản?{" "}
             <Link to="/login" className="underline">

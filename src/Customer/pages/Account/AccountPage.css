@@ -351,6 +351,28 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+
+  /* NEW — giúp cuộn */
+  max-height: 420px; /* bạn có thể chỉnh: 350px, 500px tùy layout */
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.order-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.order-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;      /* màu slate-300 */
+  border-radius: 8px;
+}
+
+.order-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;      /* slate-400 */
+}
+
+.order-list::-webkit-scrollbar-track {
+  background: #f1f5f9;      /* slate-100 */
 }
 
 .order-row {

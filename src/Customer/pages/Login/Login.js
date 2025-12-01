@@ -3,11 +3,13 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import "./Login.css";
+import { useNotification } from "../../components/Noti/notification";
 
-const API_BASE = process.env.REACT_APP_API_URL
+const API_BASE = process.env.REACT_APP_API_URL;
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,33 +20,22 @@ export default function LoginPage() {
   const handleLogin = async () => {
     setMsg({ error: "" });
 
-    if (!email || !password) {
-      setMsg({ error: "Vui lòng nhập email và mật khẩu" });
-      return;
-    }
-
     try {
       setLoading(true);
+
       const res = await fetch(`${API_BASE}/api/signin`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-
-      // Nếu server trả 404/500... thì đọc text cho đỡ lỗi JSON
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("Server trả lỗi:", res.status, text);
-        setMsg({ error: `Lỗi server: ${res.status}` });
-        return;
-      }
 
       const data = await res.json();
 
       if (data.error) {
         setMsg({ error: data.error });
+        showNotification(data.error, "error", {
+          title: "Đăng nhập thất bại",
+        });
         return;
       }
 
@@ -52,18 +43,35 @@ export default function LoginPage() {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
 
-        // data.user được backend trả ra từ jwt: {_id, role} :contentReference[oaicite:3]{index=3}
-        if (data.user.role === 0) {
-          navigate("/");
-        } else {
-          navigate("/admin");
-        }
+        // Log login
+        fetch(`${API_BASE}/logs/activity/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            userId: data.user._id,
+            role: data.user.role,
+          }),
+        });
+
+        showNotification("Đăng nhập thành công!", "success", {
+          title: "Thành công",
+        });
+
+        if (data.user.role === 0) navigate("/");
+        else navigate("/admin");
       } else {
         setMsg({ error: "Phản hồi không hợp lệ từ server" });
+        showNotification("Phản hồi không hợp lệ từ server", "error", {
+          title: "Lỗi hệ thống",
+        });
       }
     } catch (err) {
       console.error(err);
       setMsg({ error: "Có lỗi mạng, thử lại sau." });
+      showNotification("Có lỗi mạng, thử lại sau", "error", {
+        title: "Mất kết nối",
+      });
     } finally {
       setLoading(false);
     }
@@ -83,7 +91,14 @@ export default function LoginPage() {
 
         {/* Right form */}
         <div className="form">
-          <h1 className="title">Đăng nhập</h1>
+
+          {/* nút X để quay lại */}
+          <div className="close-btn" onClick={() => navigate(-1)}>
+            ✕
+          </div>
+
+          <h1 className="title">Đăng ký</h1>
+
 
           <input
             className="input"
@@ -92,6 +107,7 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+
           <input
             className="input"
             type="password"
@@ -113,9 +129,9 @@ export default function LoginPage() {
               onChange={(e) => setKeepLogin(e.target.checked)}
             />
             <span>
-              Giữ tôi đăng nhập — áp dụng cho tất cả các phương thức đăng nhập bên dưới.{" "}
+              Giữ tôi đăng nhập —{" "}
               <Link to="/info" className="underline">
-                Xem thêm thông tin
+                Xem thêm
               </Link>
             </span>
           </label>
@@ -135,6 +151,7 @@ export default function LoginPage() {
               Quên mật khẩu?
             </Link>
           </div>
+
           <p className="no-account">
             Chưa có tài khoản?{" "}
             <Link to="/register" className="underline">
@@ -142,45 +159,54 @@ export default function LoginPage() {
             </Link>
           </p>
 
-          <div className="socials">
-            <GoogleLogin
-              type="icon"          
-              shape="circle"       
-              size="large"         
-              onSuccess={async (credentialResponse) => {
-                const res = await fetch(`${API_BASE}/api/auth/google`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ credential: credentialResponse.credential }),
-                });
+         <div className="socials" style={{ width: "100%" }}>
+            <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
+              <GoogleLogin
+                width="100%"
+                size="large"
+                shape="pill"
+                onSuccess={async (credentialResponse) => {
+                  try {
+                    const res = await fetch(`${API_BASE}/api/auth/google`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        credential: credentialResponse.credential,
+                      }),
+                    });
 
-                const data = await res.json();
+                    const data = await res.json();
 
-                if (data.token && data.user) {
-                  localStorage.setItem("token", data.token);
-                  localStorage.setItem("user", JSON.stringify(data.user));
-                  navigate("/");
-                } else {
-                  alert("Google login thất bại");
+                    if (data.token && data.user) {
+                      localStorage.setItem("token", data.token);
+                      localStorage.setItem("user", JSON.stringify(data.user));
+                      showNotification("Đăng nhập Google thành công!", "success", {
+                        title: "Thành công",
+                      });
+                      navigate("/");
+                    } else {
+                      showNotification(
+                        data.error || "Google login thất bại",
+                        "error",
+                        { title: "Google Login Error" }
+                      );
+                    }
+                  } catch (err) {
+                    console.error(err);
+                    showNotification("Có lỗi khi đăng nhập Google", "error", {
+                      title: "Google Error",
+                    });
+                  }
+                }}
+                onError={() =>
+                  showNotification("Đăng nhập Google thất bại", "error", {
+                    title: "Google Login Error",
+                  })
                 }
-              }}
-              onError={() => {
-                alert("Google Login Error");
-              }}
-            />
-            {/* <button className="social-btn">
-              <img
-                src="https://www.svgrepo.com/show/503173/apple-logo.svg"
-                alt="Apple"
               />
-            </button> */}
-            <button className="social-btn">
-              <img
-                src="https://www.svgrepo.com/show/475647/facebook-color.svg"
-                alt="Facebook"
-              />
-            </button>
+            </div>
           </div>
+
         </div>
       </div>
     </div>

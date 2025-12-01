@@ -1,4 +1,4 @@
-// src/components/Cart.js
+// src/Customer/components/Cart/Cart.js
 import React, { useState } from 'react';
 import {
   Trash2,
@@ -13,8 +13,8 @@ import axios from 'axios';
 import { useCart } from '../../../utils/cart';
 import { useNavigate } from "react-router-dom";
 
-
 import { getCustomerInfo, isCustomerLoggedIn } from '../../../utils/authCustomer';
+import { useNotification } from "../../components/Noti/notification";
 
 const apiURL = process.env.REACT_APP_API_URL;
 
@@ -27,14 +27,23 @@ const ShoppingCart = () => {
   const [loadingCheckout, setLoadingCheckout] = useState(false);
   const navigate = useNavigate();
 
+  const { showNotification } = useNotification(); // ✅ THÊM
 
   const applyCoupon = () => {
     if (couponCode.toUpperCase() === 'SAVE20') {
       setAppliedCoupon({ code: 'SAVE20', discount: 0.2 });
+      showNotification('Đã áp dụng mã SAVE20 (giảm 20%)', 'success', {
+        title: 'Mã giảm giá',
+      });
     } else if (couponCode.toUpperCase() === 'WELCOME10') {
       setAppliedCoupon({ code: 'WELCOME10', discount: 0.1 });
+      showNotification('Đã áp dụng mã WELCOME10 (giảm 10%)', 'success', {
+        title: 'Mã giảm giá',
+      });
     } else {
-      alert('Mã giảm giá không hợp lệ!');
+      showNotification('Mã giảm giá không hợp lệ!', 'warning', {
+        title: 'Mã không hợp lệ',
+      });
       setAppliedCoupon(null);
     }
   };
@@ -51,23 +60,33 @@ const ShoppingCart = () => {
 
   const handleCheckout = async () => {
     if (!isCustomerLoggedIn()) {
-      alert('Bạn cần đăng nhập để thanh toán.');
+      showNotification('Bạn cần đăng nhập để thanh toán.', 'warning', {
+        title: 'Yêu cầu đăng nhập',
+      });
       return;
     }
 
     if (!items.length) {
-      alert('Giỏ hàng đang trống.');
+      showNotification('Giỏ hàng của bạn đang trống.', 'info', {
+        title: 'Giỏ hàng trống',
+      });
       return;
     }
 
     if (!address || !phone) {
-      alert('Vui lòng nhập đầy đủ địa chỉ và số điện thoại.');
+      showNotification(
+        'Vui lòng nhập đầy đủ địa chỉ và số điện thoại.',
+        'warning',
+        { title: 'Thiếu thông tin giao hàng' }
+      );
       return;
     }
 
     const user = getCustomerInfo();
     if (!user?._id) {
-      alert('Không tìm thấy thông tin người dùng.');
+      showNotification('Không tìm thấy thông tin người dùng.', 'error', {
+        title: 'Lỗi tài khoản',
+      });
       return;
     }
 
@@ -81,10 +100,9 @@ const ShoppingCart = () => {
       transactionId: `COD-${Date.now()}`,
       address,
       phone,
-      payStatus: "Chưa thanh toán",             
-      payMethod: "Thanh toán khi nhận hàng",   
+      payStatus: "Chưa thanh toán",
+      payMethod: "Thanh toán khi nhận hàng",
     };
-
 
     try {
       setLoadingCheckout(true);
@@ -94,21 +112,81 @@ const ShoppingCart = () => {
       );
 
       if (res.data?.success) {
-        alert('Đặt hàng thành công!');
+        const createdOrder = res.data.order;
+
+        // ✅ NOTI thành công
+        showNotification('Đặt hàng thành công!', 'success', {
+          title: 'Thành công',
+        });
+
+        // ✅ Ghi log đơn hàng
+        fetch(`${apiURL}/logs/activity/orders/create`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderId: createdOrder?._id,
+            userId: user._id,
+            amount: total,
+            itemsCount: items.length,
+            payStatus: payload.payStatus,
+            payMethod: payload.payMethod,
+            transactionId: payload.transactionId,
+          }),
+        }).catch(err =>
+          console.error("Log create order error:", err)
+        );
+
         clearCart();
+
         navigate("/payment", {
           state: {
-            orderId: res.data.order?._id,
+            orderId: createdOrder?._id,
             total: formatPrice(total),
-        }
-  });
+          }
+        });
       } else {
         console.error('create-order response:', res.data);
-        alert(res.data?.message || res.data?.error || 'Đặt hàng thất bại');
+        const msg =
+          res.data?.message || res.data?.error || 'Đặt hàng thất bại';
+        showNotification(msg, 'error', {
+          title: 'Đặt hàng thất bại',
+        });
+
+        // (optional) log lỗi
+        fetch(`${apiURL}/logs/activity/orders/create`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            error: msg,
+            userId: user._id,
+            amount: total,
+            itemsCount: items.length,
+            fail: true,
+          }),
+        }).catch(() => {});
       }
     } catch (err) {
       console.error('create-order error:', err?.response?.data || err);
-      alert('Có lỗi xảy ra khi tạo đơn hàng.');
+      showNotification('Có lỗi xảy ra khi tạo đơn hàng.', 'error', {
+        title: 'Lỗi hệ thống',
+      });
+
+      // (optional) log lỗi
+      try {
+        const user = getCustomerInfo();
+        fetch(`${apiURL}/logs/activity/orders/create`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            error: 'EXCEPTION_WHEN_CREATE_ORDER',
+            detail: err?.response?.data || String(err),
+            userId: user?._id,
+            amount: total,
+            itemsCount: items.length,
+            fail: true,
+          }),
+        }).catch(() => {});
+      } catch (_) {}
     } finally {
       setLoadingCheckout(false);
     }
