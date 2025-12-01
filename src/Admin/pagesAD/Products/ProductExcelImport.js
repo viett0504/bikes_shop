@@ -11,6 +11,7 @@ export default function ProductExcelImport({
 }) {
   const [excelFile, setExcelFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const handleExcelChange = (e) => {
     const file = e.target.files[0];
@@ -29,6 +30,7 @@ export default function ProductExcelImport({
 
     setExcelFile(file);
   };
+
 
   const handleExcelImport = () => {
     if (!excelFile) {
@@ -187,6 +189,51 @@ export default function ProductExcelImport({
     reader.readAsBinaryString(excelFile);
   };
 
+
+  const handleExportExcel = async () => {
+    try {
+      setExporting(true);
+
+      const res = await getAllProduct();
+      const productsList = res?.Products || [];
+
+      if (!productsList.length) {
+        alert("Không có sản phẩm nào để xuất.");
+        return;
+      }
+
+      const rows = productsList.map((p, index) => ({
+        STT: index + 1,
+        "Tên sản phẩm": p.pName || "",
+        "Mô tả": p.pDescription || "",
+        "Tồn kho": p.pQuantity ?? 0,
+        "Đã bán": p.pSold ?? 0,
+        "Giá tiền": p.pPrice ?? 0,
+        "Ưu đãi (%)": p.pOffer ?? 0,
+        "Trạng thái": p.pStatus || "",
+        "Thương hiệu": p.pCategory?.cName || "",
+        "Loại xe": p.pBiketype?.tName || "",
+    
+        "Ảnh (URL)": Array.isArray(p.pImages) ? p.pImages[0] || "" : "",
+        "Ngày tạo": p.createdAt || "",
+        "Ngày cập nhật": p.updatedAt || "",
+        "_id": p._id || "",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Products");
+
+      XLSX.writeFile(workbook, "Bike_products.xlsx");
+    } catch (error) {
+      console.error("❌ Lỗi xuất Excel:", error);
+      alert("Có lỗi xảy ra khi xuất Excel.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
+
   return (
     <div
       className="ad-panel"
@@ -249,6 +296,17 @@ export default function ProductExcelImport({
           >
             {loading ? "Đang nhập..." : "Nhập dữ liệu Excel"}
           </button>
+
+          <button
+            type="button"
+            className="ad-btn success"
+            style={{ marginLeft: 8, whiteSpace: "nowrap" }}
+            onClick={handleExportExcel}
+            disabled={exporting}
+          >
+            {exporting ? "Đang xuất..." : "Xuất Excel sản phẩm"}
+          </button>
+
         </div>
       </div>
 
