@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { DashboardData, TodayOrders } from "./FetchApi";
+import { DashboardData, TodayOrders, AllUsers } from "./FetchApi";
 import {
   Chart as ChartJS,
   LineElement,
@@ -57,13 +57,33 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchStats = async () => {
-      const data = await DashboardData();
-      if (data) {
+      // Gọi song song summary + danh sách user cho nhanh
+      const [summary, usersData] = await Promise.all([
+        DashboardData(),
+        AllUsers(),
+      ]);
+
+      // --- ĐẾM KHÁCH HÀNG (userRole = 0) ---
+      let customerCount = 0;
+      if (usersData) {
+        // Tùy backend trả dạng nào, mình thử lần lượt
+        const list =
+          usersData.Users || // { Users: [...] }
+          usersData.users || // { users: [...] }
+          usersData.data ||  // { data: [...] }
+          [];
+
+        if (Array.isArray(list)) {
+          customerCount = list.filter((u) => u.userRole === 0).length;
+        }
+      }
+
+      if (summary) {
         setStats({
-          Users: data.Users || 0,
-          Orders: data.Orders || 0,
-          Products: data.Products || 0,
-          Categories: data.Categories || 0,
+          Users: customerCount,              // 👈 chỉ KH (userRole = 0)
+          Orders: summary.Orders || 0,
+          Products: summary.Products || 0,
+          Categories: summary.Categories || 0,
         });
       }
     };
@@ -121,9 +141,7 @@ export default function Dashboard() {
 
       setCurrentMonthRevenue(curRevenue);
       setGrowthRate(
-        prevRevenue > 0
-          ? ((curRevenue - prevRevenue) / prevRevenue) * 100
-          : null
+        prevRevenue > 0 ? ((curRevenue - prevRevenue) / prevRevenue) * 100 : null
       );
 
       setLoadingChart(false);
@@ -132,6 +150,7 @@ export default function Dashboard() {
     fetchStats();
     fetchOrdersAndRevenue();
   }, []);
+
 
   const todayStr = new Date().toLocaleDateString("vi-VN");
   const monthLabel = new Date().toLocaleDateString("vi-VN", {
