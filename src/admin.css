@@ -714,8 +714,8 @@ button{
 
 /* Modal */
 .ad-modal {
-  width: 800px;
-  max-width: 95%;
+
+  min-width: 95%;
   background: #0f172a;
   color: #e5e7eb;
   border-radius: 12px;
