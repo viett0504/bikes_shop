@@ -10,12 +10,11 @@ import './ProductPage.css';
 const ProductPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('Tất cả'); 
   const [selectedBrand, setSelectedBrand] = useState('Tất cả');       
-  const [priceRange, setPriceRange] = useState([0, 50000000]);
+  const [priceRange, setPriceRange] = useState([0, 500000000]);
   const [sortBy, setSortBy] = useState('featured');
   const [currentPage, setCurrentPage] = useState(1);
   const [bikeTypes, setBikeTypes] = useState([]);
   const [brands, setBrands] = useState([]);
-
 
   const [products, setProducts] = useState([]);   // data thật từ BE
   const [loading, setLoading] = useState(false);
@@ -71,7 +70,8 @@ const ProductPage = () => {
   // ====== Tạo danh sách filter ======
   const categoryOptions = useMemo(() => {
     const activeTypes = bikeTypes.filter(t => t.tStatus === 'Active');
-    const names = activeTypes.map(t => t.tName);
+  const names = activeTypes.map(t => t.tName);
+
     return ['Tất cả', ...names];
   }, [bikeTypes]);
 
@@ -290,12 +290,12 @@ const ProductPage = () => {
 
               {pageRange.map((pg, idx) =>
                 pg === "..." ? (
-                  <span key={idx} className="page-ellipsis">
+                  <span key={`ellipsis-${idx}`} className="page-ellipsis">
                     …
                   </span>
                 ) : (
                   <button
-                    key={pg}
+                    key={`page-${pg}`}
                     className={`page-btn ${pg === currentPage ? "active" : ""}`}
                     onClick={() => setCurrentPage(pg)}
                   >

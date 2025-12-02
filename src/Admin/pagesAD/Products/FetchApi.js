@@ -98,3 +98,25 @@ export const deleteProduct = async (pId) => {
     console.error("❌ deleteProduct error:", e?.response?.data || e.message || e);
   }
 };
+
+// Chuẩn hóa URL ảnh IPFS / local
+export const getImageSrc = (img) => {
+  if (!img) return "";
+
+  if (img.startsWith("http") && img.includes("/ipfs/")) {
+    const cid = img.split("/ipfs/")[1];
+    if (cid) {
+      return `https://ipfs.filebase.io/ipfs/${cid}`;
+    }
+  }
+
+  if (!img.startsWith("http") && img.startsWith("Qm")) {
+    return `https://ipfs.filebase.io/ipfs/${img}`;
+  }
+
+  if (!img.startsWith("http")) {
+    return `${apiURL}/uploads/products/${img}`;
+  }
+
+  return img;
+};

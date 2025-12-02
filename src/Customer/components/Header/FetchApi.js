@@ -13,8 +13,8 @@ export const getCategories = async () => {
 };
 export const getBikeTypes = async () => {
   try {
-    const res = await axios.get(`${apiURL}/api/category/all-type`);
-    return res.data?.Categories || [];
+    const res = await axios.get(`${apiURL}/api/bike-type/all-type`);
+    return res.data?.BikeTypes || [];
   } catch (err) {
     console.error("❌ getBikeTypes error:", err?.response?.data || err);
     return [];

@@ -1,7 +1,12 @@
 // src/Admin/pagesAD/Products/AddProductModal.js
 import React, { useContext, useEffect, useState } from "react";
 import { ProductContext } from "./index";
-import { createProduct, editProduct, getAllProduct } from "./FetchApi";
+import {
+  createProduct,
+  editProduct,
+  getAllProduct,
+  getImageSrc,
+} from "./FetchApi";
 import { getAllCategory } from "../Categories/FetchApi";
 import { getAllBikeType } from "../BikeType/FetchApi";
 import ProductExcelImport from "./ProductExcelImport";
@@ -34,18 +39,7 @@ export default function AddProductModal() {
 
   const isOpen = addProductModal || isEditMode;
 
-  const logProductAction = async (action, extra = {}) => {
-    try {
-      await fetch("/logs/activity/admin/product", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, ...extra }),
-      });
-    } catch (err) {
-      console.error("Log product error:", err);
-    }
-  };
-
+  // Load Category + BikeType khi mở modal
   useEffect(() => {
     if (!isOpen) return;
 
@@ -58,7 +52,6 @@ export default function AddProductModal() {
 
         const cats =
           catRes?.Categories || catRes?.categories || catRes?.data || [];
-
         const types =
           typeRes?.BikeTypes || typeRes?.biketypes || typeRes?.data || [];
 
@@ -72,6 +65,7 @@ export default function AddProductModal() {
     fetchData();
   }, [isOpen]);
 
+  // Đổ dữ liệu khi sửa / reset khi thêm mới
   useEffect(() => {
     if (!isOpen) return;
 
@@ -191,13 +185,6 @@ export default function AddProductModal() {
         showNotification("Cập nhật sản phẩm thành công!", "success", {
           title: "Thao tác thành công",
         });
-
-        await logProductAction("ADMIN_EDIT_PRODUCT", {
-          id: payload.pId,
-          name,
-          price,
-          status,
-        });
       } else {
         const res = await createProduct({
           name,
@@ -215,12 +202,6 @@ export default function AddProductModal() {
 
         showNotification("Thêm sản phẩm mới thành công!", "success", {
           title: "Thao tác thành công",
-        });
-
-        await logProductAction("ADMIN_ADD_PRODUCT", {
-          name,
-          price,
-          status,
         });
       }
 
@@ -240,7 +221,14 @@ export default function AddProductModal() {
 
   return (
     <div className="ad-modal-backdrop">
-      <div className="ad-modal">
+      <div
+        className="ad-modal"
+        style={{
+          maxHeight: "90vh",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <div className="ad-modal-header">
           <h3>{isEditMode ? "Sửa sản phẩm" : "Thêm sản phẩm mới"}</h3>
           <button
@@ -252,28 +240,216 @@ export default function AddProductModal() {
           </button>
         </div>
 
-        <div className="ad-modal-body">
-          {!isEditMode && (
-            <ProductExcelImport
-              categories={categories}
-              bikeTypes={bikeTypes}
-              onAfterImport={async (newProducts) => {
-                dispatch({
-                  type: "fetchProductsAndChangeState",
-                  payload: newProducts,
-                });
-                handleClose();
-              }}
-            />
-          )}
+        {/* 👉 Form chiếm hết phần còn lại, chia thành body cuộn được + footer nút cố định */}
+        <form
+          onSubmit={onSubmit}
+          className="ad-form"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            flex: 1,
+            maxHeight: "calc(90vh - 56px)", // trừ phần header
+          }}
+        >
+          {/* PHẦN THÂN – CUỘN ĐƯỢC */}
+          <div
+            className="ad-modal-body"
+            style={{
+              padding: "16px 24px",
+              overflowY: "auto",
+            }}
+          >
+            {/* Khối Excel – chỉ hiện khi THÊM mới */}
+            {!isEditMode && (
+              <ProductExcelImport
+                categories={categories}
+                bikeTypes={bikeTypes}
+                onAfterImport={async (newProducts) => {
+                  dispatch({
+                    type: "fetchProductsAndChangeState",
+                    payload: newProducts,
+                  });
+                  handleClose();
+                }}
+              />
+            )}
 
-          <form onSubmit={onSubmit} className="ad-form">
-            {/* ... phần form như cũ, mình giữ nguyên ... */}
-            {/* (phần form bạn đã gửi không cần đổi thêm gì, chỉ thay onSubmit & useNotification) */}
+            {/* ===== FORM NHẬP TRƯỜNG ===== */}
+            <div className="ad-form-row">
+              <div className="ad-form-group">
+                <label>Tên sản phẩm</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Nhập tên sản phẩm"
+                />
+              </div>
 
-            {/* FORM giữ nguyên – mình không paste lại để đỡ dài */}
-          </form>
-        </div>
+              <div className="ad-form-group">
+                <label>Tồn kho</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={stock}
+                  onChange={(e) => setStock(e.target.value)}
+                  placeholder="Số lượng"
+                />
+              </div>
+            </div>
+
+            <div className="ad-form-group">
+              <label>Mô tả</label>
+              <textarea
+                rows={3}
+                value={desc}
+                onChange={(e) => setDesc(e.target.value)}
+                placeholder="Mô tả ngắn về sản phẩm"
+              />
+            </div>
+
+            <div className="ad-form-row">
+              <div className="ad-form-group">
+                <label>Giá tiền (₫)</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  placeholder="Giá bán"
+                />
+              </div>
+
+              <div className="ad-form-group">
+                <label>Ưu đãi (%)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={offer}
+                  onChange={(e) => setOffer(e.target.value)}
+                  placeholder="Phần trăm giảm giá"
+                />
+              </div>
+            </div>
+
+            <div className="ad-form-row">
+              <div className="ad-form-group">
+                <label>Thương hiệu</label>
+                <select
+                  value={brand}
+                  onChange={(e) => setBrand(e.target.value)}
+                >
+                  <option value="">-- Chọn thương hiệu --</option>
+                  {categories.map((c) => (
+                    <option key={c._id} value={c._id}>
+                      {c.cName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="ad-form-group">
+                <label>Loại xe</label>
+                <select
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                >
+                  <option value="">-- Chọn loại xe --</option>
+                  {bikeTypes.map((t) => (
+                    <option key={t._id} value={t._id}>
+                      {t.tName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="ad-form-row">
+              <div className="ad-form-group">
+                <label>Trạng thái</label>
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+
+              <div className="ad-form-group">
+                <label>Ảnh sản phẩm</label>
+                <input type="file" accept="image/*" onChange={onChangeImage} />
+
+                <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+                  {imagePreview && (
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      style={{
+                        width: 80,
+                        height: 80,
+                        objectFit: "cover",
+                        borderRadius: 8,
+                      }}
+                    />
+                  )}
+
+                  {!imagePreview &&
+                    Array.isArray(existingImages) &&
+                    existingImages[0] && (
+                      <img
+                        src={getImageSrc(existingImages[0])}
+                        alt="Current"
+                        style={{
+                          width: 80,
+                          height: 80,
+                          objectFit: "cover",
+                          borderRadius: 8,
+                        }}
+                      />
+                    )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* FOOTER NÚT – LUÔN THẤY  */}
+          <div
+            className="ad-modal-actions"
+            style={{
+              padding: "10px 24px 16px",
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 8,
+              borderTop: "1px solid rgba(148,163,184,0.35)",
+              background: "rgba(15,23,42,0.97)",
+              flexShrink: 0,
+            }}
+          >
+            <button
+              type="button"
+              className="ad-btn ghost"
+              onClick={handleClose}
+              disabled={loading}
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              className="ad-btn primary"
+              disabled={loading}
+            >
+              {loading
+                ? isEditMode
+                  ? "Đang lưu..."
+                  : "Đang thêm..."
+                : isEditMode
+                ? "Lưu thay đổi"
+                : "Thêm sản phẩm"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

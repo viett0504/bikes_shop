@@ -127,6 +127,7 @@ const Header = () => {
     () => bikeTypes.filter((t) => t.tStatus === "Active"),
     [bikeTypes]
   );
+
   const activeBrands = useMemo(
     () => brands.filter((c) => c.cStatus === "Active"),
     [brands]

@@ -13,8 +13,8 @@ export default function AccountMenu() {
         margin: "16px 0",
       }}
     >
-      {/* Nút thêm sản phẩm */}
-      <div className="ad-card ad-add" style={{ margin: 0 }}>
+      {/* Nút thêm tài khoản */}
+      {/* <div className="ad-card ad-add" style={{ margin: 0 }}>
         <div className="ad-body">
           <button
             className="ad-btn"
@@ -26,7 +26,7 @@ export default function AccountMenu() {
             + Thêm tài khoản
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Ô tìm kiếm – gọn, không kéo full width */}
       <input
