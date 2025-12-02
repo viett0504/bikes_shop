@@ -1,7 +1,7 @@
 // src/Client/components/Header/Header.jsx
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FaShoppingCart, FaUserCircle } from "react-icons/fa";
+import { FaShoppingCart, FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
 import logo from "../../../assets/img/logo.png";
 import { useCart } from "../../../utils/cart";
 
@@ -66,6 +66,9 @@ const Header = () => {
 
   // dropdown user
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  // mobile menu
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // --- helper đổi ảnh IPFS/Filebase ---
   const getImageSrc = (img) => {
@@ -246,8 +249,18 @@ const Header = () => {
     <header>
       {/* ===== TOP BAR ===== */}
       <div className="top-bar">
+        {/* Nút Hamburger cho Mobile */}
+        <button
+          className="mobile-menu-btn"
+          onClick={() => setIsMobileMenuOpen(true)}
+        >
+          <FaBars />
+        </button>
+
         <div className="logo">
-          <img src={logo} alt="logo" />
+          <Link to="/">
+            <img src={logo} alt="logo" />
+          </Link>
         </div>
 
         <div className="search-bar" ref={searchRef}>
@@ -335,7 +348,7 @@ const Header = () => {
                 onClick={handleToggleUserMenu}
               >
                 <FaUserCircle className="user-icon" />
-                <span>
+                <span className="user-name-text">
                   Xin chào, <strong>{username}</strong>
                 </span>
               </button>
@@ -392,8 +405,8 @@ const Header = () => {
         </div>
       </div>
 
-      {/* ===== BOTTOM MENU ===== */}
-      <nav className="bottom-nav">
+      {/* ===== BOTTOM MENU (DESKTOP) ===== */}
+      <nav className="bottom-nav desktop-only">
         <ul>
           <li>
             <Link to="/" className={isActive("/") ? "active" : ""}>
@@ -533,6 +546,84 @@ const Header = () => {
           </li>
         </ul>
       </nav>
+
+      {/* ===== MOBILE MENU DRAWER ===== */}
+      <div className={`mobile-menu-overlay ${isMobileMenuOpen ? "open" : ""}`} onClick={() => setIsMobileMenuOpen(false)}></div>
+      <div className={`mobile-menu-drawer ${isMobileMenuOpen ? "open" : ""}`}>
+        <div className="mobile-menu-header">
+          <h3>Menu</h3>
+          <button className="close-menu-btn" onClick={() => setIsMobileMenuOpen(false)}>
+            <FaTimes />
+          </button>
+        </div>
+        <div className="mobile-menu-content">
+          <Link
+            to="/"
+            className="mobile-link"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Trang chủ
+          </Link>
+          <Link
+            to="/product"
+            className="mobile-link"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Sản phẩm
+          </Link>
+          <Link
+            to="/about"
+            className="mobile-link"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Về chúng tôi
+          </Link>
+          <Link
+            to="/contact"
+            className="mobile-link"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Liên hệ
+          </Link>
+
+          <div className="mobile-divider"></div>
+
+          {/* LOẠI XE */}
+          <div className="mobile-section-title">Loại xe</div>
+          {activeBikeTypes.length === 0 && (
+            <div className="mobile-sub-link">Chưa có loại xe</div>
+          )}
+          {activeBikeTypes.map((t) => (
+            <Link
+              key={t._id}
+              to={`/product?type=${t._id}`}
+              className="mobile-sub-link"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {t.tName}
+            </Link>
+          ))}
+
+          {/* THƯƠNG HIỆU */}
+          <div className="mobile-section-title" style={{ marginTop: 8 }}>
+            Thương hiệu
+          </div>
+          {activeBrands.length === 0 && (
+            <div className="mobile-sub-link">Chưa có thương hiệu</div>
+          )}
+          {activeBrands.map((c) => (
+            <Link
+              key={c._id}
+              to={`/product?brand=${c._id}`}
+              className="mobile-sub-link"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {c.cName}
+            </Link>
+          ))}
+        </div>
+
+      </div>
     </header>
   );
 };

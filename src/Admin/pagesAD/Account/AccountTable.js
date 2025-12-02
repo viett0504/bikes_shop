@@ -92,100 +92,102 @@ export default function AccountTable() {
   const normalizedSearch = searchText.trim().toLowerCase();
   const filteredAccounts = normalizedSearch
     ? accounts.filter((a) => {
-        const name = (a.name || "").toLowerCase();
-        const email = (a.email || "").toLowerCase();
-        return (
-          name.includes(normalizedSearch) || 
-          email.includes(normalizedSearch) 
-        );
-      })
+      const name = (a.name || "").toLowerCase();
+      const email = (a.email || "").toLowerCase();
+      return (
+        name.includes(normalizedSearch) ||
+        email.includes(normalizedSearch)
+      );
+    })
     : accounts;
 
 
   return (
     <div className="ad-card">
-      <div className="ad-body" style={{ overflowX: "auto" }}>
-        <table className="ad-table">
-          <thead>
-            <tr>
-              <th>Họ tên</th>
-              <th>Ảnh</th>
-              <th>Email</th>
-              <th>Chức vụ</th>
-              <th>Mật khẩu</th>
-              <th>Số điện thoại</th>
-              <th className="text-center">Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredAccounts.length ? (
-              filteredAccounts.map((u) => (
-                <tr key={u._id}>
-                  <td className="text-left">{u.name}</td>
+      <div className="ad-body">
+        <div className="ad-table-responsive">
+          <table className="ad-table">
+            <thead>
+              <tr>
+                <th>Họ tên</th>
+                <th>Ảnh</th>
+                <th>Email</th>
+                <th>Chức vụ</th>
+                <th>Mật khẩu</th>
+                <th>Số điện thoại</th>
+                <th className="text-center">Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAccounts.length ? (
+                filteredAccounts.map((u) => (
+                  <tr key={u._id}>
+                    <td className="text-left">{u.name}</td>
 
-                  <td className="text-left">
-                    {u.userImage ? (
-                      <img
-                        src={getAvatarSrc(u.userImage)}
-                        alt={u.name}
+                    <td className="text-left">
+                      {u.userImage ? (
+                        <img
+                          src={getAvatarSrc(u.userImage)}
+                          alt={u.name}
+                          style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+
+                    <td className="text-left">{u.email || "—"}</td>
+
+                    <td className="text-left">
+                      {getRoleLabel(u.userRole)}
+                    </td>
+
+                    {/* Không show password thật, chỉ hiển thị placeholder */}
+                    <td className="text-left">********</td>
+
+                    <td className="text-left">
+                      {u.phoneNumber ? u.phoneNumber : "—"}
+                    </td>
+
+                    <td className="text-center">
+                      <div
                         style={{
-                          width: 40,
-                          height: 40,
-                          borderRadius: "50%",
-                          objectFit: "cover",
+                          display: "flex",
+                          gap: 8,
+                          justifyContent: "center",
                         }}
-                      />
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-
-                  <td className="text-left">{u.email || "—"}</td>
-
-                  <td className="text-left">
-                    {getRoleLabel(u.userRole)}
-                  </td>
-
-                  {/* Không show password thật, chỉ hiển thị placeholder */}
-                  <td className="text-left">********</td>
-
-                  <td className="text-left">
-                    {u.phoneNumber ? u.phoneNumber : "—"}
-                  </td>
-
-                  <td className="text-center">
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: 8,
-                        justifyContent: "center",
-                      }}
-                    >
-                      <button
-                        className="ad-btn left"
-                        onClick={() => onEdit(u)}
                       >
-                        Sửa
-                      </button>
-                      <button
-                        className="ad-btn danger"
-                        onClick={() => onDelete(u._id)}
-                      >
-                        Xóa
-                      </button>
-                    </div>
+                        <button
+                          className="ad-btn left"
+                          onClick={() => onEdit(u)}
+                        >
+                          Sửa
+                        </button>
+                        <button
+                          className="ad-btn danger"
+                          onClick={() => onDelete(u._id)}
+                        >
+                          Xóa
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7" className="text-center">
+                    Chưa có tài khoản
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="text-center">
-                  Chưa có tài khoản
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        </div>
 
         <div className="ad-muted" style={{ marginTop: 8 }}>
           Tổng: {accounts.length} tài khoản

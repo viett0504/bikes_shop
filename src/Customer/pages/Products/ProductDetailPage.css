@@ -12,7 +12,7 @@
   align-content: center;
 }
 
-.product-grid {
+.product-grid-detail {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;  
   gap: 4rem;

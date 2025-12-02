@@ -15,7 +15,6 @@
   align-items: flex-start;
   margin: 0 auto;
   padding: 0 1rem;
-
   box-sizing: border-box;
   padding-top: 2rem;
 }
@@ -27,22 +26,25 @@
   width: 0;
   overflow: hidden;
 }
+
 .sidebar.show {
   width: 250px;
 }
 
 .filter-box {
-  flex: 2;
+  flex: 0 0 260px;
+  /* 👈 sidebar rộng ~260px */
+  max-width: 260px;
   background: #fff;
   padding: 1.5rem;
   border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  top: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   position: sticky;
-  position: -webkit-sticky;   /* thêm cho Safari */ 
+  position: -webkit-sticky;
+  top: 0;
   height: fit-content;
-  align-self: flex-start;     /* bắt buộc nếu parent là flex (nhất là Safari) */
-  z-index: 5;                 /* để không bị grid đè lên */
+  align-self: flex-start;
+  z-index: 5;
 }
 
 
@@ -92,6 +94,7 @@
   cursor: pointer;
   transition: 0.2s;
 }
+
 .clear-btn:hover {
   background: #f3f4f6;
 }
@@ -100,7 +103,9 @@
    MAIN CONTENT
 =========================== */
 .main-section {
-  flex: 8;
+  flex: 1;
+  /* 👈 chiếm phần còn lại */
+  min-width: 0;
 }
 
 /* ===== Toolbar ===== */
@@ -115,13 +120,16 @@
   flex-wrap: wrap;
 
   position: sticky;
-  position: -webkit-sticky;  /* Safari */
-  top: 0;                 /* cùng cao độ với filter-box, nằm dưới header */
+  position: -webkit-sticky;
+  /* Safari */
+  top: 0;
+  /* cùng cao độ với filter-box, nằm dưới header */
   z-index: 10;
   border-bottom: 1px solid #e5e7eb;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
 
-  margin-bottom: 1rem;       /* tạo khoảng cách rõ với grid bên dưới */
+  margin-bottom: 1rem;
+  /* tạo khoảng cách rõ với grid bên dưới */
 }
 
 .sort-section {
@@ -170,6 +178,7 @@
   font-size: 0.9rem;
   color: #555;
 }
+
 .toolbar-page-info strong {
   font-weight: 700;
 }
@@ -256,25 +265,98 @@
   font-size: 0.9rem;
 }
 
-/* ===========================
-   RESPONSIVE
-=========================== */
+/* TABLET & MOBILE */
 @media (max-width: 768px) {
+  .product-page-container {
+    padding: 1rem;
+    padding-top: 7rem;
+    /* bớt cao hơn 1 xíu cho header */
+  }
+
   .product-content-wrapper {
     flex-direction: column;
+    /* sidebar lên trên */
+    gap: 1rem;
+    padding: 0;
+  }
+
+  /* Sidebar full width, không sticky nữa cho đỡ khó chịu */
+  .filter-box {
+    position: static;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .toolbar {
+    position: static;
+    margin-top: 0.5rem;
+  }
+
+  /* Filter label chia 2 cột cho đỡ dài */
+  .filter-section {
+    margin-top: 1.2rem;
+  }
+
+  .filter-section label {
+    display: inline-flex;
+    align-items: center;
+    width: calc(50% - 8px);
+    /* 2 cột */
+    margin: 4px 4px;
+    font-size: 0.9rem;
+    white-space: nowrap;
   }
 
   .product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .sidebar.show {
-    width: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* 👈 đổi 2 → 3 */
+    gap: 12px;
+    /* có thể thu nhỏ gap cho đỡ chật */
   }
 }
 
+/* MOBILE NHỎ */
 @media (max-width: 480px) {
+  .product-page-container {
+    padding: 0.75rem;
+    padding-top: 6.5rem;
+  }
+
+  .filter-box {
+    padding: 1rem;
+  }
+
+  .filter-title {
+    font-size: 1rem;
+  }
+
+  .filter-section h3 {
+    font-size: 0.95rem;
+  }
+
+  .filter-section label {
+    width: 100%;
+    /* 1 cột cho màn rất nhỏ */
+    font-size: 0.9rem;
+  }
+
   .product-grid {
     grid-template-columns: 1fr;
+    /* 1 cột */
+    gap: 16px;
+  }
+
+  .toolbar {
+    padding: 0.75rem;
+  }
+
+  .sort-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .sort-section select {
+    width: 100%;
   }
 }

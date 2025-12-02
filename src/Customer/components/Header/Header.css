@@ -599,3 +599,203 @@ header {
 }
 
 
+/* Mặc định trên desktop */
+.desktop-only {
+  display: block;
+}
+
+.mobile-only {
+  display: none;
+}
+
+/* Nút hamburger trên mobile */
+.mobile-menu-btn {
+  display: none; /* sẽ cho hiện trong @media */
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 22px;
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+/* Overlay tối nền khi mở menu */
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 999; /* dưới drawer + header user-dropdown 1 tí */
+}
+
+.mobile-menu-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Drawer trượt từ trái */
+.mobile-menu-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 260px;
+  background: #111827;
+  color: #e5e7eb;
+  transform: translateX(-100%);
+  transition: transform 0.22s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-menu-drawer.open {
+  transform: translateX(0);
+}
+
+/* Header của drawer */
+.mobile-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid #1f2937;
+}
+
+.mobile-menu-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.close-menu-btn {
+  border: none;
+  background: transparent;
+  color: #e5e7eb;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Nội dung links trong mobile menu */
+.mobile-menu-content {
+  padding: 10px 16px 16px;
+  overflow-y: auto;
+}
+
+.mobile-link,
+.mobile-sub-link {
+  display: block;
+  text-decoration: none;
+  color: #e5e7eb;
+  font-size: 14px;
+  padding: 8px 0;
+}
+
+.mobile-sub-link {
+  padding-left: 10px;
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.mobile-link:hover,
+.mobile-sub-link:hover {
+  color: #f9fafb;
+}
+
+/* Divider & title trong menu */
+.mobile-divider {
+  height: 1px;
+  margin: 10px 0 8px;
+  background: #1f2937;
+}
+
+.mobile-section-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #9ca3af;
+  margin-bottom: 4px;
+}
+
+/* ========== RESPONSIVE CHO ĐIỆN THOẠI ========== */
+@media (max-width: 768px) {
+  /* Header đỡ dày, đỡ chiếm chiều cao */
+  .top-bar {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .logo img {
+    width: 90px;
+  }
+
+  /* Hiện nút hamburger */
+  .mobile-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Sắp xếp: [hamburger + logo] bên trái, [user + cart] bên phải, search xuống dưới */
+  .top-bar {
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .search-bar {
+    order: 3;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 8px;
+  }
+
+  .search-bar input {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .user-actions {
+    gap: 14px;
+  }
+
+  /* Ẩn menu dưới (desktop) */
+  .bottom-nav.desktop-only {
+    display: none;
+  }
+
+  /* Có thể dùng .mobile-only nếu muốn hiển thị gì riêng cho mobile */
+  .mobile-only {
+    display: block;
+  }
+
+  /* Dropdown search bám sát mép màn hình hơn */
+  .search-dropdown {
+    border-radius: 10px;
+    max-height: 60vh;
+  }
+}
+
+/* Tablet nhỏ hơn nữa thì có thể siết thêm */
+@media (max-width: 480px) {
+  .top-bar {
+    padding: 8px 10px;
+  }
+
+  .logo img {
+    width: 80px;
+  }
+
+  .user-name-text {
+    display: none; /* chỉ hiện icon user trên màn rất nhỏ, cho đỡ chật */
+  }
+
+  .user-box {
+    padding: 4px 8px;
+  }
+
+  .cart-icon {
+    font-size: 20px;
+  }
+}

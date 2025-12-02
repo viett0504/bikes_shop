@@ -4,5 +4,11 @@
   color: #fff;
   text-align: center;
   padding: 2rem;
+}
 
+@media (max-width: 768px) {
+  .site-footer {
+    padding: 1.5rem 1rem;
+    font-size: 14px;
+  }
 }

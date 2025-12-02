@@ -178,7 +178,7 @@ export default function ProductDetailPage() {
   return (
     <div className="product-page">
       <main className="main-container">
-        <div className="product-grid">
+        <div className="product-grid-detail">
           {/* Gallery */}
           <div className="gallery">
             <div className="gallery-main">

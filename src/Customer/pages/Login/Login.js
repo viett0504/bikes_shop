@@ -97,7 +97,7 @@ export default function LoginPage() {
             ✕
           </div>
 
-          <h1 className="title">Đăng ký</h1>
+          <h1 className="title">Đăng nhập</h1>
 
 
           <input
@@ -159,7 +159,7 @@ export default function LoginPage() {
             </Link>
           </p>
 
-         <div className="socials" style={{ width: "100%" }}>
+          <div className="socials" style={{ width: "100%" }}>
             <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
               <GoogleLogin
                 width="100%"
