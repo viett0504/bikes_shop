@@ -100,15 +100,16 @@ const ForgotPasswordPage = () => {
 
   // ====== Gửi mã (Lấy mã) ======
   const handleSendCode = async () => {
-    setGlobalError("");
-    setGlobalSuccess("");
-    setCodeError("");
+  setGlobalError("");
+  setGlobalSuccess("");
+  setCodeError("");
 
-    const eErr = validateEmail(email);
-    setEmailError(eErr);
-    if (eErr) return;
+  // Validate email
+  const eErr = validateEmail(email);
+  setEmailError(eErr);
+  if (eErr) return;
 
-    if (!canResend) return; // đang trong countdown thì không gửi lại
+  if (!canResend) return;
 
     try {
       setSubmitting(true);
@@ -125,6 +126,12 @@ const ForgotPasswordPage = () => {
       setSubmitting(false);
     }
   };
+
+  const handleDemoLeak = () => {
+  window.location.href =
+    `http://localhost:8000/api/user/forgot-password/demo-jwt?email=${encodeURIComponent(email || "test@gmail.com")}`;
+};
+
 
   // ====== Nhập mã (Kiểm tra mã) ======
   const handleVerifyCode = async () => {
@@ -388,6 +395,24 @@ const ForgotPasswordPage = () => {
                 <FaCheckCircle /> {globalSuccess}
               </div>
             )}
+            {/* Nút nhỏ để demo leak JWT */}
+<div style={{ marginTop: "10px", textAlign: "right" }}>
+  <button
+    type="button"
+    style={{
+      background: "transparent",
+      border: "none",
+      color: "#007bff",
+      textDecoration: "underline",
+      cursor: "pointer",
+      fontSize: "13px"
+    }}
+    onClick={handleDemoLeak}
+  >
+    🔐 Demo leak JWT
+  </button>
+</div>
+
 
             {/* Nút xác nhận */}
             <button
