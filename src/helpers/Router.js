@@ -29,7 +29,8 @@ import { CartProvider } from "../utils/cart";
 import "../App.css";
 import PaymentPage from "../Customer/pages/Payment/PaymentPage";
 import ChangePassword from "../Customer/pages/Account/ChangePassword";
-import ForgotPasswordDemo from "../Customer/pages/Login/ForgotPasswordDemo";
+import ThirdPartyCollector from "../Customer/pages/Login/ThirdPartyCollector";
+
 
 function CustomerShell() {
   const { pathname } = useLocation();
@@ -108,7 +109,8 @@ export default function AppRouter() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot" element={<ForgotPasswordPage />} />
-        <Route path="/forgot-password-demo" element={<ForgotPasswordDemo />} />
+        <Route path="/collector" element={<ThirdPartyCollector />} />
+
 
         {/* -------- ADMIN -------- */}
         <Route path="/admin/*" element={<AdminProtectedRoute />}>

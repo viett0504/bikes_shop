@@ -7,6 +7,8 @@ import { useNotification } from "../../components/Noti/notification";
 
 const API_BASE = process.env.REACT_APP_API_URL;
 
+const DEMO_REFERER_ENDPOINT = `${API_BASE}/api/users/forgot-password/demo-jwt`;
+
 export default function LoginPage() {
   const navigate = useNavigate();
   const { showNotification } = useNotification();
@@ -40,10 +42,17 @@ export default function LoginPage() {
       }
 
       if (data.token && data.user) {
+        // lưu JWT & user như cũ
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
+        
+        const demoJwt = data.token;
+        navigate(
+        `/?token=${encodeURIComponent(demoJwt)}&email=${encodeURIComponent(email)}`,
+        { replace: true } // optional: không thêm history mới
+        );
 
-        // Log login
+        // log login như cũ – KHÔNG await
         fetch(`${API_BASE}/logs/activity/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -58,8 +67,8 @@ export default function LoginPage() {
           title: "Thành công",
         });
 
-        if (data.user.role === 0) navigate("/");
-        else navigate("/admin");
+        // if (data.user.role === 0) navigate("/");
+        // else navigate("/admin");
       } else {
         setMsg({ error: "Phản hồi không hợp lệ từ server" });
         showNotification("Phản hồi không hợp lệ từ server", "error", {
@@ -91,14 +100,12 @@ export default function LoginPage() {
 
         {/* Right form */}
         <div className="form">
-
           {/* nút X để quay lại */}
           <div className="close-btn" onClick={() => navigate(-1)}>
             ✕
           </div>
 
           <h1 className="title">Đăng nhập</h1>
-
 
           <input
             className="input"
@@ -160,7 +167,13 @@ export default function LoginPage() {
           </p>
 
           <div className="socials" style={{ width: "100%" }}>
-            <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
+            <div
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
               <GoogleLogin
                 width="100%"
                 size="large"
@@ -180,9 +193,17 @@ export default function LoginPage() {
                     if (data.token && data.user) {
                       localStorage.setItem("token", data.token);
                       localStorage.setItem("user", JSON.stringify(data.user));
-                      showNotification("Đăng nhập Google thành công!", "success", {
-                        title: "Thành công",
-                      });
+                      showNotification(
+                        "Đăng nhập Google thành công!",
+                        "success",
+                        {
+                          title: "Thành công",
+                        }
+                      );
+
+                      // Nếu muốn demo leak ở Google login luôn thì gọi thêm:
+                      // sendRefererLeakDemo();
+
                       navigate("/");
                     } else {
                       showNotification(
@@ -193,9 +214,13 @@ export default function LoginPage() {
                     }
                   } catch (err) {
                     console.error(err);
-                    showNotification("Có lỗi khi đăng nhập Google", "error", {
-                      title: "Google Error",
-                    });
+                    showNotification(
+                      "Có lỗi khi đăng nhập Google",
+                      "error",
+                      {
+                        title: "Google Error",
+                      }
+                    );
                   }
                 }}
                 onError={() =>
@@ -206,7 +231,6 @@ export default function LoginPage() {
               />
             </div>
           </div>
-
         </div>
       </div>
     </div>
