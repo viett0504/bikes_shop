@@ -1,5 +1,9 @@
 # Hướng dẫn demo leak query params nhạy cảm qua Referer, và fix bằng Referrer-Policy: no-referrer.
 
+## Giới thiệu thành viên
+1. Nguyễn Hoàng Việt - 22810310336: Xử lý FE và triển khai demo leak query params nhạy cảm qua Referer, và fix bằng Referrer-Policy: no-referrer
+2. Đỗ Mạnh Cường - 22810340201: Xử lý BE, tìm hiểu và nêu hướng giải quyết của đề tài demo leak query params nhạy cảm qua Referer, và fix bằng Referrer-Policy: no-referrer
+
 ## Chuẩn bị
 
 Hãy thêm 1 file .env có nội dung như sau:
@@ -19,5 +23,11 @@ Vì hiện tại mới leak query params nhạy cảm qua chức năng đăng nh
 Tài khoản demo: "viet@gmail.com" "12345678"
 
 Sau đó bạn hãy vào trang "http://localhost:3000/collector" để xem có bị leak ko nhé
+
+Ảnh chụp trước khi chưa fix:
+
+<img width="1440" height="827" alt="Screenshot 2025-12-09 at 10 11 12" src="https://github.com/user-attachments/assets/ab50d00b-46a7-42d7-98af-7c74b3e13263" />
+
+Ảnh sau khi đã fix:
 
 <img width="1440" height="837" alt="Screenshot 2025-12-09 at 10 01 56" src="https://github.com/user-attachments/assets/ee9cdce2-4e02-474a-b062-2d3c19bc0d74" />
