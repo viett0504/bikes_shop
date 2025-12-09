@@ -28,6 +28,8 @@ Sau đó bạn hãy vào trang "http://localhost:3000/collector" để xem có b
 
 <img width="1440" height="827" alt="Screenshot 2025-12-09 at 10 11 12" src="https://github.com/user-attachments/assets/ab50d00b-46a7-42d7-98af-7c74b3e13263" />
 
+Cách fix:
+Tại /public/index.html thêm đoạn <meta name="referrer" content="no-referrer" />"
 Ảnh sau khi đã fix:
 
 <img width="1440" height="837" alt="Screenshot 2025-12-09 at 10 01 56" src="https://github.com/user-attachments/assets/ee9cdce2-4e02-474a-b062-2d3c19bc0d74" />
