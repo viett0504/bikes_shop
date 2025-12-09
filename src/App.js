@@ -7,11 +7,11 @@ import { NotificationProvider } from './Customer/components/Noti/notification';
 import SecureApp from './component/Security';
 function App() {
   return (
-    <SecureApp>
+    // <SecureApp>
       <NotificationProvider>
       <AppRouter />
     </NotificationProvider>
-     </SecureApp>
+    //  </SecureApp>?
   );
 }
 

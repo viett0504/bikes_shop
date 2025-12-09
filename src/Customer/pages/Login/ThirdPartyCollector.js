@@ -49,7 +49,6 @@ const ThirdPartyCollector = () => {
 
         console.log("✅ Collected from referrer:", refUrl.toString());
 
-        // ✅ BỎ REDIRECT - chỉ tắt animation sau 3s
         setTimeout(() => {
           setJustCollected(false);
         }, 3000);
@@ -485,14 +484,6 @@ const ThirdPartyCollector = () => {
             lineHeight: 1.8
           }}
         >
-          <strong style={{ color: "#e5e7eb" }}>💡 Technical Details:</strong>
-          <ul style={{ margin: "12px 0 0 0", paddingLeft: 24 }}>
-            <li>Khi user đăng nhập, HomePage tạo iframe ẩn trỏ đến <code>/collector</code></li>
-            <li>Browser tự động gửi <strong>Referer header</strong> chứa URL gốc (bao gồm JWT)</li>
-            <li>Trang này đọc JWT từ <code>document.referrer</code> và lưu vào localStorage</li>
-            <li>URL luôn giữ sạch là <code>/collector</code> - không có query params</li>
-            <li>Bạn có thể truy cập trang này bất cứ lúc nào để xem lịch sử leak</li>
-          </ul>
         </div>
       </div>
 
